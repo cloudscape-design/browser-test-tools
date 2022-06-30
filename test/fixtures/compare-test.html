@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Test page</title>
+    <style>
+      .color-box {
+        width: 200px;
+        height: 100px;
+        background: #fff;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 10px solid #fff;
+      }
+      #box1 {
+        border-color: #909090;
+      }
+      #box2 {
+        border-color: #919191;
+      }
+      #box3 {
+        border-color: #243a91;
+      }
+      #box-offscreen {
+        border-color: red;
+        position: absolute;
+        left: -100px;
+        top: 0;
+      }
+      #icon1,
+      #icon2 {
+        width: 64px;
+        height: 64px;
+      }
+      #icon2 path {
+        fill: none;
+        stroke: steelblue;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Screenshot fixtures</h1>
+    <p>PackageBuilder environment does not render fonts, so use only primitive shapes</p>
+    <div id="spacer" class="color-box"></div>
+    <div id="box-offscreen" class="color-box"></div>
+    <div id="empty-box" class="color-box"></div>
+    <div id="box1" class="color-box"></div>
+    <div id="box2" class="color-box"></div>
+    <div id="box3" class="color-box"></div>
+    <div>
+      <svg id="icon1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M5 4v8l6-4-6-4z"></path></svg>
+    </div>
+    <div>
+      <svg id="icon2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M5 4v8l6-4-6-4z"></path></svg>
+    </div>
+  </body>
+</html>

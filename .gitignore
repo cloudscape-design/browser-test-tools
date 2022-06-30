@@ -1,0 +1,10 @@
+build
+coverage
+node_modules
+
+# generated typescript artifacts
+dist
+
+# generated re-exports for public files
+/*.js
+/*.d.ts

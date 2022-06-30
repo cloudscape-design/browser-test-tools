@@ -1,0 +1,50 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": ["eslint:recommended", "plugin:prettier/recommended", "plugin:@typescript-eslint/recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "unicorn", "header"],
+  "rules": {
+    "unicorn/filename-case": "error",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "curly": "error",
+    "header/header": [
+      "error",
+      "line",
+      [" Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.", " SPDX-License-Identifier: Apache-2.0"]
+    ]
+  },
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "overrides": [
+    {
+      "files": ["**/*.js"],
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    },
+    {
+      "files": ["__mocks__/**/*.js", "test/**/*.js"],
+      "env": {
+        "jest": true
+      }
+    },
+    {
+      "files": ["src/browser-scripts/**"],
+      "env": {
+        "node": false,
+        "es6": false,
+        "browser": true
+      },
+      "rules": {
+        "no-var": "off"
+      }
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "name": "@cloudscape-design/browser-test-tools",
+  "version": "3.0.0",
+  "files": [
+    "dist",
+    "*.js",
+    "*.d.ts"
+  ],
+  "scripts": {
+    "clean": "rm -rf build/screenshots coverage *.d.ts *.js dist && mkdir -p build/screenshots",
+    "prestart": "npm run clean && npm run build",
+    "start": "node demo",
+    "pretest": "npm run clean && npm run build",
+    "test": "run-p -r start-http-server 'run-tests --scripts-prepend-node-path'",
+    "run-tests": "wait-on http://localhost:9615 && jest",
+    "start-http-server": "http-server test/fixtures --port=9615 --silent",
+    "lint": "eslint --ext=ts,js --ignore-path .gitignore .",
+    "build": "./scripts/generate-exports.js && tsc",
+    "prepublishOnly": "npm run build",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@types/pngjs": "^6.0.1",
+    "aws-sdk": "^2.1140.0",
+    "get-stream": "^6.0.1",
+    "lodash": "^4.17.21",
+    "p-retry": "^4.6.2",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^6.0.0",
+    "webdriverio": "^7.19.7"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.1",
+    "@types/lodash": "^4.14.182",
+    "@types/node": "^12.20.52",
+    "@types/pixelmatch": "^5.2.4",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-header": "^3.1.1",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-unicorn": "^42.0.0",
+    "http-server": "^14.1.0",
+    "husky": "^8.0.1",
+    "jest": "^27.5.1",
+    "lint-staged": "^12.4.2",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.6.2",
+    "ts-jest": "^27.1.5",
+    "typescript": "^4.5.5",
+    "wait-on": "^6.0.1"
+  },
+  "exports": {
+    "./chrome-launcher": "./chrome-launcher.js",
+    "./image-utils": "./image-utils.js",
+    "./page-objects": "./page-objects.js",
+    "./use-browser": "./use-browser.js",
+    "./browser": "./browser.js"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix"
+    ]
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/browser-scripts/**",
+      "!src/page-objects/browser-scripts.ts"
+    ],
+    "coverageReporters": [
+      "json-summary",
+      "lcov",
+      "cobertura"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/utils/setup.js"
+    ],
+    "globalSetup": "<rootDir>/test/utils/start-chromedriver.js",
+    "globalTeardown": "<rootDir>/test/utils/stop-chromedriver.js"
+  }
+}

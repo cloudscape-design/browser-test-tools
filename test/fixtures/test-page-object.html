@@ -1,0 +1,33 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Test page</title>
+  </head>
+  <body>
+    <!--  use this element if you need an non-existing target -->
+    <!--  <p id="not-existing">Does not exist</p>-->
+    <p id="text-content">Some text</p>
+    <p id="hidden" style="display: none">I am not visible</p>
+    <div id="scrollable-container" style="overflow: auto">
+      <div style="width: 120%">
+        Some scrollable text
+      </div>
+    </div>
+    <button id="button">Click me</button>
+    <p style="height: 800px">Strut to make the page scroll</p>
+    <script>
+      var button = document.getElementById('button');
+      button.addEventListener('click', function() {
+        var message = document.createElement('span');
+        message.id = 'click-message';
+        message.textContent = 'Clicked!';
+        document.body.insertBefore(message, button.nextElementSibling);
+      });
+    </script>
+  </body>
+</html>
