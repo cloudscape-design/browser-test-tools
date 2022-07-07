@@ -14,12 +14,13 @@ const mobileBrowsers: Record<string, Capabilities.DesiredCapabilities> = {
     automationName: 'XCUITest',
     platformName: 'iOS',
     newCommandTimeout: 240,
+    autoWebview: true,
   },
   Android: {
-    browserName: 'browser',
-    automationName: 'UiAutomator2',
-    platformName: 'Android',
-    newCommandTimeout: 180,
+    // defined in: https://github.com/appium/appium-uiautomator2-driver#capabilities
+    'appium:automationName': 'UiAutomator2',
+    'appium:platformName': 'Android',
+    'appium:newCommandTimeout': 180,
   },
 };
 

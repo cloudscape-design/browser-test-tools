@@ -38,8 +38,10 @@ export default abstract class BrowserCreator {
     const browser = await remote({
       logLevel: options.logLevel,
       baseUrl: options.baseUrl,
-      connectionRetryTimeout: 100000,
       waitforTimeout: 5000,
+      // As seen in https://github.com/awslabs/wdio-aws-device-farm-service/blob/main/src/launcher.ts#L41
+      connectionRetryTimeout: 180000,
+      connectionRetryCount: 3,
       capabilities: desiredCapabilities,
       protocol: protocol.replace(/:$/, ''),
       hostname,
