@@ -40,6 +40,8 @@ export function safeCropImage(inImage: PNG, rect: ElementRect) {
   // rect on the inImage. However, this is to produce screenshots of equal dimensions.
   const outImage = new PNG({ width: rect.width, height: rect.height });
   inImage.bitblt(outImage, safeLeft, safeTop, safeWidth, safeHeight, 0, 0);
+  // An image with a single color might be an indicator that we took a screenshot
+  // of the wrong area.
   if (!hasMoreThanOneColor(outImage)) {
     throw new ScreenshotTakeError('Image does not contain enough colors');
   }

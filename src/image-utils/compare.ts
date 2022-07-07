@@ -5,7 +5,7 @@ import pixelmatch from 'pixelmatch';
 import { packPng } from './pngs';
 import { ElementRect, ElementSize, ScreenshotWithOffset } from '../page-objects/types';
 import { safeCropImage } from './crop';
-import { round, realize } from './mask';
+import { round, normalizeDensity } from './mask';
 
 export function compareImages(firstImage: PNG, secondImage: PNG, { width, height }: ElementSize) {
   // fast path when two image files are identical
@@ -60,8 +60,8 @@ export async function cropAndCompare(
     top: secondScreenshot.offset.top,
     left: secondScreenshot.offset.left,
   };
-  const firstMask = round(realize(firstImageCropRect, firstScreenshot.pixelRatio || 1));
-  const secondMask = round(realize(secondImageCropRect, secondScreenshot.pixelRatio || 1));
+  const firstMask = round(normalizeDensity(firstImageCropRect, firstScreenshot.pixelRatio || 1));
+  const secondMask = round(normalizeDensity(secondImageCropRect, secondScreenshot.pixelRatio || 1));
   const firstImage = safeCropImage(firstScreenshot.image, firstMask);
   const secondImage = safeCropImage(secondScreenshot.image, secondMask);
   const { diffImage, diffPixels } = compareImages(

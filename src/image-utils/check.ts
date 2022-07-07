@@ -4,7 +4,7 @@ import type { PNG } from 'pngjs';
 /**
  *
  * @param img to be checked
- * @returns true of image contains more than one color
+ * @returns true if image contains more than one color
  */
 export function hasMoreThanOneColor(img: PNG) {
   const pixels = img.data;

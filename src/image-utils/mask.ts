@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { ElementRect } from '../page-objects/types';
 
-export function realize(rect: ElementRect, pixelRatio: number): ElementRect {
+export function normalizeDensity(rect: ElementRect, pixelRatio: number): ElementRect {
   const result = { ...rect };
 
   Object.keys(result).forEach(key => {
