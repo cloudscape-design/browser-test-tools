@@ -187,20 +187,3 @@ test('should work with higher device pixel ratios', async () => {
 
   expect(diffPixels).not.toBe(0);
 });
-
-test('detects identical images with higher device pixel ratios', async () => {
-  const img = await parsePng(fs.readFileSync(__dirname + '/fixtures/blue@2x.png', 'base64'));
-
-  const offset = {
-    top: 10,
-    left: 10,
-    width: 500,
-    height: 150,
-  };
-  const { diffPixels } = await cropAndCompare(
-    { image: img, pixelRatio: 2, offset },
-    { image: img, pixelRatio: 2, offset }
-  );
-
-  expect(diffPixels).toBe(0);
-});

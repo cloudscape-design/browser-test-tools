@@ -2,34 +2,33 @@
 // SPDX-License-Identifier: Apache-2.0
 const fs = require('fs');
 const path = require('path');
-const mergeImages = require('../src/image-utils/merge').default;
+const merge = require('../src/image-utils/merge').default;
 const { parsePng } = require('../src/image-utils');
 
-describe('mergeImages', () => {
-  test('should not merge images beyond their dimensions', async () => {
-    const image1Data = fs.readFileSync(path.join(__dirname, './fixtures/blue.png')).toString('base64');
-    const image2Data = fs.readFileSync(path.join(__dirname, './fixtures/red.png')).toString('base64');
+describe('merge', () => {
+  let images;
 
-    const image1 = await parsePng(image1Data);
-
-    const result = await mergeImages([image1Data, image2Data], image1.width + 100, image1.height, 0, 0);
-    const resultImage = await parsePng(result);
-
-    expect(resultImage).not.toBeFalsy();
-    expect(resultImage.width).toBe(image1.width + 100);
-    expect(resultImage.height).toBe(image1.height * 2);
+  beforeAll(async () => {
+    const strings = [
+      fs.readFileSync(path.join(__dirname, './fixtures/blue.png')).toString('base64'),
+      fs.readFileSync(path.join(__dirname, './fixtures/red.png')).toString('base64'),
+    ];
+    images = await Promise.all(strings.map(string => parsePng(string)));
   });
 
-  test('can "merge" a single image', async () => {
-    const imageData = fs.readFileSync(path.join(__dirname, './fixtures/blue.png')).toString('base64');
-    const image = await parsePng(imageData);
+  test('retains dimensions for single image', async () => {
+    const image = images[0];
+    const actual = merge([image]);
 
-    const lastImageOffset = 20;
-    const result = await mergeImages([imageData], image.width, image.height, lastImageOffset, 0);
-    const resultImage = await parsePng(result);
+    expect(actual.width).toEqual(image.width);
+    expect(actual.height).toEqual(image.height);
+  });
 
-    expect(resultImage).not.toBeFalsy();
-    expect(resultImage.width).toBe(image.width);
-    expect(resultImage.height).toBe(image.height - lastImageOffset);
+  test('concatenates images into one column with same width and summed height', async () => {
+    const [a, b] = images;
+    const actual = merge(images);
+
+    expect(actual.width).toEqual(Math.max(a.width, b.width));
+    expect(actual.height).toEqual(a.height + b.height);
   });
 });

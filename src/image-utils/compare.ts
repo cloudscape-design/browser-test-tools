@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
-import { packPng, cropImage } from './utils';
+import { packPng } from './pngs';
 import { ElementRect, ElementSize, ScreenshotWithOffset } from '../page-objects/types';
+import { safeCropImage } from './crop';
+import { round, normalizeDensity } from './mask';
 
-function compareImages(firstImage: PNG, secondImage: PNG, { width, height }: ElementSize) {
+export function compareImages(firstImage: PNG, secondImage: PNG, { width, height }: ElementSize) {
   // fast path when two image files are identical
   if (firstImage.data.equals(secondImage.data)) {
     return { diffPixels: 0, diffImage: null };
@@ -41,7 +43,6 @@ export async function cropAndCompare(
   firstScreenshot: ScreenshotWithOffset,
   secondScreenshot: ScreenshotWithOffset
 ): Promise<CropAndCompareResult> {
-  const pixelRatio = firstScreenshot.pixelRatio || 1;
   const size = normalizeSize(firstScreenshot, secondScreenshot);
   const firstImageCropRect: ElementRect = {
     height: size.height,
@@ -59,9 +60,15 @@ export async function cropAndCompare(
     top: secondScreenshot.offset.top,
     left: secondScreenshot.offset.left,
   };
-  const firstImage = cropImage(firstScreenshot.image, firstImageCropRect, pixelRatio);
-  const secondImage = cropImage(secondScreenshot.image, secondImageCropRect, pixelRatio);
-  const { diffImage, diffPixels } = compareImages(firstImage, secondImage, scaleSize(size, pixelRatio));
+  const firstMask = round(normalizeDensity(firstImageCropRect, firstScreenshot.pixelRatio || 1));
+  const secondMask = round(normalizeDensity(secondImageCropRect, secondScreenshot.pixelRatio || 1));
+  const firstImage = safeCropImage(firstScreenshot.image, firstMask);
+  const secondImage = safeCropImage(secondScreenshot.image, secondMask);
+  const { diffImage, diffPixels } = compareImages(
+    firstImage,
+    secondImage,
+    scaleSize(size, firstScreenshot.pixelRatio || 1)
+  );
   const [firstPacked, secondPacked, diffPacked] = await Promise.all([
     packPng(firstImage),
     packPng(secondImage),

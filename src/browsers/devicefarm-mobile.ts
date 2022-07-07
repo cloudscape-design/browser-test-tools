@@ -7,16 +7,19 @@ import type { Capabilities } from '@wdio/types';
 
 // The remaining options like browserName, deviceName, etc. will be covered
 // by default capabilities in DeviceFarm and/or the Appium server.
+// https://appium.io/docs/en/writing-running-appium/caps/
 const mobileBrowsers: Record<string, Capabilities.DesiredCapabilities> = {
   iOS: {
-    'appium:automationName': 'XCUITest',
-    'appium:platformName': 'iOS',
-    'appium:newCommandTimeout': 180,
+    browserName: 'safari',
+    automationName: 'XCUITest',
+    platformName: 'iOS',
+    newCommandTimeout: 240,
   },
   Android: {
-    'appium:automationName': 'UiAutomator2',
-    'appium:platformName': 'Android',
-    'appium:newCommandTimeout': 180,
+    browserName: 'browser',
+    automationName: 'UiAutomator2',
+    platformName: 'Android',
+    newCommandTimeout: 180,
   },
 };
 
