@@ -10,10 +10,9 @@ import type { Capabilities } from '@wdio/types';
 // https://appium.io/docs/en/writing-running-appium/caps/
 const mobileBrowsers: Record<string, Capabilities.DesiredCapabilities> = {
   iOS: {
-    browserName: 'safari',
-    automationName: 'XCUITest',
-    platformName: 'iOS',
-    newCommandTimeout: 240,
+    'appium:automationName': 'XCUITest',
+    'appium:platformName': 'iOS',
+    'appium:newCommandTimeout': 240,
     autoWebview: true,
   },
   Android: {

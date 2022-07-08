@@ -40,7 +40,7 @@ export default abstract class BrowserCreator {
       baseUrl: options.baseUrl,
       waitforTimeout: 5000,
       // As seen in https://github.com/awslabs/wdio-aws-device-farm-service/blob/main/src/launcher.ts#L41
-      connectionRetryTimeout: 180000,
+      connectionRetryTimeout: 300_000,
       connectionRetryCount: 3,
       capabilities: desiredCapabilities,
       protocol: protocol.replace(/:$/, ''),
