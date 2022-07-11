@@ -2,12 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { Browser as PuppeteerBrowser } from 'puppeteer-core';
 import { getViewportSize, windowScrollTo } from '../browser-scripts';
-import { cropImage } from '../image-utils/crop';
-import { getMaskForIos, getMaskForScrollOffset } from '../image-utils/mask';
-import merge from '../image-utils/merge';
-import { parsePng, packPng } from '../image-utils/pngs';
+import mergeImages from '../image-utils/merge';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
-import { getPuppeteer } from './utils';
+import { calculateIosTopOffset, getPuppeteer } from './utils';
 
 const MAX_SCREENSHOT_HEIGHT = 20000;
 
@@ -26,31 +23,8 @@ async function checkDocumentSize(browser: WebdriverIO.Browser) {
   return viewPortSize;
 }
 
-export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
-  const { height: initialViewportHeight, pageHeight, pixelRatio } = await checkDocumentSize(browser);
-  const screenshots = await takeScreenshots(browser, initialViewportHeight, pageHeight);
-
-  let pngs = await Promise.all(screenshots.map(screenshot => parsePng(screenshot)));
-  if (browser.isIOS) {
-    pngs = pngs.map(png => cropImage(png, getMaskForIos(png.width, png.height)));
-  }
-
-  if (pngs.length > 1) {
-    const last = pngs[pngs.length - 1];
-    const scrollOffsetMask = getMaskForScrollOffset(
-      last.width,
-      last.height,
-      initialViewportHeight * pixelRatio,
-      pageHeight * pixelRatio
-    );
-    pngs[pngs.length - 1] = cropImage(last, scrollOffsetMask);
-  }
-
-  const packed = await packPng(merge(pngs));
-  return packed.toString('base64');
-}
-
-async function takeScreenshots(browser: WebdriverIO.Browser, viewportHeight: number, pageHeight: number) {
+async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
+  const { width, height, pageHeight, screenWidth, screenHeight, pixelRatio } = await checkDocumentSize(browser);
   let offset = 0;
   const screenshots: string[] = [];
   while (offset < pageHeight) {
@@ -59,11 +33,22 @@ async function takeScreenshots(browser: WebdriverIO.Browser, viewportHeight: num
     // Wait for scroll effects to settle.
     await browser.executeAsync(waitForTimerAndAnimationFrame, 200);
 
-    const screenshot = await browser.takeScreenshot();
-    screenshots.push(screenshot);
-    offset += viewportHeight;
+    const value = await browser.takeScreenshot();
+    screenshots.push(value);
+    offset += height;
   }
-  return screenshots;
+  // skip images merge when there is only one screenshot
+  if (screenshots.length === 1 && !browser.isIOS) {
+    return screenshots[0];
+  }
+  const lastImageOffset = offset - pageHeight;
+
+  let offsetTop = 0;
+  if (browser.isIOS) {
+    offsetTop = calculateIosTopOffset({ screenWidth, screenHeight, pixelRatio });
+  }
+
+  return mergeImages(screenshots, width * pixelRatio, height * pixelRatio, lastImageOffset * pixelRatio, offsetTop);
 }
 
 export default async function fullPageScreenshot(browser: WebdriverIO.Browser) {
@@ -76,7 +61,7 @@ export default async function fullPageScreenshot(browser: WebdriverIO.Browser) {
   return scrollAndMergeStrategy(browser);
 }
 
-export async function puppeteerStrategy(browser: WebdriverIO.Browser, puppeteer: PuppeteerBrowser): Promise<string> {
+async function puppeteerStrategy(browser: WebdriverIO.Browser, puppeteer: PuppeteerBrowser): Promise<string> {
   const image = await browser.call(async () => {
     // Assuming only one page open
     const [current] = await puppeteer.pages();
