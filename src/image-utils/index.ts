@@ -2,4 +2,4 @@
 // SPDX-License-Identifier: Apache-2.0
 export { cropAndCompare } from './compare';
 export { cropByOffset } from './crop';
-export { parsePng } from './pngs';
+export { parsePng } from './utils';
