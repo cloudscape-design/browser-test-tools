@@ -38,7 +38,9 @@ export default abstract class BrowserCreator {
     const browser = await remote({
       logLevel: options.logLevel,
       baseUrl: options.baseUrl,
-      connectionRetryTimeout: 100000,
+      // iOS devices can take 2-3 minutes to boot
+      connectionRetryTimeout: 240_000,
+      connectionRetryCount: 3,
       waitforTimeout: 5000,
       capabilities: desiredCapabilities,
       protocol: protocol.replace(/:$/, ''),
