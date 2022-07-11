@@ -1,6 +1,11 @@
 {
   "name": "@cloudscape-design/browser-test-tools",
   "version": "3.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudscape-design/browser-test-tools.git"
+  },
+  "homepage": "https://cloudscape.design",
   "files": [
     "dist",
     "*.js",
