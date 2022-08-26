@@ -18,8 +18,12 @@ const options: BrowserOptions = {
   webdriverOptions: {},
 };
 
+interface TestFunctionApi {
+  releaseBrowser: () => Promise<void>;
+}
+
 interface TestFunction {
-  (browser: WebdriverIO.Browser): Promise<void> | void;
+  (browser: WebdriverIO.Browser, api: TestFunctionApi): Promise<void> | void;
 }
 
 function useBrowser(optionsOverride: Partial<WebDriverOptions>, testFn: TestFunction): () => Promise<void>;
@@ -32,23 +36,45 @@ function useBrowser(...args: [Partial<WebDriverOptions>, TestFunction] | [TestFu
     const creator = getBrowserCreator(options.browserName, options.seleniumType, options.browserCreatorOptions);
     const browser = await creator.getBrowser({ ...options.webdriverOptions, ...optionsOverride });
     try {
-      if ('getLogs' in browser) {
-        // dispose logs from previous sessions, if there are any
-        await browser.getLogs('browser');
+      await disposeBrowserLogsFromPreviousSession(browser);
+
+      let errors: null | { level: string }[] = null;
+
+      await testFn(browser, {
+        releaseBrowser: async () => {
+          errors = await captureBrowserErrors(browser);
+          browser.deleteSession();
+        },
+      });
+
+      if (!errors) {
+        errors = await captureBrowserErrors(browser);
       }
-      await testFn(browser);
-      // This method does not exist in w3c protocol
-      if ('getLogs' in browser) {
-        const logs = (await browser.getLogs('browser')) as Array<{ level: string }>;
-        const errors = logs.filter(entry => entry.level === 'SEVERE');
-        assert.deepEqual(errors, [], 'There should be no errors in the console');
-      } else {
-        console.warn('Unable to check browser console, webdriver does not support this feature');
-      }
+
+      assert.deepEqual(errors, [], 'There should be no errors in the console');
     } finally {
       await browser.deleteSession();
     }
   };
+}
+
+async function disposeBrowserLogsFromPreviousSession(browser: WebdriverIO.Browser) {
+  // This method does not exist in w3c protocol
+  if ('getLogs' in browser) {
+    await browser.getLogs('browser');
+  }
+}
+
+async function captureBrowserErrors(browser: WebdriverIO.Browser) {
+  // This method does not exist in w3c protocol
+  if ('getLogs' in browser) {
+    const logs = (await browser.getLogs('browser')) as Array<{ level: string }>;
+    const errors = logs.filter(entry => entry.level === 'SEVERE');
+    return errors;
+  } else {
+    console.warn('Unable to check browser console, webdriver does not support this feature');
+    return [];
+  }
 }
 
 export default useBrowser;
