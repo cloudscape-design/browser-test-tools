@@ -5,7 +5,7 @@ import pixelmatch from 'pixelmatch';
 import { packPng, cropImage } from './utils';
 import { ElementRect, ElementSize, ScreenshotWithOffset } from '../page-objects/types';
 
-function compareImages(firstImage: PNG, secondImage: PNG, { width, height }: ElementSize) {
+export function compareImages(firstImage: PNG, secondImage: PNG, { width, height }: ElementSize) {
   // fast path when two image files are identical
   if (firstImage.data.equals(secondImage.data)) {
     return { diffPixels: 0, diffImage: null };

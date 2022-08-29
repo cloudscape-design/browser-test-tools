@@ -23,7 +23,7 @@ async function checkDocumentSize(browser: WebdriverIO.Browser) {
   return viewPortSize;
 }
 
-async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
+export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
   const { width, height, pageHeight, screenWidth, screenHeight, pixelRatio } = await checkDocumentSize(browser);
   let offset = 0;
   const screenshots: string[] = [];
@@ -61,7 +61,7 @@ export default async function fullPageScreenshot(browser: WebdriverIO.Browser) {
   return scrollAndMergeStrategy(browser);
 }
 
-async function puppeteerStrategy(browser: WebdriverIO.Browser, puppeteer: PuppeteerBrowser): Promise<string> {
+export async function puppeteerStrategy(browser: WebdriverIO.Browser, puppeteer: PuppeteerBrowser): Promise<string> {
   const image = await browser.call(async () => {
     // Assuming only one page open
     const [current] = await puppeteer.pages();
