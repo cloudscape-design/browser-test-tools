@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Test - Full Page Screenshot</title>
+	<style>
+		#gradient {
+			background: rgb(2, 0, 36);
+			background: linear-gradient(0deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%);
+		}
+
+		.single-page {
+			height: 50vh;
+		}
+
+		.three-pages {
+			height: 300vh;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>Full Page Screenshot</h1>
+	<label>
+		<input id="multiple-pages-toggle" type="checkbox" />
+		Multiple Pages
+	</label>
+	<hr>
+	<div class="single-page" id="gradient"></div>
+	<hr>
+	The End
+	<script>
+		document.querySelector("#multiple-pages-toggle").addEventListener('change', (event) => {
+			const gradient = document.querySelector('#gradient');
+			if (event.target.checked) {
+				gradient.classList.add('three-pages');
+				gradient.classList.remove('single-page');
+			} else {
+				gradient.classList.remove('three-pages');
+				gradient.classList.add('single-page');
+			}		
+		});
+	</script>
+</body>
+
+</html>
