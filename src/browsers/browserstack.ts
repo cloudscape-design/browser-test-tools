@@ -34,7 +34,7 @@ const browsers: Record<string, Capabilities.DesiredCapabilities> = {
   },
   Safari: {
     browserName: 'safari',
-    browserVersion: '15.1',
+    browserVersion: '15.3',
     'bstack:options': {
       seleniumVersion: '3.141.59',
       os: 'OS X',
