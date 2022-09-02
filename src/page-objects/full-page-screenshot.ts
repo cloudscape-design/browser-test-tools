@@ -2,9 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { Browser as PuppeteerBrowser } from 'puppeteer-core';
 import { getViewportSize, windowScrollTo } from '../browser-scripts';
-import mergeImages from '../image-utils/merge';
+import merge from '../image-utils/merge';
+import type { PNG } from 'pngjs';
+import { cropImage, packPng, parsePng } from '../image-utils/utils';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
-import { calculateIosTopOffset, getPuppeteer } from './utils';
+import { calculateIosTopOffset } from './utils';
+import { getPuppeteer } from './puppeteer';
+import { ElementRect } from './types';
 
 const MAX_SCREENSHOT_HEIGHT = 20000;
 
@@ -24,7 +28,18 @@ async function checkDocumentSize(browser: WebdriverIO.Browser) {
 }
 
 export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
-  const { width, height, pageHeight, screenWidth, screenHeight, pixelRatio } = await checkDocumentSize(browser);
+  const { offset, screenshots } = await takeScreenshots(browser);
+  let pngs = await Promise.all(screenshots.map(i => parsePng(i)));
+  pngs = await cropImagesByDeviceMask(browser, pngs);
+  pngs = await cropImagesByLastOffset(browser, pngs, offset);
+
+  const fullPage = await merge(pngs);
+  const packed = await packPng(fullPage);
+  return packed.toString('base64');
+}
+
+async function takeScreenshots(browser: WebdriverIO.Browser) {
+  const { height, pageHeight } = await checkDocumentSize(browser);
   let offset = 0;
   const screenshots: string[] = [];
   while (offset < pageHeight) {
@@ -37,18 +52,49 @@ export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
     screenshots.push(value);
     offset += height;
   }
-  // skip images merge when there is only one screenshot
-  if (screenshots.length === 1 && !browser.isIOS) {
-    return screenshots[0];
-  }
-  const lastImageOffset = offset - pageHeight;
 
-  let offsetTop = 0;
-  if (browser.isIOS) {
-    offsetTop = calculateIosTopOffset({ screenWidth, screenHeight, pixelRatio });
-  }
+  return {
+    offset: offset - pageHeight,
+    screenshots,
+  };
+}
 
-  return mergeImages(screenshots, width * pixelRatio, height * pixelRatio, lastImageOffset * pixelRatio, offsetTop);
+async function cropImagesByDeviceMask(browser: WebdriverIO.Browser, pngs: PNG[]) {
+  // iOS screenshots contain the address and status bar
+  if (!browser.isIOS) {
+    return pngs;
+  }
+  const { screenWidth, screenHeight, pixelRatio } = await checkDocumentSize(browser);
+  const offsetTop = calculateIosTopOffset({ screenWidth, screenHeight, pixelRatio }) / pixelRatio;
+  const promises = pngs.map(png => {
+    const rect: ElementRect = {
+      top: offsetTop,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: png.width / pixelRatio,
+      height: png.height / pixelRatio - offsetTop,
+    };
+    return cropImage(png, rect, pixelRatio);
+  });
+  return Promise.all(promises);
+}
+
+async function cropImagesByLastOffset(browser: WebdriverIO.Browser, pngs: PNG[], offset: number) {
+  if (pngs.length < 2 || offset < 1) {
+    return pngs;
+  }
+  const { pixelRatio } = await checkDocumentSize(browser);
+  const last = pngs[pngs.length - 1];
+  const rect = {
+    top: offset,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: last.width / pixelRatio,
+    height: last.height / pixelRatio - offset,
+  };
+  return [...pngs.slice(0, -1), cropImage(last, rect)];
 }
 
 export default async function fullPageScreenshot(browser: WebdriverIO.Browser) {
