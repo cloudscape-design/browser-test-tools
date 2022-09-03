@@ -94,7 +94,7 @@ async function cropImagesByLastOffset(browser: WebdriverIO.Browser, pngs: PNG[],
     width: last.width / pixelRatio,
     height: last.height / pixelRatio - offset,
   };
-  return [...pngs.slice(0, -1), cropImage(last, rect)];
+  return [...pngs.slice(0, -1), cropImage(last, rect, pixelRatio)];
 }
 
 export default async function fullPageScreenshot(browser: WebdriverIO.Browser) {
