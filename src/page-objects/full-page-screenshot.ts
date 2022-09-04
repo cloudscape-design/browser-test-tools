@@ -63,12 +63,9 @@ async function cropImagesByDeviceMask(browser: WebdriverIO.Browser, pngs: PNG[])
   if (!browser.isIOS) {
     return pngs;
   }
-  const { screenWidth, screenHeight, pixelRatio } = await checkDocumentSize(browser);
+  const { pixelRatio } = await checkDocumentSize(browser);
   const promises = pngs.map(png => {
-    const rect = getIosDeviceMask(
-      { width: png.width / pixelRatio, height: png.height / pixelRatio },
-      { width: screenWidth, height: screenHeight }
-    );
+    const rect = getIosDeviceMask({ width: png.width / pixelRatio, height: png.height / pixelRatio });
     return cropImage(png, rect, pixelRatio);
   });
   return Promise.all(promises);
