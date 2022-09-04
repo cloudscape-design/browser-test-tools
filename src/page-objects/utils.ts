@@ -43,13 +43,11 @@ const iosDeviceConfig = [
 
 // Screenshots on iOS include all iOS UI elements like toolbars and navigation, so we need to
 // cut them out of screenshots. This function provides relevant offsets.
-export function calculateIosTopOffset(
-  dimensions: Pick<ViewportSize, 'screenWidth' | 'screenHeight' | 'pixelRatio'>
-): number {
+export function calculateIosTopOffset(dimensions: Pick<ViewportSize, 'screenWidth' | 'screenHeight'>): number {
   const { screenWidth: width, screenHeight: height } = dimensions;
 
   // Default height for most models before the iPhone X
-  let statusBarHeight = 20 * dimensions.pixelRatio;
+  let statusBarHeight = 20;
 
   const deviceConfig = iosDeviceConfig.find(
     config =>
@@ -59,7 +57,24 @@ export function calculateIosTopOffset(
     statusBarHeight = deviceConfig.statusBarHeight;
   }
 
-  const addressBarHeight = iosAddressBarHeight * dimensions.pixelRatio;
+  const addressBarHeight = iosAddressBarHeight;
 
   return statusBarHeight + addressBarHeight;
+}
+
+interface Dimensions {
+  width: number;
+  height: number;
+}
+
+export function getIosDeviceMask(image: Dimensions, screen: Dimensions): ElementRect {
+  const offsetTop = calculateIosTopOffset({ screenWidth: screen.width, screenHeight: screen.height });
+  return {
+    top: offsetTop,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: image.width,
+    height: image.height - offsetTop,
+  };
 }
