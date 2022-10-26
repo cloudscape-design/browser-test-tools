@@ -49,7 +49,11 @@ export default abstract class BrowserCreator {
       path: pathname,
     });
 
-    await browser.setTimeout({ implicit: options.implicitTimeout, script: options.scriptTimeout });
+    try {
+      await browser.setTimeout({ implicit: options.implicitTimeout, script: options.scriptTimeout });
+    } catch (error) {
+      console.warn(`Browser does not support setting timeouts. Failed with: `, error);
+    }
 
     if (!browser.isMobile) {
       await browser.$('body').then(body => body.moveTo({ xOffset: 0, yOffset: 0 }));
