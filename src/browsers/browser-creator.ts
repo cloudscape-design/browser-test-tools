@@ -62,7 +62,8 @@ export default abstract class BrowserCreator {
 
     if (browser.isIOS) {
       // Ensures first Safari tab to be maximized
-      await browser.maximizeWindow();
+      const handles = await browser.getWindowHandles();
+      await browser.switchToWindow(handles[0]);
     }
 
     return browser;
