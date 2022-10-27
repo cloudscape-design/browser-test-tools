@@ -49,11 +49,21 @@ export default abstract class BrowserCreator {
       path: pathname,
     });
 
-    await browser.setTimeout({ implicit: options.implicitTimeout, script: options.scriptTimeout });
+    try {
+      await browser.setTimeout({ implicit: options.implicitTimeout, script: options.scriptTimeout });
+    } catch (error) {
+      console.warn(`Browser does not support setting timeouts. Failed with: `, error);
+    }
 
     if (!browser.isMobile) {
       await browser.$('body').then(body => body.moveTo({ xOffset: 0, yOffset: 0 }));
       await browser.setWindowSize(options.width, options.height);
+    }
+
+    if (browser.isIOS) {
+      // Ensures first Safari tab to be maximized
+      const handles = await browser.getWindowHandles();
+      await browser.switchToWindow(handles[0]);
     }
 
     return browser;
