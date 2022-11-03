@@ -126,6 +126,7 @@ export default class BasePageObject {
 
   async windowScrollTo({ top = 0, left = 0 }: Partial<ScrollPosition>) {
     await this.browser.execute(windowScrollTo, top, left);
+    await this.pause(100);
   }
 
   async getElementScroll(selector: string): Promise<ScrollPosition> {
