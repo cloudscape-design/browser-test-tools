@@ -55,7 +55,7 @@ test('should fail if there are errors in browser console', async () => {
       await (await browser.$('#error-button')).click();
     })();
   }
-  await expect(errorTest()).rejects.toThrow(/There should be no errors in the console/);
+  await expect(errorTest()).rejects.toThrow(/Unexpected errors in browser console:[\s\S]*test error/);
 });
 
 test('should ignore warnings in browser console', async () => {
