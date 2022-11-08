@@ -1,6 +1,5 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { strict as assert } from 'assert';
 import { WebDriverOptions } from './browsers/browser-creator';
 import getBrowserCreator from './browser';
 import merge from 'lodash/merge';
@@ -41,7 +40,9 @@ function useBrowser(...args: [Partial<WebDriverOptions>, TestFunction] | [TestFu
       if ('getLogs' in browser) {
         const logs = (await browser.getLogs('browser')) as Array<{ level: string }>;
         const errors = logs.filter(entry => entry.level === 'SEVERE');
-        assert.deepEqual(errors, [], 'There should be no errors in the console');
+        if (errors.length > 0) {
+          throw new Error('Unexpected errors in browser console:\n' + JSON.stringify(errors, null, 2));
+        }
       } else {
         console.warn('Unable to check browser console, webdriver does not support this feature');
       }
