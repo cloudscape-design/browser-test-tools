@@ -76,8 +76,7 @@
       "src/**/*.ts",
       "!src/browser-scripts/**",
       "!src/page-objects/browser-scripts.ts",
-      "!src/start-chromedriver.ts",
-      "!src/stop-chromedriver.ts"
+      "!src/chrome-launcher.ts"
     ],
     "coverageReporters": [
       "json-summary",
