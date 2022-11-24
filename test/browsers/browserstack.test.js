@@ -39,4 +39,28 @@ describe('BrowserStack browserCreator ', () => {
     await expect(browserCreator.getBrowser({})).rejects.toThrow();
     expect(browserCreator.setupBrowser.mock.calls.length).toBe(1);
   });
+
+  test('should use BrowserStack hub url', async () => {
+    const browserCreator = new BrowserStackBrowserCreator(browserName, browserOptions);
+    const url = await browserCreator.__getBrowserUrl();
+
+    expect(url.hostname).toBe('hub.browserstack.com');
+  });
+
+  test('should have BrowserStack specific capabilities', async () => {
+    const browserCreator = new BrowserStackBrowserCreator(browserName, {
+      ...browserOptions,
+      projectName: 'project',
+      credentials: { user: 'my-user', key: 'my-key' },
+    });
+
+    const capabilities = browserCreator.__getCapabilities();
+    expect(capabilities['bstack:options']).toEqual(
+      expect.objectContaining({
+        projectName: 'project',
+        userName: 'my-user',
+        accessKey: 'my-key',
+      })
+    );
+  });
 });

@@ -75,7 +75,9 @@
     "collectCoverageFrom": [
       "src/**/*.ts",
       "!src/browser-scripts/**",
-      "!src/page-objects/browser-scripts.ts"
+      "!src/page-objects/browser-scripts.ts",
+      "!src/start-chromedriver.ts",
+      "!src/stop-chromedriver.ts"
     ],
     "coverageReporters": [
       "json-summary",
