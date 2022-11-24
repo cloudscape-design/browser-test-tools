@@ -1,6 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const { startWebdriver } = require('../../dist/chrome-launcher');
+const { startWebdriver } = require('../../src/chrome-launcher');
 const { chromeDriverPort } = require('./config');
 
 module.exports = async () => {
