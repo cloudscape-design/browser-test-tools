@@ -45,7 +45,7 @@ test(
   })
 );
 
-test.only(
+test(
   'focusNextElement',
   setupTest(async page => {
     await page.click('#input-1');
