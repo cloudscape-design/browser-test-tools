@@ -7,6 +7,19 @@
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Test page</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+      }
+      #hover-button + span {
+        display: block;
+      }
+      #hover-button:hover + span {
+        display: inline;
+      }
+    </style>
   </head>
   <body>
     <!--  use this element if you need an non-existing target -->
@@ -14,15 +27,22 @@
     <p id="text-content">Some text</p>
     <p id="hidden" style="display: none">I am not visible</p>
     <div id="scrollable-container" style="overflow: auto">
-      <div style="width: 120%">
-        Some scrollable text
-      </div>
+      <div style="width: 120%">Some scrollable text</div>
     </div>
     <button id="button">Click me</button>
+
+    <button id="hover-button">Hover me</button>
+    <span id="hover-span">Hover success</span>
+
+    <input id="input-1" />
+    <input id="input-2" />
+
+    <input id="checkbox" type="checkbox" checked />
+
     <p style="height: 800px">Strut to make the page scroll</p>
     <script>
       var button = document.getElementById('button');
-      button.addEventListener('click', function() {
+      button.addEventListener('click', function () {
         var message = document.createElement('span');
         message.id = 'click-message';
         message.textContent = 'Clicked!';

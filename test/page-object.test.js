@@ -1,12 +1,12 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const { BasePageObject } = require('../src/page-objects');
+const { ScreenshotPageObject } = require('../src/page-objects');
 const useBrowser = require('../src/use-browser').default;
 
 function setupTest(testFn) {
   return useBrowser(async browser => {
     await browser.url('./test-page-object.html');
-    await testFn(new BasePageObject(browser));
+    await testFn(new ScreenshotPageObject(browser));
   });
 }
 
@@ -24,6 +24,78 @@ test(
       'Some text',
       'Some scrollable text',
     ]);
+  })
+);
+
+test(
+  'hoverElement',
+  setupTest(async page => {
+    await page.hoverElement('#hover-button');
+    await page.waitForVisible('#hover-span');
+    expect(await page.getText('#hover-span')).toEqual('Hover success');
+  })
+);
+
+test(
+  'keys',
+  setupTest(async page => {
+    await page.click('#input-1');
+    await page.keys(['Tab']);
+    expect(await page.isFocused('#input-2')).toBe(true);
+  })
+);
+
+test(
+  'focusNextElement',
+  setupTest(async page => {
+    await page.click('#input-1');
+    await page.focusNextElement();
+    expect(await page.isFocused('#input-2')).toBe(true);
+  })
+);
+
+test(
+  'isSelected',
+  setupTest(async page => {
+    expect(await page.isSelected('#checkbox')).toBe(true);
+  })
+);
+
+test(
+  'getElementAttribute',
+  setupTest(async page => {
+    expect(await page.getElementAttribute('#checkbox', 'type')).toBe('checkbox');
+  })
+);
+
+test(
+  'getElementProperty',
+  setupTest(async page => {
+    expect(await page.getElementProperty('body', 'tagName')).toBe('BODY');
+  })
+);
+
+test(
+  'getElementsCount',
+  setupTest(async page => {
+    expect(await page.getElementsCount('input')).toBe(3);
+  })
+);
+
+test(
+  'setValue and getValue',
+  setupTest(async page => {
+    expect(await page.getValue('#input-1')).toEqual('');
+    await page.setValue('#input-1', 'test');
+    expect(await page.getValue('#input-1')).toEqual('test');
+  })
+);
+
+test(
+  'setWindowSize',
+  setupTest(async page => {
+    await page.setWindowSize({ width: 400, height: 300 });
+    expect(await page.browser.getWindowSize()).toEqual({ width: 400, height: 300 });
   })
 );
 
@@ -131,6 +203,31 @@ test(
   setupTest(async page => {
     await page.elementScrollTo('#scrollable-container', { left: 40 });
     expect(await page.getElementScroll('#scrollable-container')).toEqual({ top: 0, left: 40 });
+  })
+);
+
+test(
+  'scrollToRight',
+  setupTest(async page => {
+    const width = 400;
+    const overscroll = (width * 20) / 100; // The container has 120% width
+    await page.setWindowSize({ width, height: 300 });
+    await page.scrollToRight('#scrollable-container');
+    expect(await page.getElementScroll('#scrollable-container')).toEqual({ top: 0, left: overscroll });
+  })
+);
+
+test(
+  'scrollToBottom',
+  setupTest(async page => {
+    const height = 250;
+    await page.setWindowSize({ width: 300, height });
+    const scrollHeight = await page.getElementProperty('body', 'scrollHeight');
+
+    await page.scrollToBottom('body');
+
+    const { top } = await page.getElementScroll('body');
+    expect(top).toBeGreaterThanOrEqual(scrollHeight - height);
   })
 );
 
