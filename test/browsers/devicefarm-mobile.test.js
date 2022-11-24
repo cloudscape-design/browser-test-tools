@@ -5,10 +5,6 @@ const MobileBrowserCreator = require('../../src/browsers/devicefarm-mobile').def
 const seleniumUrl = 'http://localhost:4444/wd';
 
 describe('Mobile Devicefarm browserCreator', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   test('can pass down selenium URL', async () => {
     const browserCreator = new MobileBrowserCreator('iOS', { seleniumUrl });
 
