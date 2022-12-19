@@ -9,12 +9,14 @@ type BrowserOptions = {
   seleniumType: string;
   browserCreatorOptions: Record<string, any>;
   webdriverOptions: Partial<WebDriverOptions>;
+  skipConsoleErrorsCheck: boolean;
 };
 const options: BrowserOptions = {
   browserName: 'ChromeHeadless',
   seleniumType: 'local',
   browserCreatorOptions: {},
   webdriverOptions: {},
+  skipConsoleErrorsCheck: false,
 };
 
 interface TestFunction {
@@ -37,13 +39,13 @@ function useBrowser(...args: [Partial<WebDriverOptions>, TestFunction] | [TestFu
       }
       await testFn(browser);
       // This method does not exist in w3c protocol
-      if ('getLogs' in browser) {
+      if (!options.skipConsoleErrorsCheck && 'getLogs' in browser) {
         const logs = (await browser.getLogs('browser')) as Array<{ level: string }>;
         const errors = logs.filter(entry => entry.level === 'SEVERE');
         if (errors.length > 0) {
           throw new Error('Unexpected errors in browser console:\n' + JSON.stringify(errors, null, 2));
         }
-      } else {
+      } else if (!options.skipConsoleErrorsCheck) {
         console.warn('Unable to check browser console, webdriver does not support this feature');
       }
     } finally {

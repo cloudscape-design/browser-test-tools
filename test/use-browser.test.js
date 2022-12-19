@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 const { promisify } = require('util');
 const useBrowser = require('../src/use-browser').default;
+const { configure } = require('../src/use-browser');
 const { getViewportSize } = require('../src/browser-scripts');
 const delay = promisify(setTimeout);
 
@@ -46,6 +47,18 @@ test('propagates an error happened in test', async () => {
   await expect(brokenTest()).rejects.toThrowError(
     /Can't call click on element with selector "#not-existing" because element wasn't found/
   );
+});
+
+test('should not fail if there are errors in browser console and enableBrowserErrors is disabled', async () => {
+  configure({ skipConsoleErrorsCheck: true });
+  function errorTest() {
+    return useBrowser(async browser => {
+      await browser.url('./index.html');
+      await (await browser.$('#error-button')).click();
+    })();
+  }
+  await expect(errorTest()).resolves.toBeUndefined();
+  configure({ skipConsoleErrorsCheck: false });
 });
 
 test('should fail if there are errors in browser console', async () => {
