@@ -50,7 +50,7 @@ test('propagates an error happened in test', async () => {
 });
 
 test('should not fail if there are errors in browser console and enableBrowserErrors is disabled', async () => {
-  configure({ enableBrowserErrors: false });
+  configure({ skipConsoleErrorsCheck: true });
   function errorTest() {
     return useBrowser(async browser => {
       await browser.url('./index.html');
@@ -58,7 +58,7 @@ test('should not fail if there are errors in browser console and enableBrowserEr
     })();
   }
   await expect(errorTest()).resolves.toBeUndefined();
-  configure({ enableBrowserErrors: true });
+  configure({ skipConsoleErrorsCheck: false });
 });
 
 test('should fail if there are errors in browser console', async () => {
