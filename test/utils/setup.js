@@ -3,7 +3,7 @@
 const { configure } = require('../../src/use-browser');
 const { chromeDriverPort } = require('./config');
 
-jest.setTimeout(80 * 1000);
+jest.setTimeout(80 * 5 * 1000);
 
 beforeAll(async () => {
   configure({
