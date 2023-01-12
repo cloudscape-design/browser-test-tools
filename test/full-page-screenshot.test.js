@@ -30,6 +30,8 @@ test.only(
   setupTest(async browser => {
     const puppeteer = await browser.getPuppeteer();
 
+    await browser.setViewport({ width: 1200, height: 1980 });
+
     const toggle = await browser.$('#multiple-pages-toggle');
     await toggle.click();
 
