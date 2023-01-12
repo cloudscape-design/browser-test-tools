@@ -25,7 +25,7 @@ test(
   })
 );
 
-test.skip(
+test.only(
   'scrollAndMergeStrategy and puppeteerStrategy produce same for multiple pages',
   setupTest(async browser => {
     const puppeteer = await browser.getPuppeteer();
@@ -33,24 +33,37 @@ test.skip(
     const toggle = await browser.$('#multiple-pages-toggle');
     await toggle.click();
 
-    const puppeteerImage = await puppeteerStrategy(browser, puppeteer);
-    const scrollAndMergeImage = await scrollAndMergeStrategy(browser);
-    const expected = await parsePng(puppeteerImage);
-    const actual = await parsePng(scrollAndMergeImage);
-    const diff = compareImages(expected, actual, { width: expected.width, height: expected.height });
+    // Let's check this a few times to catch flakiness
+    let repeat = 5;
+    while (repeat--) {
+      console.log('puppeteer');
+      const puppeteerImage = await puppeteerStrategy(browser, puppeteer);
+      console.log('scrollAndMerge');
+      const scrollAndMergeImage = await scrollAndMergeStrategy(browser);
+      console.log('parsing');
+      const expected = await parsePng(puppeteerImage);
+      const actual = await parsePng(scrollAndMergeImage);
+      console.log('compare');
+      const diff = compareImages(expected, actual, { width: expected.width, height: expected.height });
 
-    // Dump screenshtos to console for manual review and investigate why the test is flaky
-    console.log('puppeteer image');
-    console.log(puppeteerImage);
-    console.log('scroll-and-merge image');
-    console.log(scrollAndMergeImage);
-    if (diff.diffImage) {
-      console.log('diff image');
-      console.log((await packPng(diff.diffImage)).toString('base64'));
-    } else {
-      console.log('no diff image');
+      // Dump screenshtos to console for manual review and investigate why the test is flaky
+      // console.log('puppeteer image');
+      // console.log(puppeteerImage);
+      // console.log('scroll-and-merge image');
+      // console.log(scrollAndMergeImage);
+
+      // fs.writeFileSync('puppeteer.png', (await packPng(expected)).toString());
+      // fs.writeFileSync('scrollAndMerge.png', (await packPng(actual)).toString());
+
+      console.log('check.');
+      if (diff.diffImage) {
+        console.log('diff image');
+        // console.log((await packPng(diff.diffImage)).toString('base64'));
+      } else {
+        console.log('no diff image');
+      }
+
+      expect(diff.diffPixels).toEqual(0);
     }
-
-    expect(diff.diffPixels).toEqual(0);
   })
 );
