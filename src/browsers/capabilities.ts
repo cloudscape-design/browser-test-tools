@@ -54,6 +54,7 @@ const defaultCapabilities: Record<string, Capabilities.DesiredCapabilities> = {
         '--no-sandbox',
         '--disable-gpu',
         '--headless',
+        '--enable-use-zoom-for-dsf=true',
       ],
     },
   },
