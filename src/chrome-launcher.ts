@@ -5,7 +5,7 @@ import { FatalError } from './exceptions';
 import readline from 'readline';
 
 function spawnChromeDriver(port: string) {
-  const params = [`--port=${port}`, '--log-level=SEVERE', '--path=/'];
+  const params = [`--port=${port}`, '--log-level=INFO', '--path=/'];
   try {
     execSync('hash chromedriver');
   } catch {
@@ -33,7 +33,11 @@ export function startWebdriver(port: string = '9515'): Promise<void> {
       shutdownWebdriver();
       reject(new Error('Webdriver process exited too early'));
     });
+    // const lineReader = readline.createInterface({ input: webdriverProcess.stdout });
+    // lineReader.on('line', (line: string) => console.log(line));
+    webdriverProcess.stdout.on('data', (line: any) => console.log(line.toString()));
     webdriverProcess.stdout.once('data', () => resolve());
+
     const errorReader = readline.createInterface({ input: webdriverProcess.stderr });
     errorReader.on('line', (line: string) => {
       // chromeDriver spams to the error stream on macOS

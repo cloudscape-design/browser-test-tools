@@ -25,19 +25,15 @@ test(
   })
 );
 
-test.only(
-  'scrollAndMergeStrategy and puppeteerStrategy produce same for multiple pages',
-  setupTest(async browser => {
-    const puppeteer = await browser.getPuppeteer();
+for (let i = 0; i < 10; i++) {
+  test.only(
+    `${i}: scrollAndMergeStrategy and puppeteerStrategy produce same for multiple pages`,
+    setupTest(async browser => {
+      const puppeteer = await browser.getPuppeteer();
 
-    // await browser.setWindowSize({ width: 1200, height: 1980 });
+      const toggle = await browser.$('#multiple-pages-toggle');
+      await toggle.click();
 
-    const toggle = await browser.$('#multiple-pages-toggle');
-    await toggle.click();
-
-    // Let's check this a few times to catch flakiness
-    let repeat = 5;
-    while (repeat--) {
       console.log('puppeteer');
       const puppeteerImage = await puppeteerStrategy(browser, puppeteer);
       console.log('scrollAndMerge');
@@ -66,6 +62,6 @@ test.only(
       }
 
       expect(diff.diffPixels).toEqual(0);
-    }
-  })
-);
+    })
+  );
+}
