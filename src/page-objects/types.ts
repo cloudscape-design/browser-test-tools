@@ -1,6 +1,5 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { PNG } from 'pngjs';
 
 export interface ElementSize {
   width: number;
@@ -29,7 +28,7 @@ export interface ScreenshotCapturingOptions {
 }
 
 export interface ScreenshotWithOffset extends ElementSize {
-  image: PNG;
+  image: Buffer;
   offset: ElementOffset;
   pixelRatio?: number;
 }

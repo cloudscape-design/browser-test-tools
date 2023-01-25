@@ -1,10 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const fs = require('fs');
-const { PNG } = require('pngjs');
-const useBrowser = require('../src/use-browser').default;
+const fs = require('fs/promises');
+const sharp = require('sharp');
+const { default: useBrowser } = require('../src/use-browser');
 const { ScreenshotPageObject } = require('../src/page-objects');
-const { cropAndCompare, parsePng } = require('../src/image-utils');
+const { cropAndCompare } = require('../src/image-utils');
 
 function setupTest(testFn) {
   return useBrowser(async browser => {
@@ -127,19 +127,19 @@ test(
     const result = await cropAndCompare(firstResult, secondResult);
     expect(result.diffPixels).not.toBe(0);
 
-    const { width, height } = new PNG().parse(result.firstImage);
+    const { width, height } = await sharp(result.firstImage).metadata();
     expect(width).toBe(100); // Defined in CSS as 100.333px
     expect(height).toBe(51); // Defined in CSS as 50.666
 
     // Write images to do manual assessment
-    fs.writeFileSync('build/screenshots/rounding-diff.png', result.diffImage);
+    await fs.writeFile('build/screenshots/rounding-diff.png', result.diffImage);
   })
 );
 
 // the test above is not enough, because it uses Chrome and cannot reproduce IE use-case
 test('should generate valid diffs for fractional offsets', async () => {
-  const red = await parsePng(fs.readFileSync(__dirname + '/fixtures/red.png', 'base64'));
-  const blue = await parsePng(fs.readFileSync(__dirname + '/fixtures/blue.png', 'base64'));
+  const red = await fs.readFile(__dirname + '/fixtures/red.png');
+  const blue = await fs.readFile(__dirname + '/fixtures/blue.png');
   const width = 199.99999;
   const height = 99.99999;
   const offset = {
@@ -162,15 +162,17 @@ test(
     const secondResult = await page.captureBySelector('#icon2');
     const result = await cropAndCompare(firstResult, secondResult);
     // Write images to do manual assessment
-    fs.writeFileSync('build/screenshots/first.png', result.firstImage);
-    fs.writeFileSync('build/screenshots/second.png', result.secondImage);
-    fs.writeFileSync('build/screenshots/diff.png', result.diffImage);
+    await fs.writeFile('build/screenshots/first.png', result.firstImage);
+    await fs.writeFile('build/screenshots/second.png', result.secondImage);
+    if (result.diffImage) {
+      await fs.writeFile('build/screenshots/diff.png', result.diffImage);
+    }
   })
 );
 
 test('should work with higher device pixel ratios', async () => {
-  const red = await parsePng(fs.readFileSync(__dirname + '/fixtures/red@2x.png', 'base64'));
-  const blue = await parsePng(fs.readFileSync(__dirname + '/fixtures/blue@2x.png', 'base64'));
+  const red = await fs.readFile(__dirname + '/fixtures/red@2x.png');
+  const blue = await fs.readFile(__dirname + '/fixtures/blue@2x.png');
   const width = 500;
   const height = 150;
   const offset = {
@@ -183,13 +185,13 @@ test('should work with higher device pixel ratios', async () => {
     { image: blue, pixelRatio: 2, offset, width, height }
   );
 
-  fs.writeFileSync('build/screenshots/diff.png', diffImage);
+  await fs.writeFile('build/screenshots/diff.png', diffImage);
 
   expect(diffPixels).not.toBe(0);
 });
 
 test('detects identical images with higher device pixel ratios', async () => {
-  const img = await parsePng(fs.readFileSync(__dirname + '/fixtures/blue@2x.png', 'base64'));
+  const img = await fs.readFile(__dirname + '/fixtures/blue@2x.png');
 
   const offset = {
     top: 10,

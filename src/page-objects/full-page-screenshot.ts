@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { Browser as PuppeteerBrowser } from 'puppeteer-core';
 import { getViewportSize, windowScrollTo } from '../browser-scripts';
-import mergeImages from '../image-utils/merge';
+import { mergeImages } from '../image-utils/merge';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
 import { calculateIosTopOffset, getPuppeteer } from './utils';
 
@@ -26,7 +26,7 @@ async function checkDocumentSize(browser: WebdriverIO.Browser) {
 export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
   const { width, height, pageHeight, screenWidth, screenHeight, pixelRatio } = await checkDocumentSize(browser);
   let offset = 0;
-  const screenshots: string[] = [];
+  const screenshots: Buffer[] = [];
   while (offset < pageHeight) {
     await scroll(browser, offset);
 
@@ -34,12 +34,12 @@ export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
     await browser.executeAsync(waitForTimerAndAnimationFrame, 200);
 
     const value = await browser.takeScreenshot();
-    screenshots.push(value);
+    screenshots.push(Buffer.from(value, 'base64'));
     offset += height;
   }
   // skip images merge when there is only one screenshot
   if (screenshots.length === 1 && !browser.isIOS) {
-    return screenshots[0];
+    return screenshots[0].toString('base64'); // PERF: inefficient to convert back and forth
   }
   const lastImageOffset = offset - pageHeight;
 
@@ -65,10 +65,7 @@ export async function puppeteerStrategy(browser: WebdriverIO.Browser, puppeteer:
   const image = await browser.call(async () => {
     // Assuming only one page open
     const [current] = await puppeteer.pages();
-    return current.screenshot({
-      fullPage: true,
-      encoding: 'base64',
-    });
+    return current.screenshot({ fullPage: true, encoding: 'base64' });
   });
   // encoding=base64 returns a string
   // See: https://pptr.dev/#?product=Puppeteer&version=v13.2.0&show=api-pagescreenshotoptions

@@ -1,18 +1,32 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { PNG } from 'pngjs';
+import sharp from 'sharp';
 import pixelmatch from 'pixelmatch';
-import { packPng, cropImage } from './utils';
 import { ElementRect, ElementSize, ScreenshotWithOffset } from '../page-objects/types';
+import { cropByRect } from './crop';
 
-export function compareImages(firstImage: PNG, secondImage: PNG, { width, height }: ElementSize) {
+export async function compareImages(firstImage: Buffer, secondImage: Buffer, { width, height }: ElementSize) {
   // fast path when two image files are identical
-  if (firstImage.data.equals(secondImage.data)) {
+  if (firstImage.equals(secondImage)) {
     return { diffPixels: 0, diffImage: null };
   }
-  const diffImage = new PNG({ width, height });
-  const diffPixels = pixelmatch(firstImage.data, secondImage.data, diffImage.data, width, height, { threshold: 0.01 });
-  return { diffPixels, diffImage };
+  const firstImageMetadata = await sharp(firstImage).metadata();
+  const firstImagePixels = await sharp(firstImage).toFormat('raw').toBuffer();
+  const secondImagePixels = await sharp(secondImage).toFormat('raw').toBuffer();
+  const diffImagePixels = Buffer.alloc(firstImagePixels.length);
+  const diffPixelCount = pixelmatch(firstImagePixels, secondImagePixels, diffImagePixels, width, height, {
+    threshold: 0.01,
+  });
+  const diffImage = await sharp(diffImagePixels, {
+    raw: {
+      width: firstImageMetadata.width!,
+      height: firstImageMetadata.height!,
+      channels: firstImageMetadata.channels!,
+    },
+  })
+    .toFormat('png')
+    .toBuffer();
+  return { diffPixels: diffPixelCount, diffImage: diffImage };
 }
 
 function normalizeSize(firstScreenshot: ScreenshotWithOffset, secondScreenshot: ScreenshotWithOffset) {
@@ -43,6 +57,7 @@ export async function cropAndCompare(
 ): Promise<CropAndCompareResult> {
   const pixelRatio = firstScreenshot.pixelRatio || 1;
   const size = normalizeSize(firstScreenshot, secondScreenshot);
+
   const firstImageCropRect: ElementRect = {
     height: size.height,
     width: size.width,
@@ -51,6 +66,7 @@ export async function cropAndCompare(
     top: firstScreenshot.offset.top,
     left: firstScreenshot.offset.left,
   };
+
   const secondImageCropRect: ElementRect = {
     height: size.height,
     width: size.width,
@@ -59,19 +75,9 @@ export async function cropAndCompare(
     top: secondScreenshot.offset.top,
     left: secondScreenshot.offset.left,
   };
-  const firstImage = cropImage(firstScreenshot.image, firstImageCropRect, pixelRatio);
-  const secondImage = cropImage(secondScreenshot.image, secondImageCropRect, pixelRatio);
-  const { diffImage, diffPixels } = compareImages(firstImage, secondImage, scaleSize(size, pixelRatio));
-  const [firstPacked, secondPacked, diffPacked] = await Promise.all([
-    packPng(firstImage),
-    packPng(secondImage),
-    diffImage && packPng(diffImage),
-  ]);
-  return {
-    firstImage: firstPacked,
-    secondImage: secondPacked,
-    diffImage: diffPacked,
-    isEqual: diffPixels <= 1,
-    diffPixels,
-  };
+
+  const firstImage = await cropByRect(firstScreenshot.image, firstImageCropRect, pixelRatio);
+  const secondImage = await cropByRect(secondScreenshot.image, secondImageCropRect, pixelRatio);
+  const { diffImage, diffPixels } = await compareImages(firstImage, secondImage, scaleSize(size, pixelRatio));
+  return { firstImage, secondImage, diffImage, diffPixels, isEqual: diffPixels <= 1 };
 }

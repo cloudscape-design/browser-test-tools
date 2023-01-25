@@ -36,7 +36,7 @@ const localBrowsers: Record<string, Capabilities.DesiredCapabilities> = {
     ...defaultCapabilities.Firefox,
     // https://firefox-source-docs.mozilla.org/testing/geckodriver/Capabilities.html
     'moz:debuggerAddress': true,
-  } as any, // https://github.com/webdriverio/webdriverio/pull/8355
+  },
 };
 
 export default class LocalBrowserCreator extends BrowserCreator {

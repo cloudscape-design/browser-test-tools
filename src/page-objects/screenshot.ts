@@ -1,7 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 import { scrollToBottom, scrollToRight } from '../browser-scripts';
-import { parsePng } from '../image-utils';
 import BasePageObject from './base';
 import { ElementOffset, ScreenshotCapturingOptions, ScreenshotWithOffset } from './types';
 import fullPageScreenshot from './full-page-screenshot';
@@ -35,7 +34,7 @@ export default class ScreenshotPageObject extends BasePageObject {
     const { pixelRatio, top, left } = await this.getViewportSize();
     const box = await this.getBoundingBox(selector);
     const screenshot = options.viewportOnly ? await this.browser.takeScreenshot() : await this.fullPageScreenshot();
-    const image = await parsePng(screenshot);
+    const image = Buffer.from(screenshot, 'base64');
 
     const offset: ElementOffset = { top: box.top, left: box.left };
     if (!options.viewportOnly) {
@@ -56,7 +55,7 @@ export default class ScreenshotPageObject extends BasePageObject {
     };
 
     const screenshot = await this.browser.takeScreenshot();
-    const image = await parsePng(screenshot);
+    const image = Buffer.from(screenshot, 'base64');
     return { image, offset, height, width };
   }
 }

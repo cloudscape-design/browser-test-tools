@@ -1,8 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const { parsePng, packPng } = require('../src/image-utils/utils');
+const fs = require('fs/promises');
 const { compareImages } = require('../src/image-utils/compare');
-const useBrowser = require('../src/use-browser').default;
+const { default: useBrowser } = require('../src/use-browser');
 const { scrollAndMergeStrategy, puppeteerStrategy } = require('../src/page-objects/full-page-screenshot');
 
 function setupTest(testFn) {
@@ -17,9 +17,9 @@ test(
   setupTest(async browser => {
     const puppeteer = await browser.getPuppeteer();
 
-    const expected = await parsePng(await puppeteerStrategy(browser, puppeteer));
-    const actual = await parsePng(await scrollAndMergeStrategy(browser));
-    const diff = compareImages(expected, actual, { width: expected.width, height: expected.height });
+    const expected = await puppeteerStrategy(browser, puppeteer).then(img => Buffer.from(img, 'base64'));
+    const actual = await scrollAndMergeStrategy(browser).then(img => Buffer.from(img, 'base64'));
+    const diff = await compareImages(expected, actual, { width: expected.width, height: expected.height });
 
     expect(diff.diffPixels).toEqual(0);
   })
@@ -33,11 +33,12 @@ test.skip(
     const toggle = await browser.$('#multiple-pages-toggle');
     await toggle.click();
 
-    const puppeteerImage = await puppeteerStrategy(browser, puppeteer);
-    const scrollAndMergeImage = await scrollAndMergeStrategy(browser);
-    const expected = await parsePng(puppeteerImage);
-    const actual = await parsePng(scrollAndMergeImage);
-    const diff = compareImages(expected, actual, { width: expected.width, height: expected.height });
+    const puppeteerImage = await puppeteerStrategy(browser, puppeteer).then(img => Buffer.from(img, 'base64'));
+    const scrollAndMergeImage = await scrollAndMergeStrategy(browser).then(img => Buffer.from(img, 'base64'));
+    const diff = await compareImages(puppeteerImage, scrollAndMergeImage, {
+      width: puppeteerImage.width,
+      height: puppeteerImage.height,
+    });
 
     // Dump screenshtos to console for manual review and investigate why the test is flaky
     console.log('puppeteer image');
@@ -46,7 +47,7 @@ test.skip(
     console.log(scrollAndMergeImage);
     if (diff.diffImage) {
       console.log('diff image');
-      console.log((await packPng(diff.diffImage)).toString('base64'));
+      console.log(diff.diffImage.toString('base64'));
     } else {
       console.log('no diff image');
     }
