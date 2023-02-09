@@ -4,10 +4,9 @@
 interface ExtendedWindow extends Window {
   __liveAnnouncements?: string[];
 }
+declare const window: ExtendedWindow;
 
 export function initLiveAnnouncementsObserver() {
-  const extendedWindow = window as ExtendedWindow;
-
   const observer = new MutationObserver(mutationList => {
     for (const mutation of mutationList) {
       if (
@@ -16,10 +15,10 @@ export function initLiveAnnouncementsObserver() {
         mutation.target.hasAttribute('aria-live') &&
         mutation.target.textContent
       ) {
-        if (!extendedWindow.__liveAnnouncements) {
-          extendedWindow.__liveAnnouncements = [];
+        if (!window.__liveAnnouncements) {
+          window.__liveAnnouncements = [];
         }
-        extendedWindow.__liveAnnouncements.push(mutation.target.textContent);
+        window.__liveAnnouncements.push(mutation.target.textContent);
       }
     }
   });
@@ -27,9 +26,9 @@ export function initLiveAnnouncementsObserver() {
 }
 
 export function getLiveAnnouncements() {
-  return (window as ExtendedWindow).__liveAnnouncements ?? [];
+  return window.__liveAnnouncements ?? [];
 }
 
 export function clearLiveAnnouncements() {
-  (window as ExtendedWindow).__liveAnnouncements = [];
+  window.__liveAnnouncements = [];
 }
