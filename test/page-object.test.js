@@ -271,3 +271,15 @@ test(
     await page.waitForVisible('#click-message');
   })
 );
+
+test(
+  'live announcements',
+  setupTest(async page => {
+    await page.initLiveAnnouncementsObserver();
+    await page.click('button');
+    await page.click('button');
+    await expect(page.getLiveAnnouncements()).resolves.toEqual(['update 1', 'update 2']);
+    await page.clearLiveAnnouncements();
+    await expect(page.getLiveAnnouncements()).resolves.toEqual([]);
+  })
+);

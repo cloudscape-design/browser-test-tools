@@ -12,15 +12,11 @@ import {
   getBoundingClientRect,
 } from '../browser-scripts';
 import EventsSpy from './events-spy';
+import * as liveAnnouncements from '../browser-scripts/live-announcements';
 import { getElementCenter } from './utils';
 
 import { ElementRect } from './types';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
-
-interface ExtendedWindow extends Window {
-  __liveAnnouncements?: string[];
-}
-declare const window: ExtendedWindow;
 
 export default class BasePageObject {
   constructor(protected browser: WebdriverIO.Browser) {}
@@ -230,34 +226,14 @@ export default class BasePageObject {
    * Attaches observer to collect all live updates from the page that can be fetched with page.getLiveAnnouncements().
    */
   async initLiveAnnouncementsObserver() {
-    await this.browser.execute(() => {
-      const observer = new MutationObserver(mutationList => {
-        for (const mutation of mutationList) {
-          if (
-            mutation.type === 'childList' &&
-            mutation.target instanceof HTMLElement &&
-            mutation.target.hasAttribute('aria-live') &&
-            mutation.target.textContent
-          ) {
-            if (!window.__liveAnnouncements) {
-              window.__liveAnnouncements = [];
-            }
-            window.__liveAnnouncements.push(mutation.target.textContent);
-          }
-        }
-      });
-      observer.observe(document.body, { attributes: false, childList: true, subtree: true });
-    });
+    await this.browser.execute(liveAnnouncements.initLiveAnnouncementsObserver);
   }
 
   async getLiveAnnouncements() {
-    const liveAnnouncements = await this.browser.execute(() => window.__liveAnnouncements ?? []);
-    return liveAnnouncements;
+    return await this.browser.execute(liveAnnouncements.getLiveAnnouncements);
   }
 
   async clearLiveAnnouncements() {
-    await this.browser.execute(() => {
-      window.__liveAnnouncements = [];
-    });
+    await this.browser.execute(liveAnnouncements.clearLiveAnnouncements);
   }
 }
