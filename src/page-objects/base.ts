@@ -17,6 +17,11 @@ import { getElementCenter } from './utils';
 import { ElementRect } from './types';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
 
+interface ExtendedWindow extends Window {
+  __liveAnnouncements?: string[];
+}
+declare const window: ExtendedWindow;
+
 export default class BasePageObject {
   constructor(protected browser: WebdriverIO.Browser) {}
 
@@ -219,5 +224,40 @@ export default class BasePageObject {
   async getElementsText(selector: string) {
     const elements = await this.browser.$$(selector);
     return Promise.all(elements.map(async element => element.getText()));
+  }
+
+  /**
+   * Attaches observer to collect all live updates from the page that can be fetched with page.getLiveAnnouncements().
+   */
+  async initLiveAnnouncementsObserver() {
+    await this.browser.execute(() => {
+      const observer = new MutationObserver(mutationList => {
+        for (const mutation of mutationList) {
+          if (
+            mutation.type === 'childList' &&
+            mutation.target instanceof HTMLElement &&
+            mutation.target.hasAttribute('aria-live') &&
+            mutation.target.textContent
+          ) {
+            if (!window.__liveAnnouncements) {
+              window.__liveAnnouncements = [];
+            }
+            window.__liveAnnouncements.push(mutation.target.textContent);
+          }
+        }
+      });
+      observer.observe(document.body, { attributes: false, childList: true, subtree: true });
+    });
+  }
+
+  async getLiveAnnouncements() {
+    const liveAnnouncements = await this.browser.execute(() => window.__liveAnnouncements ?? []);
+    return liveAnnouncements;
+  }
+
+  async clearLiveAnnouncements() {
+    await this.browser.execute(() => {
+      window.__liveAnnouncements = [];
+    });
   }
 }
