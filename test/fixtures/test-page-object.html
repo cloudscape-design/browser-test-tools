@@ -30,6 +30,7 @@
       <div style="width: 120%">Some scrollable text</div>
     </div>
     <button id="button">Click me</button>
+    <button id="update-live-announcement-button">Update live announcement</button>
     <div aria-live="polite" id="live-announcement" style="visibility: none"></div>
 
     <button id="hover-button">Hover me</button>
@@ -42,13 +43,17 @@
 
     <p style="height: 800px">Strut to make the page scroll</p>
     <script>
-      var liveAnnouncementUpdateIndex = 0;
       var button = document.getElementById('button');
       button.addEventListener('click', function () {
         var message = document.createElement('span');
         message.id = 'click-message';
         message.textContent = 'Clicked!';
         document.body.insertBefore(message, button.nextElementSibling);
+      });
+
+      var liveAnnouncementUpdateIndex = 0;
+      var updateLiveAnnouncementButton = document.getElementById('update-live-announcement-button');
+      updateLiveAnnouncementButton.addEventListener('click', function () {
         document.getElementById('live-announcement').textContent = `update ${++liveAnnouncementUpdateIndex}`;
       });
     </script>
