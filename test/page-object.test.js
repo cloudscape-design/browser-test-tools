@@ -276,8 +276,8 @@ test(
   'live announcements',
   setupTest(async page => {
     await page.initLiveAnnouncementsObserver();
-    await page.click('update-live-announcement-button');
-    await page.click('update-live-announcement-button');
+    await page.click('#update-live-announcement-button');
+    await page.click('#update-live-announcement-button');
     await expect(page.getLiveAnnouncements()).resolves.toEqual(['update 1', 'update 2']);
     await page.clearLiveAnnouncements();
     await expect(page.getLiveAnnouncements()).resolves.toEqual([]);
