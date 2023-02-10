@@ -12,6 +12,7 @@ import {
   getBoundingClientRect,
 } from '../browser-scripts';
 import EventsSpy from './events-spy';
+import * as liveAnnouncements from '../browser-scripts/live-announcements';
 import { getElementCenter } from './utils';
 
 import { ElementRect } from './types';
@@ -219,5 +220,20 @@ export default class BasePageObject {
   async getElementsText(selector: string) {
     const elements = await this.browser.$$(selector);
     return Promise.all(elements.map(async element => element.getText()));
+  }
+
+  /**
+   * Attaches observer to collect all live updates from the page that can be fetched with page.getLiveAnnouncements().
+   */
+  async initLiveAnnouncementsObserver() {
+    await this.browser.execute(liveAnnouncements.initLiveAnnouncementsObserver);
+  }
+
+  async getLiveAnnouncements() {
+    return await this.browser.execute(liveAnnouncements.getLiveAnnouncements);
+  }
+
+  async clearLiveAnnouncements() {
+    await this.browser.execute(liveAnnouncements.clearLiveAnnouncements);
   }
 }

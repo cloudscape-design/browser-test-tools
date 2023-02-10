@@ -30,6 +30,8 @@
       <div style="width: 120%">Some scrollable text</div>
     </div>
     <button id="button">Click me</button>
+    <button id="update-live-announcement-button">Update live announcement</button>
+    <div aria-live="polite" id="live-announcement"></div>
 
     <button id="hover-button">Hover me</button>
     <span id="hover-span">Hover success</span>
@@ -47,6 +49,12 @@
         message.id = 'click-message';
         message.textContent = 'Clicked!';
         document.body.insertBefore(message, button.nextElementSibling);
+      });
+
+      var liveAnnouncementUpdateIndex = 0;
+      var updateLiveAnnouncementButton = document.getElementById('update-live-announcement-button');
+      updateLiveAnnouncementButton.addEventListener('click', function () {
+        document.getElementById('live-announcement').textContent = `update ${++liveAnnouncementUpdateIndex}`;
       });
     </script>
   </body>
