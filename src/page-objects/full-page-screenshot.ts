@@ -6,7 +6,7 @@ import mergeImages from '../image-utils/merge';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
 import { calculateIosTopOffset, getPuppeteer } from './utils';
 
-const MAX_SCREENSHOT_HEIGHT = 20000;
+const MAX_SCREENSHOT_HEIGHT = 16000;
 
 async function scroll(browser: WebdriverIO.Browser, topOffset: number) {
   await browser.execute(windowScrollTo, topOffset, 0);
