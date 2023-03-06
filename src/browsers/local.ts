@@ -5,6 +5,15 @@ import BrowserCreator from './browser-creator';
 import defaultCapabilities, { getCapability } from './capabilities';
 import type { Capabilities } from '@wdio/types';
 
+const chromeHeadlessOptions = {
+  // do not use retina screen when testing locally
+  mobileEmulation: {
+    deviceMetrics: {
+      pixelRatio: 1,
+    },
+  },
+};
+
 const localBrowsers: Record<string, Capabilities.DesiredCapabilities> = {
   ...defaultCapabilities,
   Chrome: {
@@ -14,18 +23,14 @@ const localBrowsers: Record<string, Capabilities.DesiredCapabilities> = {
     ...defaultCapabilities.ChromeHeadless,
     'goog:chromeOptions': {
       ...defaultCapabilities.ChromeHeadless['goog:chromeOptions'],
-      // do not use retina screen when testing locally
-      mobileEmulation: {
-        deviceMetrics: {
-          pixelRatio: 1,
-        },
-      },
+      ...chromeHeadlessOptions,
     },
   },
   ChromeHeadlessIntegration: {
     ...defaultCapabilities.ChromeHeadless,
     'goog:chromeOptions': {
       ...defaultCapabilities.ChromeHeadless['goog:chromeOptions'],
+      ...chromeHeadlessOptions,
       args: [
         '--force-prefers-reduced-motion',
         ...(defaultCapabilities.ChromeHeadless['goog:chromeOptions']?.args ?? []),
