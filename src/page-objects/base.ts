@@ -187,6 +187,11 @@ export default class BasePageObject {
     return elements[0].isDisplayed();
   }
 
+  async isClickable(selector: string) {
+    const element = await this.browser.$(selector);
+    return element.isClickable();
+  }
+
   async getElementAttribute(selector: string, attributeName: string) {
     const element = await this.browser.$(selector);
     return element.getAttribute(attributeName);
