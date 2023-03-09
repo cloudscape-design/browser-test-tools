@@ -175,6 +175,14 @@ test(
 );
 
 test(
+  'isClickable',
+  setupTest(async page => {
+    await expect(page.isClickable('#hover-button')).resolves.toBe(true);
+    await expect(page.isClickable('#disabled-button')).resolves.toBe(false);
+  })
+);
+
+test(
   'windowScrollTo/getWindowScroll',
   setupTest(async page => {
     await page.windowScrollTo({ top: 40 });
