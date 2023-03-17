@@ -1,6 +1,5 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { WebdriverIoUnsupportedPuppeteerErrorText, WebdriverIoRemotePuppeteerErrorText } from '../exceptions';
 import { ViewportSize, ElementRect } from './types';
 
 export function getElementCenter(rect: ElementRect): { x: number; y: number } {
@@ -44,13 +43,11 @@ const iosDeviceConfig = [
 
 // Screenshots on iOS include all iOS UI elements like toolbars and navigation, so we need to
 // cut them out of screenshots. This function provides relevant offsets.
-export function calculateIosTopOffset(
-  dimensions: Pick<ViewportSize, 'screenWidth' | 'screenHeight' | 'pixelRatio'>
-): number {
+export function calculateIosTopOffset(dimensions: Pick<ViewportSize, 'screenWidth' | 'screenHeight'>): number {
   const { screenWidth: width, screenHeight: height } = dimensions;
 
   // Default height for most models before the iPhone X
-  let statusBarHeight = 20 * dimensions.pixelRatio;
+  let statusBarHeight = 20;
 
   const deviceConfig = iosDeviceConfig.find(
     config =>
@@ -60,23 +57,24 @@ export function calculateIosTopOffset(
     statusBarHeight = deviceConfig.statusBarHeight;
   }
 
-  const addressBarHeight = iosAddressBarHeight * dimensions.pixelRatio;
+  const addressBarHeight = iosAddressBarHeight;
 
   return statusBarHeight + addressBarHeight;
 }
 
-export async function getPuppeteer(browser: WebdriverIO.Browser) {
-  try {
-    const puppeteer = await browser.getPuppeteer();
-    return puppeteer;
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes(WebdriverIoUnsupportedPuppeteerErrorText) ||
-        error.message.includes(WebdriverIoRemotePuppeteerErrorText))
-    ) {
-      return null;
-    }
-    throw error;
-  }
+interface Dimensions {
+  width: number;
+  height: number;
+}
+
+export function getIosDeviceMask(image: Dimensions, screen: Dimensions): ElementRect {
+  const offsetTop = calculateIosTopOffset({ screenWidth: screen.width, screenHeight: screen.height });
+  return {
+    top: offsetTop,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: image.width,
+    height: image.height - offsetTop,
+  };
 }

@@ -1,28 +1,25 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 import { PNG } from 'pngjs';
-import { parsePng, packPng } from './utils';
 
-export default async function mergeImages(
-  images: string[],
-  width: number,
-  height: number,
-  lastImageOffset: number,
-  offsetTop: number
-) {
-  const outImage = new PNG({ width, height: height * images.length - lastImageOffset });
+/**
+ * Merges the passed images vertically into a single output image.
+ * @param pngs to be merged
+ * @returns single image
+ */
+export default async function merge(pngs: PNG[]) {
+  const maxWidth = pngs.reduce((max, curr) => (curr.width > max ? curr.width : max), 0);
+  const totalHeight = pngs.reduce((sum, curr) => sum + curr.height, 0);
+  const out = new PNG({ width: maxWidth, height: totalHeight });
 
-  if (images.length === 1) {
-    const png = await parsePng(images[0]);
-    png.bitblt(outImage, 0, offsetTop, width, height - lastImageOffset, 0, 0);
-  } else {
-    for (let index = 0; index < images.length; index++) {
-      const png = await parsePng(images[index]);
-      const verticalOffset = index < images.length - 1 ? index * height : index * height - lastImageOffset;
-      png.bitblt(outImage, 0, offsetTop, Math.min(width, png.width), Math.min(height, png.height), 0, verticalOffset);
-    }
+  let i = 0;
+  let offset = 0;
+  while (i < pngs.length) {
+    const png = pngs[i];
+    png.bitblt(out, 0, 0, png.width, png.height, 0, offset);
+    offset += png.height;
+    i++;
   }
 
-  const encoded = await packPng(outImage);
-  return encoded.toString('base64');
+  return out;
 }
