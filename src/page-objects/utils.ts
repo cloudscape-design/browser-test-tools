@@ -10,9 +10,6 @@ export function getElementCenter(rect: ElementRect): { x: number; y: number } {
   };
 }
 
-// This is the pixel value *before* applying the device pixel ratio
-const iosAddressBarHeight = 50;
-
 // Device specific sizes for iOS devices. Models before iPhone X are covered by the default value.
 // Viewport values taken from https://yesviz.com/iphones.php
 const iosDeviceConfig = [
@@ -42,8 +39,10 @@ const iosDeviceConfig = [
   },
 ];
 
-// Screenshots on iOS include all iOS UI elements like toolbars and navigation, so we need to
+// Screenshots on iOS include all iOS UI elements like toolbars, so we need to
 // cut them out of screenshots. This function provides relevant offsets.
+// As of iOS 15, the navigation bar has moved to the bottom, so it's no longer
+// relevant when calculating the top offset.
 export function calculateIosTopOffset(
   dimensions: Pick<ViewportSize, 'screenWidth' | 'screenHeight' | 'pixelRatio'>
 ): number {
@@ -60,9 +59,7 @@ export function calculateIosTopOffset(
     statusBarHeight = deviceConfig.statusBarHeight;
   }
 
-  const addressBarHeight = iosAddressBarHeight * dimensions.pixelRatio;
-
-  return statusBarHeight + addressBarHeight;
+  return statusBarHeight;
 }
 
 export async function getPuppeteer(browser: WebdriverIO.Browser) {
