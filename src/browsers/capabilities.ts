@@ -68,7 +68,6 @@ const defaultCapabilities: Record<string, Capabilities.DesiredCapabilities> = {
   },
   Safari: {
     browserName: 'safari',
-    idleTimeout: 180,
   },
   IE11: {
     browserName: 'internet explorer',
