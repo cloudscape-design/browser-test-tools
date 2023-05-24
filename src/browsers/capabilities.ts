@@ -53,7 +53,7 @@ const defaultCapabilities: Record<string, Capabilities.DesiredCapabilities> = {
         '--prerender-from-omnibox=disabled',
         '--no-sandbox',
         '--disable-gpu',
-        '--headless',
+        '--headless=new',
       ],
     },
   },
