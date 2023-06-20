@@ -112,7 +112,7 @@ export default class BasePageObject {
     return element.getValue();
   }
 
-  async setValue(selector: string, value: number | string | string[]) {
+  async setValue(selector: string, value: number | string) {
     const element = await this.browser.$(selector);
     await element.setValue(value);
   }

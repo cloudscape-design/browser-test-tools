@@ -1,9 +1,13 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const { promisify } = require('util');
-const useBrowser = require('../src/use-browser').default;
-const { configure } = require('../src/use-browser');
-const { getViewportSize } = require('../src/browser-scripts');
+import { promisify } from 'node:util';
+
+import { test, expect, vi } from 'vitest';
+
+import useBrowser from '../src/use-browser';
+import { configure } from '../src/use-browser';
+import { getViewportSize } from '../src/browser-scripts';
+
 const delay = promisify(setTimeout);
 
 test(
@@ -25,29 +29,28 @@ test(
 );
 
 test('should close browser after test finish', async () => {
-  const onDeleteSession = jest.fn();
+  const onDeleteSession = vi.fn();
   await useBrowser(async browser => {
-    browser.overwriteCommand('deleteSession', async originalCommand => {
-      await originalCommand();
-      onDeleteSession();
-    });
+    vi.spyOn(browser, 'deleteSession').mockImplementation(onDeleteSession);
   })();
   expect(onDeleteSession).toHaveBeenCalled();
 });
 
-test('propagates an error happened in test', async () => {
-  // the browser is configured to wait for 3x5000ms before throwing an error
-  // so we need to increasing jest default timeout
-  jest.setTimeout(20 * 10000);
-  function brokenTest() {
-    return useBrowser(async browser => {
-      await (await browser.$('#not-existing')).click();
-    })();
-  }
-  await expect(brokenTest()).rejects.toThrowError(
-    /Can't call click on element with selector "#not-existing" because element wasn't found/
-  );
-});
+test(
+  'propagates an error happened in test',
+  async () => {
+    function brokenTest() {
+      return useBrowser(async browser => {
+        await (await browser.$('#not-existing')).click();
+      })();
+    }
+    await expect(brokenTest()).rejects.toThrowError(
+      /Can't call click on element with selector "#not-existing" because element wasn't found/
+    );
+  },
+  // the browser is configured to wait for 3x5000ms before throwing an error so we need to increasing  default timeout
+  { timeout: 20000 }
+);
 
 test('should not fail if there are errors in browser console and enableBrowserErrors is disabled', async () => {
   configure({ skipConsoleErrorsCheck: true });
@@ -91,7 +94,12 @@ test('should run multiple browsers in parallel', () => {
     await browser.url('./index.html');
     await browser.pause(400);
   });
-  const threadWithDelay = () => delay(200).then(() => useBrowser(browser => browser.url('./index.html'))());
+  const threadWithDelay = () =>
+    delay(200).then(() =>
+      useBrowser(browser => {
+        browser.url('./index.html');
+      })()
+    );
 
   return Promise.all([threadOne(), threadTwo(), threadThree(), threadWithDelay()]);
 });

@@ -1,9 +1,9 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const { configure } = require('../../src/use-browser');
-const { chromeDriverPort } = require('./config');
+import { beforeAll } from 'vitest';
 
-jest.setTimeout(80 * 1000);
+import { configure } from '../../src/use-browser';
+import { chromeDriverPort } from './config';
 
 beforeAll(async () => {
   configure({

@@ -1,9 +1,11 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const { parsePng, packPng } = require('../src/image-utils/utils');
-const { compareImages } = require('../src/image-utils/compare');
-const useBrowser = require('../src/use-browser').default;
-const { scrollAndMergeStrategy, puppeteerStrategy } = require('../src/page-objects/full-page-screenshot');
+import { test, expect } from 'vitest';
+
+import { parsePng, packPng } from '../src/image-utils/utils';
+import { compareImages } from '../src/image-utils/compare';
+import useBrowser from '../src/use-browser';
+import { scrollAndMergeStrategy, puppeteerStrategy } from '../src/page-objects/full-page-screenshot';
 
 function setupTest(testFn) {
   return useBrowser(async browser => {

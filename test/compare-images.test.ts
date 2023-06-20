@@ -1,10 +1,12 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const fs = require('fs');
-const { PNG } = require('pngjs');
-const useBrowser = require('../src/use-browser').default;
-const { ScreenshotPageObject } = require('../src/page-objects');
-const { cropAndCompare, parsePng } = require('../src/image-utils');
+import fs from 'node:fs';
+import { PNG } from 'pngjs';
+import { test, expect } from 'vitest';
+
+import useBrowser from '../src/use-browser';
+import { ScreenshotPageObject } from '../src/page-objects';
+import { cropAndCompare, parsePng } from '../src/image-utils';
 
 function setupTest(testFn) {
   return useBrowser(async browser => {
@@ -132,7 +134,7 @@ test(
     expect(height).toBe(51); // Defined in CSS as 50.666
 
     // Write images to do manual assessment
-    fs.writeFileSync('build/screenshots/rounding-diff.png', result.diffImage);
+    fs.writeFileSync('build/screenshots/rounding-diff.png', result.diffImage!);
   })
 );
 
@@ -164,7 +166,7 @@ test(
     // Write images to do manual assessment
     fs.writeFileSync('build/screenshots/first.png', result.firstImage);
     fs.writeFileSync('build/screenshots/second.png', result.secondImage);
-    fs.writeFileSync('build/screenshots/diff.png', result.diffImage);
+    fs.writeFileSync('build/screenshots/diff.png', result.diffImage!);
   })
 );
 
@@ -183,7 +185,7 @@ test('should work with higher device pixel ratios', async () => {
     { image: blue, pixelRatio: 2, offset, width, height }
   );
 
-  fs.writeFileSync('build/screenshots/diff.png', diffImage);
+  fs.writeFileSync('build/screenshots/diff.png', diffImage!);
 
   expect(diffPixels).not.toBe(0);
 });
@@ -198,8 +200,8 @@ test('detects identical images with higher device pixel ratios', async () => {
     height: 150,
   };
   const { diffPixels } = await cropAndCompare(
-    { image: img, pixelRatio: 2, offset },
-    { image: img, pixelRatio: 2, offset }
+    { image: img, pixelRatio: 2, offset, width: img.width, height: img.height },
+    { image: img, pixelRatio: 2, offset, width: img.width, height: img.height }
   );
 
   expect(diffPixels).toBe(0);

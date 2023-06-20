@@ -1,6 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const MobileBrowserCreator = require('../../src/browsers/devicefarm-mobile').default;
+import { describe, test, expect } from 'vitest';
+
+import MobileBrowserCreator from '../../src/browsers/devicefarm-mobile';
 
 const seleniumUrl = 'http://localhost:4444/wd';
 

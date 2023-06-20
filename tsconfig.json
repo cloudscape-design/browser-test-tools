@@ -4,7 +4,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": ["es2017", "dom"],
-    "types": ["node", "webdriverio/async", "jest"],
+    "types": ["node"],
     "declaration": true,
     "strict": true,
     "esModuleInterop": true,
