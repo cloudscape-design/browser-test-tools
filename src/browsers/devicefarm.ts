@@ -8,15 +8,6 @@ import { AWSError } from 'aws-sdk/lib/error';
 import BrowserCreator from './browser-creator';
 import defaultCapabilities, { getCapability } from './capabilities';
 import { FatalError } from '../exceptions';
-import type { Capabilities } from '@wdio/types';
-
-// This uses undocumented options which prevents proper typing
-const capabilities: Record<string, Capabilities.DesiredCapabilities> = {
-  ...defaultCapabilities,
-  IE11: {
-    browserName: 'internet explorer',
-  },
-};
 
 export interface DevicefarmOptions {
   retryCount?: number;
@@ -26,7 +17,7 @@ export interface DevicefarmOptions {
 }
 
 export default class DevicefarmBrowserCreator extends BrowserCreator {
-  protected async __getBrowserUrl(): Promise<URL> {
+  async __getBrowserUrl(): Promise<URL> {
     const options = this.options as DevicefarmOptions;
     const client = new DeviceFarm({ credentials: options.credentials, region: 'us-west-2' });
 
@@ -57,8 +48,8 @@ export default class DevicefarmBrowserCreator extends BrowserCreator {
     return new URL(response.url);
   }
 
-  protected __getCapabilities() {
-    return getCapability(this.browserName, capabilities);
+  __getCapabilities() {
+    return getCapability(this.browserName, defaultCapabilities);
   }
 }
 

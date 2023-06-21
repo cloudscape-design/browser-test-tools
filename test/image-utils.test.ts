@@ -1,9 +1,9 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const fs = require('fs');
-const path = require('path');
-const mergeImages = require('../src/image-utils/merge').default;
-const { parsePng } = require('../src/image-utils');
+import fs from 'fs';
+import path from 'path';
+import mergeImages from '../src/image-utils/merge';
+import { parsePng } from '../src/image-utils';
 
 describe('mergeImages', () => {
   test('should not merge images beyond their dimensions', async () => {

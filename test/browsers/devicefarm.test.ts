@@ -1,8 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const { URL } = require('url');
-const DeviceFarmClientMock = require('aws-sdk/clients/devicefarm');
-const DevicefarmBrowserCreator = require('../../src/browsers/devicefarm').default;
+import { URL } from 'url';
+import DeviceFarmClientMock from 'aws-sdk/clients/devicefarm';
+import DevicefarmBrowserCreator from '../../src/browsers/devicefarm';
 const browserName = 'Chrome';
 
 describe('Devicefarm browserCreator ', () => {
@@ -35,5 +35,16 @@ describe('Devicefarm browserCreator ', () => {
     const browser = await browserCreator.__getBrowserUrl();
     expect(browser).toEqual(expect.any(URL));
     expect(DeviceFarmClientMock.prototype.createTestGridUrl).toHaveBeenCalledTimes(1);
+  });
+
+  test('should implement __getCapabilities', async () => {
+    const browserCreator = new DevicefarmBrowserCreator(browserName, {});
+
+    const capabilities = browserCreator.__getCapabilities();
+    expect(capabilities).toEqual(
+      expect.objectContaining({
+        browserName: 'chrome',
+      })
+    );
   });
 });
