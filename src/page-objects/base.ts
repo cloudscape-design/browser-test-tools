@@ -241,4 +241,8 @@ export default class BasePageObject {
   async clearLiveAnnouncements() {
     await this.browser.execute(liveAnnouncements.clearLiveAnnouncements);
   }
+
+  getBrowser() {
+    return this.browser;
+  }
 }

@@ -29,7 +29,7 @@ export default abstract class BrowserCreator {
   // eslint-disable-next-line no-unused-vars
   constructor(protected browserName: string, protected options: Record<string, any>) {}
 
-  protected async setupBrowser(overrides: Partial<WebDriverOptions>) {
+  async setupBrowser(overrides: Partial<WebDriverOptions>) {
     const options = merge({}, defaultOptions, overrides);
     const desiredCapabilities = merge({}, this.__getCapabilities(), overrides.capabilities);
     const { protocol, hostname, port, pathname } = await this.__getBrowserUrl();
@@ -74,6 +74,6 @@ export default abstract class BrowserCreator {
     }
   }
 
-  protected abstract __getBrowserUrl(): Promise<URL>;
-  protected abstract __getCapabilities(): WebDriver.DesiredCapabilities;
+  abstract __getBrowserUrl(): Promise<URL>;
+  abstract __getCapabilities(): WebDriver.DesiredCapabilities;
 }
