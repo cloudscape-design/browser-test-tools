@@ -6,6 +6,7 @@ import { parsePng, packPng } from '../src/image-utils/utils';
 import { compareImages } from '../src/image-utils/compare';
 import useBrowser from '../src/use-browser';
 import { scrollAndMergeStrategy, puppeteerStrategy } from '../src/page-objects/full-page-screenshot';
+import './utils/setup-local-driver';
 
 type TestFn = (browser: WebdriverIO.Browser) => Promise<void>;
 function setupTest(testFn: TestFn) {
