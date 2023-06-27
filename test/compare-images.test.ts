@@ -5,6 +5,7 @@ import { PNG } from 'pngjs';
 import useBrowser from '../src/use-browser';
 import { ScreenshotPageObject } from '../src/page-objects';
 import { cropAndCompare, parsePng } from '../src/image-utils';
+import './utils/setup-local-driver';
 
 type TestFn = (page: ScreenshotPageObject, browser: WebdriverIO.Browser) => Promise<void>;
 

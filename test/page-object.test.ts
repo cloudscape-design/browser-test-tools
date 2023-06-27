@@ -3,6 +3,7 @@
 import { ScreenshotPageObject } from '../src/page-objects';
 import { calculateIosTopOffset } from '../src/page-objects/utils';
 import useBrowser from '../src/use-browser';
+import './utils/setup-local-driver';
 
 type TestFn = (page: ScreenshotPageObject) => Promise<void>;
 function setupTest(testFn: TestFn) {
@@ -97,7 +98,7 @@ test(
   'setWindowSize',
   setupTest(async page => {
     await page.setWindowSize({ width: 400, height: 300 });
-    expect(await page.getBrowser().getWindowSize()).toEqual({ width: 400, height: 300 });
+    expect(await page.getViewportSize()).toEqual(expect.objectContaining({ width: 400, height: 300 }));
   })
 );
 

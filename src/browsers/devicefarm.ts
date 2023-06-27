@@ -17,7 +17,7 @@ export interface DevicefarmOptions {
 }
 
 export default class DevicefarmBrowserCreator extends BrowserCreator {
-  async __getBrowserUrl(): Promise<URL> {
+  protected async __getBrowserUrl(): Promise<URL> {
     const options = this.options as DevicefarmOptions;
     const client = new DeviceFarm({ credentials: options.credentials, region: 'us-west-2' });
 
@@ -48,7 +48,7 @@ export default class DevicefarmBrowserCreator extends BrowserCreator {
     return new URL(response.url);
   }
 
-  __getCapabilities() {
+  protected __getCapabilities() {
     return getCapability(this.browserName, defaultCapabilities);
   }
 }

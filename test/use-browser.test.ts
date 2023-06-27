@@ -4,6 +4,7 @@ import { promisify } from 'util';
 import useBrowser from '../src/use-browser';
 import { configure } from '../src/use-browser';
 import { getViewportSize } from '../src/browser-scripts';
+import './utils/setup-local-driver';
 
 const delay = promisify(setTimeout);
 
