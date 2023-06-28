@@ -1,3 +1,5 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-export const chromeDriverPort = '9515';
+module.exports = {
+  chromeDriverPort: '9515',
+};

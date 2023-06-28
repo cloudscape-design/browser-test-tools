@@ -1,12 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { ScreenshotPageObject } from '../src/page-objects';
-import { calculateIosTopOffset } from '../src/page-objects/utils';
-import useBrowser from '../src/use-browser';
-import './utils/setup-local-driver';
+const { ScreenshotPageObject } = require('../src/page-objects');
+const { calculateIosTopOffset } = require('../src/page-objects/utils');
+const useBrowser = require('../src/use-browser').default;
 
-type TestFn = (page: ScreenshotPageObject) => Promise<void>;
-function setupTest(testFn: TestFn) {
+function setupTest(testFn) {
   return useBrowser(async browser => {
     await browser.url('./test-page-object.html');
     await testFn(new ScreenshotPageObject(browser));
@@ -98,7 +96,7 @@ test(
   'setWindowSize',
   setupTest(async page => {
     await page.setWindowSize({ width: 400, height: 300 });
-    expect(await page.getViewportSize()).toEqual(expect.objectContaining({ width: 400, height: 300 }));
+    expect(await page.browser.getWindowSize()).toEqual({ width: 400, height: 300 });
   })
 );
 
@@ -131,7 +129,7 @@ describe('waitForAssertion', () => {
   test(
     'successful assertion',
     setupTest(async page => {
-      const assertion = jest.fn(async () => expect(true).toEqual(true));
+      const assertion = jest.fn(() => expect(true).toEqual(true));
       await page.waitForAssertion(assertion);
       expect(assertion).toHaveBeenCalledTimes(1);
     })
@@ -141,7 +139,7 @@ describe('waitForAssertion', () => {
     'retrying once assertion',
     setupTest(async page => {
       let counter = 0;
-      const assertion = jest.fn(async () => {
+      const assertion = jest.fn(() => {
         counter++;
         expect(counter).toEqual(2);
       });
@@ -153,7 +151,7 @@ describe('waitForAssertion', () => {
   test(
     'reports the original error into the outer scope',
     setupTest(async page => {
-      const assertion = jest.fn(async () => expect(true).toEqual(false));
+      const assertion = jest.fn(() => expect(true).toEqual(false));
       await expect(page.waitForAssertion(assertion)).rejects.toThrowError(/toEqual/);
       expect(assertion).toHaveBeenCalledTimes(6);
     })
@@ -233,7 +231,7 @@ test(
   setupTest(async page => {
     const height = 250;
     await page.setWindowSize({ width: 300, height });
-    const scrollHeight = (await page.getElementProperty('body', 'scrollHeight')) as number;
+    const scrollHeight = await page.getElementProperty('body', 'scrollHeight');
 
     await page.scrollToBottom('body');
 
