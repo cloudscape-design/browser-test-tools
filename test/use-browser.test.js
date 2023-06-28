@@ -1,11 +1,9 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { promisify } from 'util';
-import useBrowser from '../src/use-browser';
-import { configure } from '../src/use-browser';
-import { getViewportSize } from '../src/browser-scripts';
-import './utils/setup-local-driver';
-
+const { promisify } = require('util');
+const useBrowser = require('../src/use-browser').default;
+const { configure } = require('../src/use-browser');
+const { getViewportSize } = require('../src/browser-scripts');
 const delay = promisify(setTimeout);
 
 test(
@@ -29,8 +27,7 @@ test(
 test('should close browser after test finish', async () => {
   const onDeleteSession = jest.fn();
   await useBrowser(async browser => {
-    // FIXME: Casting to any isn't ideal, but it's the only way to overwrite this command
-    (browser as any).overwriteCommand('deleteSession', async (originalCommand: any) => {
+    browser.overwriteCommand('deleteSession', async originalCommand => {
       await originalCommand();
       onDeleteSession();
     });
@@ -94,12 +91,7 @@ test('should run multiple browsers in parallel', () => {
     await browser.url('./index.html');
     await browser.pause(400);
   });
-  const threadWithDelay = () =>
-    delay(200).then(() =>
-      useBrowser(browser => {
-        browser.url('./index.html');
-      })()
-    );
+  const threadWithDelay = () => delay(200).then(() => useBrowser(browser => browser.url('./index.html'))());
 
   return Promise.all([threadOne(), threadTwo(), threadThree(), threadWithDelay()]);
 });

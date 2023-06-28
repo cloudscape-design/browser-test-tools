@@ -112,7 +112,7 @@ export default class BrowserStackBrowserCreator extends BrowserCreator {
     return new URL(browserStackHub);
   }
 
-  protected __getCapabilities(): Capabilities.DesiredCapabilities {
+  __getCapabilities(): Capabilities.DesiredCapabilities {
     const capabilities = getCapability(this.browserName, browsers);
     const browserstackOptions = this.options as BrowserstackOptions;
     return {

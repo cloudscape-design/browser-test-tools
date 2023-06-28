@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { chromeDriverPort } from './config';
-import { configure } from '../../src/use-browser';
+const { configure } = require('../../src/use-browser');
+const { chromeDriverPort } = require('./config');
 
 jest.setTimeout(80 * 1000);
 
