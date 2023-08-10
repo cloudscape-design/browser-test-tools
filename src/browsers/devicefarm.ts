@@ -6,7 +6,7 @@ import DeviceFarm from 'aws-sdk/clients/devicefarm';
 import { CredentialsOptions } from 'aws-sdk/lib/credentials';
 import { AWSError } from 'aws-sdk/lib/error';
 import BrowserCreator from './browser-creator';
-import defaultCapabilities, { getCapability } from './capabilities';
+import defaultCapabilities, { Capabilities, getCapability } from './capabilities';
 import { FatalError } from '../exceptions';
 
 export interface DevicefarmOptions {
@@ -48,7 +48,7 @@ export default class DevicefarmBrowserCreator extends BrowserCreator {
     return new URL(response.url);
   }
 
-  protected __getCapabilities() {
+  protected __getCapabilities(): Capabilities {
     return getCapability(this.browserName, defaultCapabilities);
   }
 }

@@ -2,18 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { URL } from 'url';
 import BrowserCreator from './browser-creator';
-import defaultCapabilities, { getCapability } from './capabilities';
-import type { Capabilities } from '@wdio/types';
+import defaultCapabilities, { Capabilities, getCapability, mergeCapabilities } from './capabilities';
 
-const localBrowsers: Record<string, Capabilities.DesiredCapabilities> = {
-  ...defaultCapabilities,
-  Chrome: {
-    ...defaultCapabilities.Chrome,
-  },
-  ChromeHeadless: {
-    ...defaultCapabilities.ChromeHeadless,
+const localBrowsers: Record<string, Capabilities> = {
+  ChromeHeadless: mergeCapabilities(defaultCapabilities.ChromeHeadless, {
     'goog:chromeOptions': {
-      ...defaultCapabilities.ChromeHeadless['goog:chromeOptions'],
       // do not use retina screen when testing locally
       mobileEmulation: {
         deviceMetrics: {
@@ -21,22 +14,16 @@ const localBrowsers: Record<string, Capabilities.DesiredCapabilities> = {
         },
       },
     },
-  },
-  ChromeHeadlessIntegration: {
-    ...defaultCapabilities.ChromeHeadless,
+  }),
+  ChromeHeadlessIntegration: mergeCapabilities(defaultCapabilities.ChromeHeadless, {
     'goog:chromeOptions': {
-      ...defaultCapabilities.ChromeHeadless['goog:chromeOptions'],
-      args: [
-        '--force-prefers-reduced-motion',
-        ...(defaultCapabilities.ChromeHeadless['goog:chromeOptions']?.args ?? []),
-      ],
+      args: ['--force-prefers-reduced-motion'],
     },
-  },
-  Firefox: {
-    ...defaultCapabilities.Firefox,
+  }),
+  Firefox: mergeCapabilities(defaultCapabilities.Firefox, {
     // https://firefox-source-docs.mozilla.org/testing/geckodriver/Capabilities.html
     'moz:debuggerAddress': true,
-  } as any, // https://github.com/webdriverio/webdriverio/pull/8355
+  }),
 };
 
 export default class LocalBrowserCreator extends BrowserCreator {
@@ -44,7 +31,7 @@ export default class LocalBrowserCreator extends BrowserCreator {
     return new URL(this.options.seleniumUrl);
   }
 
-  __getCapabilities() {
+  __getCapabilities(): Capabilities {
     return getCapability(this.browserName, localBrowsers);
   }
 }

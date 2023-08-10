@@ -1,9 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 import { remote, RemoteOptions } from 'webdriverio';
+import merge from 'lodash/merge';
 
 import { BrowserError } from '../exceptions';
-import merge from 'lodash/merge';
+import { Capabilities } from './capabilities';
 
 export interface WebDriverOptions {
   width: number;
@@ -74,5 +75,5 @@ export default abstract class BrowserCreator {
   }
 
   protected abstract __getBrowserUrl(): Promise<URL>;
-  protected abstract __getCapabilities(): WebDriver.DesiredCapabilities;
+  protected abstract __getCapabilities(): Capabilities;
 }
