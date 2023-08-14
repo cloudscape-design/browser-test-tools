@@ -1,9 +1,12 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+import lodash from 'lodash';
+import { RemoteOptions } from 'webdriverio';
 import { FatalError } from '../exceptions';
-import type { Capabilities } from '@wdio/types';
 
-const defaultCapabilities: Record<string, Capabilities.DesiredCapabilities> = {
+export type Capabilities = RemoteOptions['capabilities'];
+
+const defaultCapabilities: Record<string, Capabilities> = {
   Chrome: {
     browserName: 'chrome',
   },
@@ -74,11 +77,21 @@ const defaultCapabilities: Record<string, Capabilities.DesiredCapabilities> = {
   },
 };
 
-export function getCapability<T>(browserName: string, capabilities: Record<string, T>): T {
+export function getCapability(browserName: string, capabilities: Record<string, Capabilities>): Capabilities {
   if (!(browserName in capabilities)) {
     throw new FatalError(`Browser ${browserName} is not supported in this provider`);
   }
   return capabilities[browserName];
+}
+
+function mergeArrays(dest: unknown, src: unknown) {
+  if (Array.isArray(dest) && Array.isArray(src)) {
+    return dest.concat(src);
+  }
+}
+
+export function mergeCapabilities<T>(src: T, overrides: Partial<T>): T {
+  return lodash.mergeWith({}, src, overrides, mergeArrays);
 }
 
 export default defaultCapabilities;

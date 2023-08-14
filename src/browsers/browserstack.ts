@@ -4,14 +4,13 @@ import { URL } from 'url';
 import pRetry, { AbortError } from 'p-retry';
 import BrowserCreator, { WebDriverOptions } from './browser-creator';
 import { BrowserStackFullQueueErrorText } from '../exceptions';
-import { getCapability } from './capabilities';
-import type { Capabilities } from '@wdio/types';
+import { Capabilities, getCapability } from './capabilities';
 
 const N_SEC_SLEEP_BEFORE_RETRY = 30;
 
 const browserStackHub = 'http://hub.browserstack.com:80/wd/hub';
 
-const browsers: Record<string, Capabilities.DesiredCapabilities> = {
+const browsers: Record<string, Capabilities> = {
   Firefox: {
     browserName: 'firefox',
     // Leave blank so we get the latest version. 'beta' is also a valid option
@@ -112,13 +111,13 @@ export default class BrowserStackBrowserCreator extends BrowserCreator {
     return new URL(browserStackHub);
   }
 
-  __getCapabilities(): Capabilities.DesiredCapabilities {
+  protected __getCapabilities(): Capabilities {
     const capabilities = getCapability(this.browserName, browsers);
     const browserstackOptions = this.options as BrowserstackOptions;
     return {
       ...capabilities,
       'bstack:options': {
-        ...capabilities['bstack:options'],
+        ...('bstack:options' in capabilities ? capabilities['bstack:options'] : {}),
         projectName: browserstackOptions.projectName,
         buildName: browserstackOptions.buildName,
         userName: browserstackOptions.credentials.user,

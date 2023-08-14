@@ -1,9 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 import { remote, RemoteOptions } from 'webdriverio';
+import merge from 'lodash/merge';
 
 import { BrowserError } from '../exceptions';
-import merge from 'lodash/merge';
+import { Capabilities } from './capabilities';
 
 export interface WebDriverOptions {
   width: number;
@@ -26,7 +27,6 @@ const defaultOptions: WebDriverOptions = {
 };
 
 export default abstract class BrowserCreator {
-  // eslint-disable-next-line no-unused-vars
   constructor(protected browserName: string, protected options: Record<string, any>) {}
 
   protected async setupBrowser(overrides: Partial<WebDriverOptions>) {
@@ -59,7 +59,7 @@ export default abstract class BrowserCreator {
     return browser;
   }
 
-  async getBrowser(options: Partial<WebDriverOptions>) {
+  public async getBrowser(options: Partial<WebDriverOptions>) {
     try {
       return this.setupBrowser(options);
     } catch (error) {
@@ -75,5 +75,5 @@ export default abstract class BrowserCreator {
   }
 
   protected abstract __getBrowserUrl(): Promise<URL>;
-  protected abstract __getCapabilities(): WebDriver.DesiredCapabilities;
+  protected abstract __getCapabilities(): Capabilities;
 }

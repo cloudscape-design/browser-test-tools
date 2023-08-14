@@ -16,7 +16,7 @@
     "prestart": "npm run clean && npm run build",
     "start": "node demo",
     "pretest": "npm run clean && npm run build",
-    "test": "run-p -r start-http-server 'run-tests --scripts-prepend-node-path'",
+    "test": "run-p -r start-http-server run-tests",
     "run-tests": "wait-on http://localhost:9615 && jest",
     "start-http-server": "http-server test/fixtures --port=9615 --silent",
     "lint": "eslint --ext=ts,js --ignore-path .gitignore .",
@@ -53,7 +53,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
     "ts-jest": "^29.0.3",
-    "typescript": "^4.8.4",
+    "typescript": "^4.9.5",
     "wait-on": "^6.0.1"
   },
   "exports": {
@@ -69,7 +69,6 @@
     ]
   },
   "jest": {
-    "preset": "ts-jest",
     "testEnvironment": "node",
     "collectCoverage": true,
     "collectCoverageFrom": [
@@ -83,10 +82,15 @@
       "lcov",
       "cobertura"
     ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/test/utils/setup.js"
-    ],
-    "globalSetup": "<rootDir>/test/utils/start-chromedriver.js",
-    "globalTeardown": "<rootDir>/test/utils/stop-chromedriver.js"
+    "globalSetup": "<rootDir>/test/utils/start-chromedriver.ts",
+    "globalTeardown": "<rootDir>/test/utils/stop-chromedriver.ts",
+    "transform": {
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "tsconfig": "tsconfig.test.json"
+        }
+      ]
+    }
   }
 }

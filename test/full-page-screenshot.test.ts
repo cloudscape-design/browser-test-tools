@@ -1,11 +1,15 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-const { parsePng, packPng } = require('../src/image-utils/utils');
-const { compareImages } = require('../src/image-utils/compare');
-const useBrowser = require('../src/use-browser').default;
-const { scrollAndMergeStrategy, puppeteerStrategy } = require('../src/page-objects/full-page-screenshot');
+import type { Browser as PuppeteerBrowser } from 'puppeteer-core';
 
-function setupTest(testFn) {
+import { parsePng, packPng } from '../src/image-utils/utils';
+import { compareImages } from '../src/image-utils/compare';
+import useBrowser from '../src/use-browser';
+import { scrollAndMergeStrategy, puppeteerStrategy } from '../src/page-objects/full-page-screenshot';
+import './utils/setup-local-driver';
+
+type TestFn = (browser: WebdriverIO.Browser) => Promise<void>;
+function setupTest(testFn: TestFn) {
   return useBrowser(async browser => {
     await browser.url('/test-full-page-screenshot.html');
     await testFn(browser);
@@ -17,7 +21,7 @@ test(
   setupTest(async browser => {
     const puppeteer = await browser.getPuppeteer();
 
-    const expected = await parsePng(await puppeteerStrategy(browser, puppeteer));
+    const expected = await parsePng(await puppeteerStrategy(browser, puppeteer as unknown as PuppeteerBrowser));
     const actual = await parsePng(await scrollAndMergeStrategy(browser));
     const diff = compareImages(expected, actual, { width: expected.width, height: expected.height });
 
@@ -33,7 +37,7 @@ test.skip(
     const toggle = await browser.$('#multiple-pages-toggle');
     await toggle.click();
 
-    const puppeteerImage = await puppeteerStrategy(browser, puppeteer);
+    const puppeteerImage = await puppeteerStrategy(browser, puppeteer as unknown as PuppeteerBrowser);
     const scrollAndMergeImage = await scrollAndMergeStrategy(browser);
     const expected = await parsePng(puppeteerImage);
     const actual = await parsePng(scrollAndMergeImage);

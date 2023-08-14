@@ -6,17 +6,8 @@ import DeviceFarm from 'aws-sdk/clients/devicefarm';
 import { CredentialsOptions } from 'aws-sdk/lib/credentials';
 import { AWSError } from 'aws-sdk/lib/error';
 import BrowserCreator from './browser-creator';
-import defaultCapabilities, { getCapability } from './capabilities';
+import defaultCapabilities, { Capabilities, getCapability } from './capabilities';
 import { FatalError } from '../exceptions';
-import type { Capabilities } from '@wdio/types';
-
-// This uses undocumented options which prevents proper typing
-const capabilities: Record<string, Capabilities.DesiredCapabilities> = {
-  ...defaultCapabilities,
-  IE11: {
-    browserName: 'internet explorer',
-  },
-};
 
 export interface DevicefarmOptions {
   retryCount?: number;
@@ -57,8 +48,8 @@ export default class DevicefarmBrowserCreator extends BrowserCreator {
     return new URL(response.url);
   }
 
-  protected __getCapabilities() {
-    return getCapability(this.browserName, capabilities);
+  protected __getCapabilities(): Capabilities {
+    return getCapability(this.browserName, defaultCapabilities);
   }
 }
 
