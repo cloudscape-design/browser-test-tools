@@ -20,10 +20,16 @@ describe('Mobile Devicefarm browserCreator', () => {
     );
   });
 
-  test.each([{ platform: 'Android' }, { platform: 'iOS' }])('adds $platform capabilities', async () => {
-    const browserCreator = new MobileBrowserCreator('Android', { seleniumUrl });
+  test.each([{ platform: 'Android' }, { platform: 'iOS' }])('adds $platform capabilities', async ({ platform }) => {
+    const browserCreator = new MobileBrowserCreator(platform, { seleniumUrl });
 
     const browser = await browserCreator.getBrowser({});
-    expect((browser.options.capabilities as any)['appium:platformName']).toEqual('Android');
+    expect((browser.options.capabilities as any)['appium:platformName']).toEqual(platform);
+
+    if (platform === 'Android') {
+      expect(browser.updateSettings).not.toBeCalled();
+    } else {
+      expect(browser.updateSettings).toBeCalledWith({ safariTabBarPosition: 'bottom' });
+    }
   });
 });

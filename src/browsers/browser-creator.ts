@@ -54,6 +54,9 @@ export default abstract class BrowserCreator {
     if (!browser.isMobile) {
       await browser.$('body').then(body => body.moveTo({ xOffset: 0, yOffset: 0 }));
       await browser.setWindowSize(options.width, options.height);
+    } else if (browser.isIOS) {
+      // Make sure the tab bar is always at the bottom to ensure screenshots are taken properly
+      browser.updateSettings({ safariTabBarPosition: 'bottom' });
     }
 
     return browser;
