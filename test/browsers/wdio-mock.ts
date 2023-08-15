@@ -13,6 +13,12 @@ class FakeWebdriver {
   setTimeout() {
     // noop
   }
+
+  get isIOS() {
+    return (this.options.capabilities as any)['appium:platformName'] === 'iOS';
+  }
+
+  updateSettings = jest.fn();
 }
 
 export const remoteMock = jest.fn();
