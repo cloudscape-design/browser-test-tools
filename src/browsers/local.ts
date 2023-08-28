@@ -5,6 +5,7 @@ import BrowserCreator from './browser-creator';
 import defaultCapabilities, { Capabilities, getCapability, mergeCapabilities } from './capabilities';
 
 const localBrowsers: Record<string, Capabilities> = {
+  ...defaultCapabilities,
   ChromeHeadless: mergeCapabilities(defaultCapabilities.ChromeHeadless, {
     'goog:chromeOptions': {
       // do not use retina screen when testing locally
