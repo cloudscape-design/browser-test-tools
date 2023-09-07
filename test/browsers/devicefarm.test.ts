@@ -1,8 +1,16 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 import './wdio-mock';
-import DeviceFarmClientMock from 'aws-sdk/clients/devicefarm';
 import DevicefarmBrowserCreator from '../../src/browsers/devicefarm';
+
+const createTestGridUrl = jest.fn();
+
+jest.mock('@aws-sdk/client-device-farm', () => {
+  class DeviceFarm {
+    createTestGridUrl = createTestGridUrl;
+  }
+  return { DeviceFarm };
+});
 
 const browserName = 'Chrome';
 
@@ -11,26 +19,23 @@ describe('Devicefarm browserCreator ', () => {
     jest.clearAllMocks();
   });
 
-  test('should throw if retries limit exceeded', async () => {
-    const browserCreator = new DevicefarmBrowserCreator(browserName, { projectArn: 'throttling', retryCount: 1 });
-    await expect(browserCreator.getBrowser({})).rejects.toThrow('ThrottlingException');
-    expect(DeviceFarmClientMock.prototype.createTestGridUrl).toHaveBeenCalledTimes(2);
-  });
-
   test('should throw if devicefarm returned an invalid response', async () => {
-    const browserCreator = new DevicefarmBrowserCreator(browserName, { projectArn: 'invalid' });
+    createTestGridUrl.mockReturnValue(Promise.resolve({ invalid: true }));
+    const browserCreator = new DevicefarmBrowserCreator(browserName, { projectArn: 'foo' });
     await expect(browserCreator.getBrowser({})).rejects.toThrow('Invalid response from devicefarm: {"invalid":true}');
-    expect(DeviceFarmClientMock.prototype.createTestGridUrl).toHaveBeenCalledTimes(1);
+    expect(createTestGridUrl).toHaveBeenCalledTimes(1);
   });
 
-  test('should throw if client returns unknown error', async () => {
-    const browserCreator = new DevicefarmBrowserCreator(browserName, { projectArn: 'unknown' });
+  test('should propagate errors from the client', async () => {
+    createTestGridUrl.mockReturnValue(Promise.reject(new Error('unknown error')));
+    const browserCreator = new DevicefarmBrowserCreator(browserName, { projectArn: 'foo' });
     await expect(browserCreator.getBrowser({})).rejects.toThrow('unknown error');
-    expect(DeviceFarmClientMock.prototype.createTestGridUrl).toHaveBeenCalledTimes(1);
+    expect(createTestGridUrl).toHaveBeenCalledTimes(1);
   });
 
   test('should return grid url in case of success', async () => {
-    const browserCreator = new DevicefarmBrowserCreator(browserName, { projectArn: 'pass' });
+    createTestGridUrl.mockReturnValue(Promise.resolve({ url: 'http://localhost:4444/devicefarm-test-grid' }));
+    const browserCreator = new DevicefarmBrowserCreator(browserName, { projectArn: 'foo' });
     const browser = await browserCreator.getBrowser({});
     expect(browser.options).toEqual(
       expect.objectContaining({
@@ -40,6 +45,6 @@ describe('Devicefarm browserCreator ', () => {
         protocol: 'http',
       })
     );
-    expect(DeviceFarmClientMock.prototype.createTestGridUrl).toHaveBeenCalledTimes(1);
+    expect(createTestGridUrl).toHaveBeenCalledTimes(1);
   });
 });
