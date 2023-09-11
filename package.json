@@ -17,7 +17,7 @@
     "start": "node demo",
     "pretest": "npm run clean && npm run build",
     "test": "run-p -r start-http-server run-tests",
-    "run-tests": "wait-on http://localhost:9615 && jest",
+    "run-tests": "wait-on --timeout 60000 http://localhost:9615 && jest",
     "start-http-server": "http-server test/fixtures --port=9615 --silent",
     "lint": "eslint --ext=ts,js --ignore-path .gitignore .",
     "build": "./scripts/generate-exports.js && tsc",

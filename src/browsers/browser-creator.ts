@@ -6,6 +6,8 @@ import merge from 'lodash/merge';
 import { BrowserError } from '../exceptions';
 import { Capabilities } from './capabilities';
 
+
+
 export interface WebDriverOptions {
   width: number;
   height: number;
