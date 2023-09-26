@@ -114,7 +114,7 @@ export default class BasePageObject {
 
   async setValue(selector: string, value: number | string | string[]) {
     const element = await this.browser.$(selector);
-    await element.setValue(value);
+    await element.setValue(Array.isArray(value) ? value.join('') : value);
   }
 
   async getViewportSize() {

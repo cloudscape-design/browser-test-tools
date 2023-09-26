@@ -23,7 +23,7 @@ const localBrowsers: Record<string, Capabilities> = {
   }),
   Firefox: mergeCapabilities(defaultCapabilities.Firefox, {
     // https://firefox-source-docs.mozilla.org/testing/geckodriver/Capabilities.html
-    'moz:debuggerAddress': true,
+    'moz:debuggerAddress': 'true',
   }),
 };
 

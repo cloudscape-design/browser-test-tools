@@ -4,11 +4,12 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": ["es2017", "dom"],
-    "types": ["node", "webdriverio/async", "jest"],
+    "types": ["node", "@wdio/globals/types", "jest"],
     "declaration": true,
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "skipLibCheck": true,
     "rootDir": "src",
     "outDir": "dist"
   },
