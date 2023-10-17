@@ -1,5 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+import dns from 'dns';
 import { WebdriverIoUnsupportedPuppeteerErrorText, WebdriverIoRemotePuppeteerErrorText } from '../exceptions';
 import { ViewportSize, ElementRect } from './types';
 
@@ -63,6 +64,9 @@ export function calculateIosTopOffset(
 }
 
 export async function getPuppeteer(browser: WebdriverIO.Browser) {
+  // Make sure to favor IPv4 name resolution over IPv6 so that the localhost debugger can be found.
+  dns.setDefaultResultOrder('ipv4first');
+
   try {
     const puppeteer = await browser.getPuppeteer();
     return puppeteer;
