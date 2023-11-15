@@ -6,6 +6,7 @@ import { parsePng, packPng } from '../src/image-utils/utils';
 import { compareImages } from '../src/image-utils/compare';
 import useBrowser from '../src/use-browser';
 import { scrollAndMergeStrategy, puppeteerStrategy } from '../src/page-objects/full-page-screenshot';
+import { getPuppeteer } from '../src/page-objects/utils';
 import './utils/setup-local-driver';
 
 type TestFn = (browser: WebdriverIO.Browser) => Promise<void>;
@@ -19,7 +20,7 @@ function setupTest(testFn: TestFn) {
 test(
   'scrollAndMergeStrategy and puppeteerStrategy produce same for single page',
   setupTest(async browser => {
-    const puppeteer = await browser.getPuppeteer();
+    const puppeteer = await getPuppeteer(browser);
 
     const expected = await parsePng(await puppeteerStrategy(browser, puppeteer as unknown as PuppeteerBrowser));
     const actual = await parsePng(await scrollAndMergeStrategy(browser));
@@ -32,7 +33,7 @@ test(
 test.skip(
   'scrollAndMergeStrategy and puppeteerStrategy produce same for multiple pages',
   setupTest(async browser => {
-    const puppeteer = await browser.getPuppeteer();
+    const puppeteer = await getPuppeteer(browser);
 
     const toggle = await browser.$('#multiple-pages-toggle');
     await toggle.click();
