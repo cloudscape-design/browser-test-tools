@@ -16,11 +16,7 @@ const localBrowsers: Record<string, Capabilities> = {
       },
     },
   }),
-  ChromeHeadlessIntegration: mergeCapabilities(defaultCapabilities.ChromeHeadless, {
-    'goog:chromeOptions': {
-      args: ['--force-prefers-reduced-motion'],
-    },
-  }),
+  ChromeHeadlessIntegration: { ...defaultCapabilities.ChromeHeadless },
   Firefox: mergeCapabilities(defaultCapabilities.Firefox, {
     // https://firefox-source-docs.mozilla.org/testing/geckodriver/Capabilities.html
     'moz:debuggerAddress': true,
