@@ -40,8 +40,8 @@ function useBrowser(...args: [Partial<WebDriverOptions>, TestFunction] | [TestFu
       await testFn(browser);
       // This method does not exist in w3c protocol
       if (!options.skipConsoleErrorsCheck && 'getLogs' in browser) {
-        const logs = (await browser.getLogs('browser')) as Array<{ level: string }>;
-        const errors = logs.filter(entry => entry.level === 'SEVERE');
+        const logs = (await browser.getLogs('browser')) as Array<{ level: string; message: string }>;
+        const errors = logs.filter(entry => entry.level === 'SEVERE' && !entry.message.includes('/favicon.ico'));
         if (errors.length > 0) {
           throw new Error('Unexpected errors in browser console:\n' + JSON.stringify(errors, null, 2));
         }
