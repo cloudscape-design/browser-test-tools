@@ -6,13 +6,8 @@
     "url": "https://github.com/cloudscape-design/browser-test-tools.git"
   },
   "homepage": "https://cloudscape.design",
-  "files": [
-    "dist",
-    "*.js",
-    "*.d.ts"
-  ],
   "scripts": {
-    "clean": "rm -rf build/screenshots coverage *.d.ts *.js dist && mkdir -p build/screenshots",
+    "clean": "rm -rf build/screenshots coverage lib && mkdir -p build/screenshots",
     "prestart": "npm run clean && npm run build",
     "start": "node demo",
     "pretest": "npm run clean && npm run build",
@@ -20,8 +15,9 @@
     "run-tests": "wait-on http://localhost:9615 && jest",
     "start-http-server": "http-server test/fixtures --port=9615 -a localhost --silent",
     "lint": "eslint --ext=ts,js --ignore-path .gitignore .",
-    "build": "./scripts/generate-exports.js && tsc",
-    "prepublishOnly": "npm run build",
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "postbuild": "cp package.json README.md LICENSE lib",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -58,8 +54,8 @@
   },
   "exports": {
     "./chrome-launcher": "./chrome-launcher.js",
-    "./image-utils": "./image-utils.js",
-    "./page-objects": "./page-objects.js",
+    "./image-utils": "./image-utils/index.js",
+    "./page-objects": "./page-objects/index.js",
     "./use-browser": "./use-browser.js",
     "./browser": "./browser.js"
   },
