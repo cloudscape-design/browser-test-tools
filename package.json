@@ -6,6 +6,14 @@
     "url": "https://github.com/cloudscape-design/browser-test-tools.git"
   },
   "homepage": "https://cloudscape.design",
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "browser-scripts",
+    "browsers",
+    "image-utils",
+    "page-objects"
+  ],
   "scripts": {
     "clean": "rm -rf build/screenshots coverage lib && mkdir -p build/screenshots",
     "prestart": "npm run clean && npm run build",
