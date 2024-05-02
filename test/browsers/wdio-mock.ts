@@ -1,5 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+import { beforeEach, vi } from 'vitest';
 import type { RemoteOptions } from 'webdriverio';
 
 class FakeWebdriver {
@@ -15,13 +16,13 @@ class FakeWebdriver {
   }
 }
 
-export const remoteMock = jest.fn();
+export const remoteMock = vi.fn();
 
 beforeEach(() => {
   remoteMock.mockReset();
   remoteMock.mockImplementation((options: RemoteOptions) => new FakeWebdriver(options));
 });
 
-jest.mock('webdriverio', () => ({
+vi.mock('webdriverio', () => ({
   remote: remoteMock,
 }));

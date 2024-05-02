@@ -1,11 +1,12 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import './wdio-mock';
 import DevicefarmBrowserCreator from '../../src/browsers/devicefarm';
 
-const createTestGridUrl = jest.fn();
+const createTestGridUrl = vi.fn();
 
-jest.mock('@aws-sdk/client-device-farm', () => {
+vi.mock('@aws-sdk/client-device-farm', () => {
   class DeviceFarm {
     createTestGridUrl = createTestGridUrl;
   }
@@ -16,7 +17,7 @@ const browserName = 'Chrome';
 
 describe('Devicefarm browserCreator ', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should throw if devicefarm returned an invalid response', async () => {
