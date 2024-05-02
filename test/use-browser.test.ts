@@ -1,5 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+import { test, expect, vi } from 'vitest';
 import { promisify } from 'util';
 import useBrowser from '../src/use-browser';
 import { configure } from '../src/use-browser';
@@ -27,7 +28,7 @@ test(
 );
 
 test('should close browser after test finish', async () => {
-  const onDeleteSession = jest.fn();
+  const onDeleteSession = vi.fn();
   await useBrowser(async browser => {
     // FIXME: Casting to any isn't ideal, but it's the only way to overwrite this command
     (browser as any).overwriteCommand('deleteSession', async (originalCommand: any) => {
@@ -38,10 +39,9 @@ test('should close browser after test finish', async () => {
   expect(onDeleteSession).toHaveBeenCalled();
 });
 
-test('propagates an error happened in test', async () => {
-  // the browser is configured to wait for 3x5000ms before throwing an error
-  // so we need to increasing jest default timeout
-  jest.setTimeout(20 * 10000);
+// the browser is configured to wait for 3x5000ms before throwing an error
+// so we need to increase the default timeout to 15000
+test('propagates an error happened in test', { timeout: 15000 }, async () => {
   function brokenTest() {
     return useBrowser(async browser => {
       await (await browser.$('#not-existing')).click();

@@ -1,5 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+import { test, expect } from 'vitest';
 import type { Browser as PuppeteerBrowser } from 'puppeteer-core';
 
 import { parsePng, packPng } from '../src/image-utils/utils';

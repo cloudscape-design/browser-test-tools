@@ -1,5 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+import { test, expect } from 'vitest';
 import fs from 'fs';
 import { PNG } from 'pngjs';
 import useBrowser from '../src/use-browser';

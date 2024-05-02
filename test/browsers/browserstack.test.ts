@@ -1,5 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { remoteMock } from './wdio-mock';
 import BrowserStackBrowserCreator from '../../src/browsers/browserstack';
 
@@ -16,7 +17,7 @@ const browserOptions = {
 
 describe('BrowserStack browserCreator ', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should try to reconnect in case of a full BrowserStack queue', async () => {

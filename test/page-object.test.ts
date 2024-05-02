@@ -1,5 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+import { test, expect, describe, vi } from 'vitest';
 import { ScreenshotPageObject } from '../src/page-objects';
 import { calculateIosTopOffset } from '../src/page-objects/utils';
 import useBrowser from '../src/use-browser';
@@ -131,7 +132,7 @@ describe('waitForAssertion', () => {
   test(
     'successful assertion',
     setupTest(async page => {
-      const assertion = jest.fn(async () => expect(true).toEqual(true));
+      const assertion = vi.fn(async () => expect(true).toBe(true));
       await page.waitForAssertion(assertion);
       expect(assertion).toHaveBeenCalledTimes(1);
     })
@@ -141,7 +142,7 @@ describe('waitForAssertion', () => {
     'retrying once assertion',
     setupTest(async page => {
       let counter = 0;
-      const assertion = jest.fn(async () => {
+      const assertion = vi.fn(async () => {
         counter++;
         expect(counter).toEqual(2);
       });
@@ -153,8 +154,8 @@ describe('waitForAssertion', () => {
   test(
     'reports the original error into the outer scope',
     setupTest(async page => {
-      const assertion = jest.fn(async () => expect(true).toEqual(false));
-      await expect(page.waitForAssertion(assertion)).rejects.toThrowError(/toEqual/);
+      const assertion = vi.fn(async () => expect(true).toBe(false));
+      await expect(page.waitForAssertion(assertion)).rejects.toThrowError(/expected true to be false/);
       expect(assertion).toHaveBeenCalledTimes(6);
     })
   );
