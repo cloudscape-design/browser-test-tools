@@ -51,6 +51,8 @@ export default abstract class BrowserCreator {
       path: pathname,
     });
 
+    console.log('After calling remote');
+
     await browser.setTimeout({ implicit: options.implicitTimeout, script: options.scriptTimeout });
 
     if (!browser.isMobile) {
