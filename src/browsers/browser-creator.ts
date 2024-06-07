@@ -35,6 +35,8 @@ export default abstract class BrowserCreator {
     const { protocol, hostname, port, pathname } = await this.__getBrowserUrl();
     const defaultPort = protocol === 'http:' ? 80 : 443;
 
+    console.log({ protocol, hostname, port, pathname });
+
     const browser = await remote({
       logLevel: options.logLevel,
       baseUrl: options.baseUrl,
