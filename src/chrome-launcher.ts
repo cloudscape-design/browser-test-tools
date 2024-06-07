@@ -11,6 +11,7 @@ function spawnChromeDriver(port: string) {
   } catch {
     throw new FatalError("Cannot find local chromedriver. Did you run 'npm i -g chromedriver'?");
   }
+  console.log('spawn chromedriver', performance.now());
   return spawn('chromedriver', params);
 }
 
@@ -25,6 +26,14 @@ export function shutdownWebdriver() {
 export function startWebdriver(port: string = '9515'): Promise<void> {
   return new Promise((resolve, reject) => {
     webdriverProcess = spawnChromeDriver(port);
+    webdriverProcess.on('data', data => {
+      console.log(`stdout: ${data}`);
+    });
+    webdriverProcess.on('close', code => {
+      if (code !== 0) {
+        console.log(`webdriverProcess process exited with code ${code}`);
+      }
+    });
     webdriverProcess.on('error', error => {
       shutdownWebdriver();
       reject(error);
