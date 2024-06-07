@@ -51,7 +51,7 @@ export default abstract class BrowserCreator {
       path: pathname,
     });
 
-    console.log('After calling remote');
+    console.log('After calling remote', performance.now());
 
     await browser.setTimeout({ implicit: options.implicitTimeout, script: options.scriptTimeout });
 
@@ -67,6 +67,7 @@ export default abstract class BrowserCreator {
     try {
       return this.setupBrowser(options);
     } catch (error) {
+      console.log('timed out', performance.now());
       // log error here, because later it will be caught
       console.error(error);
 
