@@ -7,9 +7,11 @@ import { chromeDriverPort } from './config';
 export async function setup() {
   // Make sure to favor IPv4 name resolution over IPv6 so that the localhost debugger can be found.
   dns.setDefaultResultOrder('ipv4first');
+  console.log('startWebdriver', performance.now());
   await startWebdriver(chromeDriverPort);
 }
 
 export function teardown() {
+  console.log('shutdownWebdriver', performance.now());
   shutdownWebdriver();
 }
