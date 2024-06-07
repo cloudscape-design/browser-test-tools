@@ -30,9 +30,7 @@ export function startWebdriver(port: string = '9515'): Promise<void> {
       console.log(`stdout: ${data}`);
     });
     webdriverProcess.on('close', code => {
-      if (code !== 0) {
-        console.log(`webdriverProcess process exited with code ${code}`);
-      }
+      console.log(`webdriverProcess process exited with code ${code}`);
     });
     webdriverProcess.on('error', error => {
       shutdownWebdriver();
