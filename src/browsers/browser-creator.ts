@@ -35,8 +35,6 @@ export default abstract class BrowserCreator {
     const { protocol, hostname, port, pathname } = await this.__getBrowserUrl();
     const defaultPort = protocol === 'http:' ? 80 : 443;
 
-    console.log({ protocol, hostname, port, pathname });
-
     const browser = await remote({
       logLevel: options.logLevel,
       baseUrl: options.baseUrl,
@@ -50,8 +48,6 @@ export default abstract class BrowserCreator {
       port: +port || defaultPort,
       path: pathname,
     });
-
-    console.log('After calling remote', performance.now());
 
     await browser.setTimeout({ implicit: options.implicitTimeout, script: options.scriptTimeout });
 
