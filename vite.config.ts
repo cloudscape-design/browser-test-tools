@@ -5,6 +5,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'node',
+    globalSetup: './test/utils/global-setup.ts',
     testTimeout: 15000,
     coverage: {
       enabled: process.env.CI === 'true',
