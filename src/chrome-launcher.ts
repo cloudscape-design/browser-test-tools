@@ -5,7 +5,7 @@ import { FatalError } from './exceptions';
 import readline from 'readline';
 
 function spawnChromeDriver(port: string) {
-  const params = [`--port=${port}`, '--log-level=SEVERE', '--path=/'];
+  const params = [`--port=${port}`, '--log-level=DEBUG', '--path=/'];
   try {
     execSync('hash chromedriver');
   } catch {
