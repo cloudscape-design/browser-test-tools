@@ -19,5 +19,6 @@ export default defineConfig({
         'src/chrome-launcher.ts',
       ],
     },
+    reporters: ['hanging-process'],
   },
 });
