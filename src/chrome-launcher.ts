@@ -10,7 +10,7 @@ console.log('Total memory:', os.totalmem());
 console.log(process.memoryUsage());
 
 function spawnChromeDriver(port: string) {
-  const params = [`--port=${port}`, '--log-level=DEBUG', '--path=/'];
+  const params = [`--port=${port}`, '--log-level=SEVERE', '--path=/'];
   try {
     execSync('hash chromedriver');
   } catch {
