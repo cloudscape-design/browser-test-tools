@@ -3,6 +3,11 @@
 import { spawn, ChildProcessWithoutNullStreams, execSync } from 'child_process';
 import { FatalError } from './exceptions';
 import readline from 'readline';
+import os from 'os';
+
+console.log('Free memory:', os.freemem());
+console.log('Total memory:', os.totalmem());
+console.log(process.memoryUsage());
 
 function spawnChromeDriver(port: string) {
   const params = [`--port=${port}`, '--log-level=DEBUG', '--path=/'];
