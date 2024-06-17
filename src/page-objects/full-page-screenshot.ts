@@ -52,12 +52,14 @@ export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
 }
 
 export default async function fullPageScreenshot(browser: WebdriverIO.Browser) {
+  /*
   const puppeteer = await getPuppeteer(browser);
   if (puppeteer) {
     // casting due to mismatch in NodeJS types of EventEmitter
     return puppeteerStrategy(browser, puppeteer as unknown as PuppeteerBrowser);
   }
   console.warn('Falling back to scroll-and-merge strategy');
+  */
   return scrollAndMergeStrategy(browser);
 }
 
