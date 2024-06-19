@@ -112,7 +112,7 @@ export default class BasePageObject {
     return element.getValue();
   }
 
-  async setValue(selector: string, value: number | string | string[]) {
+  async setValue(selector: string, value: number | string) {
     const element = await this.browser.$(selector);
     await element.setValue(value);
   }
@@ -223,8 +223,7 @@ export default class BasePageObject {
   }
 
   async getElementsText(selector: string) {
-    const elements = await this.browser.$$(selector);
-    return Promise.all(elements.map(async element => element.getText()));
+    return this.browser.$$(selector).map(element => element.getText());
   }
 
   /**
