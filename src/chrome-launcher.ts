@@ -3,6 +3,7 @@
 import { spawn, ChildProcessWithoutNullStreams, execSync } from 'child_process';
 import { FatalError } from './exceptions';
 import readline from 'readline';
+import waitOn from 'wait-on';
 
 function spawnChromeDriver(port: string) {
   const params = [`--port=${port}`, '--log-level=SEVERE', '--path=/'];
@@ -22,8 +23,8 @@ export function shutdownWebdriver() {
   }
 }
 
-export function startWebdriver(port: string = '9515'): Promise<void> {
-  return new Promise((resolve, reject) => {
+export async function startWebdriver(port: string = '9515'): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
     webdriverProcess = spawnChromeDriver(port);
     webdriverProcess.on('error', error => {
       shutdownWebdriver();
@@ -42,5 +43,9 @@ export function startWebdriver(port: string = '9515'): Promise<void> {
         console.error(line);
       }
     });
+  });
+  await waitOn({
+    resources: [`http-get://localhost:${port}/status`],
+    timeout: 10_000,
   });
 }
