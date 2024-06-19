@@ -33,7 +33,10 @@ export function startWebdriver(port: string = '9515'): Promise<void> {
       shutdownWebdriver();
       reject(new Error('Webdriver process exited too early'));
     });
-    webdriverProcess.stdout.once('data', () => resolve());
+    webdriverProcess.stdout.once('data', () => {
+      console.log('Chrome started');
+      resolve();
+    });
     const errorReader = readline.createInterface({ input: webdriverProcess.stderr });
     errorReader.on('line', (line: string) => {
       // chromeDriver spams to the error stream on macOS
@@ -42,5 +45,9 @@ export function startWebdriver(port: string = '9515'): Promise<void> {
         console.error(line);
       }
     });
+    if (process.env.CI) {
+      webdriverProcess.stdout.pipe(process.stdout);
+      webdriverProcess.stderr.pipe(process.stderr);
+    }
   });
 }
