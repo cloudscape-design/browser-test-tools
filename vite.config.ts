@@ -3,6 +3,8 @@
 import { defineConfig } from 'vitest/config';
 import os from 'node:os';
 
+console.log(os.cpus());
+
 export default defineConfig({
   test: {
     environment: 'node',
