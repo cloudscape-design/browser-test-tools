@@ -3,6 +3,11 @@
 import { spawn, ChildProcessWithoutNullStreams, execSync } from 'child_process';
 import { FatalError } from './exceptions';
 import readline from 'readline';
+import os from 'os';
+
+console.log('Free memory:', os.freemem());
+console.log('Total memory:', os.totalmem());
+console.log(process.memoryUsage());
 
 function spawnChromeDriver(port: string) {
   const params = [`--port=${port}`, '--log-level=SEVERE', '--path=/'];
@@ -11,6 +16,7 @@ function spawnChromeDriver(port: string) {
   } catch {
     throw new FatalError("Cannot find local chromedriver. Did you run 'npm i -g chromedriver'?");
   }
+  console.log('spawn chromedriver', performance.now());
   return spawn('chromedriver', params);
 }
 
@@ -25,6 +31,12 @@ export function shutdownWebdriver() {
 export function startWebdriver(port: string = '9515'): Promise<void> {
   return new Promise((resolve, reject) => {
     webdriverProcess = spawnChromeDriver(port);
+    webdriverProcess.on('data', data => {
+      console.log(`stdout: ${data}`);
+    });
+    webdriverProcess.on('close', code => {
+      console.log(`webdriverProcess process exited with code ${code}`);
+    });
     webdriverProcess.on('error', error => {
       shutdownWebdriver();
       reject(error);

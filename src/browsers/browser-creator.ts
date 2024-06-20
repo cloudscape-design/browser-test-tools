@@ -63,6 +63,7 @@ export default abstract class BrowserCreator {
     try {
       return this.setupBrowser(options);
     } catch (error) {
+      console.log('timed out', performance.now());
       // log error here, because later it will be caught
       console.error(error);
 

@@ -3,6 +3,7 @@
 import { WebDriverOptions } from './browsers/browser-creator';
 import getBrowserCreator from './browser';
 import merge from 'lodash/merge';
+import os from 'os';
 
 type BrowserOptions = {
   browserName: string;
@@ -30,6 +31,9 @@ function useBrowser(...args: [Partial<WebDriverOptions>, TestFunction] | [TestFu
   const optionsOverride = args.length === 1 ? {} : args[0];
   const testFn = args.length === 1 ? args[0] : args[1];
   return async () => {
+    console.log('Free memory:', os.freemem());
+    console.log('Total memory:', os.totalmem());
+    console.log(process.memoryUsage());
     const creator = getBrowserCreator(options.browserName, options.seleniumType, options.browserCreatorOptions);
     const browser = await creator.getBrowser({ ...options.webdriverOptions, ...optionsOverride });
     try {
