@@ -51,9 +51,9 @@ export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
   return mergeImages(screenshots, width * pixelRatio, height * pixelRatio, lastImageOffset * pixelRatio, offsetTop);
 }
 
-export default async function fullPageScreenshot(browser: WebdriverIO.Browser) {
+export default async function fullPageScreenshot(browser: WebdriverIO.Browser, forceScrollAndMerge: boolean = false) {
   const puppeteer = await getPuppeteer(browser);
-  if (puppeteer) {
+  if (puppeteer && !forceScrollAndMerge) {
     // casting due to mismatch in NodeJS types of EventEmitter
     return puppeteerStrategy(browser, puppeteer as unknown as PuppeteerBrowser);
   }
