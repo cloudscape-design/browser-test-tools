@@ -7,6 +7,10 @@ import { ElementOffset, ScreenshotCapturingOptions, ScreenshotWithOffset } from 
 import fullPageScreenshot from './full-page-screenshot';
 
 export default class ScreenshotPageObject extends BasePageObject {
+  constructor(browser: WebdriverIO.Browser, public readonly forceScrollAndMerge: boolean = false) {
+    super(browser);
+  }
+
   async focusNextElement() {
     return this.keys('Tab');
   }
@@ -24,7 +28,7 @@ export default class ScreenshotPageObject extends BasePageObject {
     const scrollPosition = await this.getWindowScroll();
     // Wait for the page to settle before taking a screenshot
     await this.waitForJsTimers();
-    const screenshot = await fullPageScreenshot(this.browser);
+    const screenshot = await fullPageScreenshot(this.browser, this.forceScrollAndMerge);
     // restore scroll position
     await this.windowScrollTo(scrollPosition);
     return screenshot;
