@@ -62,6 +62,7 @@ const defaultCapabilities: Record<string, Capabilities> = {
   },
   Firefox: {
     browserName: 'firefox',
+    setWindowRect: true,
     'moz:firefoxOptions': {
       prefs: {
         'fission.webContentIsolationStrategy': 0,
