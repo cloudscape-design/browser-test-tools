@@ -56,6 +56,13 @@ export default abstract class BrowserCreator {
       await browser.setWindowSize(options.width, options.height);
     }
 
+    console.log('=== setupBrowser ===');
+    console.log('height: ', options.height);
+
+    const size = await browser.getWindowSize();
+    console.log('--- getWindowSize --');
+    console.log('size: ', size.height);
+
     return browser;
   }
 

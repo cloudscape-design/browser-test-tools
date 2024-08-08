@@ -28,6 +28,8 @@ function useBrowser(testFn: TestFunction): () => Promise<void>;
 function useBrowser(...args: [Partial<WebDriverOptions>, TestFunction] | [TestFunction]) {
   // How to do type-safe function overloads: https://stackoverflow.com/questions/55852612/typescript-overloads-optional-arguments-and-type-inference
   const optionsOverride = args.length === 1 ? {} : args[0];
+  console.log('===== use browser ======');
+  console.log('height: ', optionsOverride.height);
   const testFn = args.length === 1 ? args[0] : args[1];
   return async () => {
     const creator = getBrowserCreator(options.browserName, options.seleniumType, options.browserCreatorOptions);
