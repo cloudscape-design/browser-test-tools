@@ -62,12 +62,21 @@ const defaultCapabilities: Record<string, Capabilities> = {
   },
   Firefox: {
     browserName: 'firefox',
-    setWindowRect: true,
     'moz:firefoxOptions': {
       prefs: {
         'fission.webContentIsolationStrategy': 0,
         'fission.bfcacheInParent': false,
       },
+    },
+  },
+  FirefoxHeadless: {
+    browserName: 'firefox',
+    'moz:firefoxOptions': {
+      prefs: {
+        'fission.webContentIsolationStrategy': 0,
+        'fission.bfcacheInParent': false,
+      },
+      args: ['-headless'],
     },
   },
   Safari: {
