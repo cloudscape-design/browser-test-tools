@@ -241,4 +241,15 @@ export default class BasePageObject {
   async clearLiveAnnouncements() {
     await this.browser.execute(liveAnnouncements.clearLiveAnnouncements);
   }
+
+  async runInsideIframe(iframeSelector: string, shouldSwitch: boolean, callback: () => Promise<void>) {
+    if (!shouldSwitch) {
+      return callback();
+    }
+    const iframeEl = await this.browser.$(iframeSelector);
+    await this.browser.switchToFrame(iframeEl);
+    await callback();
+    // go back to top
+    await this.browser.switchToFrame(null);
+  }
 }
