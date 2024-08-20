@@ -8,7 +8,7 @@ import { Capabilities, getCapability } from './capabilities';
 
 const N_SEC_SLEEP_BEFORE_RETRY = 30;
 
-const browserStackHub = 'http://hub.browserstack.com:80/wd/hub';
+const browserStackHub = 'https://hub.browserstack.com/wd/hub';
 
 const browsers: Record<string, Capabilities> = {
   Firefox: {

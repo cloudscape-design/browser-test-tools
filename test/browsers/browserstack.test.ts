@@ -58,8 +58,8 @@ describe('BrowserStack browserCreator ', () => {
         },
         hostname: 'hub.browserstack.com',
         path: '/wd/hub',
-        port: 80,
-        protocol: 'http',
+        port: 443,
+        protocol: 'https',
       })
     );
   });
