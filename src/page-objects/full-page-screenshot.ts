@@ -5,14 +5,15 @@ import { getViewportSize, windowScrollTo } from '../browser-scripts';
 import mergeImages from '../image-utils/merge';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
 import { calculateIosTopOffset, getPuppeteer } from './utils';
+import { Browser } from 'webdriverio';
 
 const MAX_SCREENSHOT_HEIGHT = 16000;
 
-async function scroll(browser: WebdriverIO.Browser, topOffset: number) {
+async function scroll(browser: Browser, topOffset: number) {
   await browser.execute(windowScrollTo, topOffset, 0);
 }
 
-async function checkDocumentSize(browser: WebdriverIO.Browser) {
+async function checkDocumentSize(browser: Browser) {
   const viewPortSize = await browser.execute(getViewportSize);
 
   if (viewPortSize.pageHeight > MAX_SCREENSHOT_HEIGHT) {
@@ -23,7 +24,7 @@ async function checkDocumentSize(browser: WebdriverIO.Browser) {
   return viewPortSize;
 }
 
-export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
+export async function scrollAndMergeStrategy(browser: Browser) {
   const { width, height, pageHeight, screenWidth, screenHeight, pixelRatio } = await checkDocumentSize(browser);
   let offset = 0;
   const screenshots: string[] = [];
@@ -51,7 +52,7 @@ export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
   return mergeImages(screenshots, width * pixelRatio, height * pixelRatio, lastImageOffset * pixelRatio, offsetTop);
 }
 
-export default async function fullPageScreenshot(browser: WebdriverIO.Browser, forceScrollAndMerge: boolean = false) {
+export default async function fullPageScreenshot(browser: Browser, forceScrollAndMerge: boolean = false) {
   const puppeteer = await getPuppeteer(browser);
   if (puppeteer && !forceScrollAndMerge) {
     // casting due to mismatch in NodeJS types of EventEmitter
@@ -61,7 +62,7 @@ export default async function fullPageScreenshot(browser: WebdriverIO.Browser, f
   return scrollAndMergeStrategy(browser);
 }
 
-export async function puppeteerStrategy(browser: WebdriverIO.Browser, puppeteer: PuppeteerBrowser): Promise<string> {
+export async function puppeteerStrategy(browser: Browser, puppeteer: PuppeteerBrowser): Promise<string> {
   const image = await browser.call(async () => {
     // Assuming only one page open
     const [current] = await puppeteer.pages();

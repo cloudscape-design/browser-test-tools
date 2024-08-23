@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 import pRetry from 'p-retry';
+import { Browser } from 'webdriverio';
 
 import {
   getElementScrollPosition,
@@ -19,7 +20,12 @@ import { ElementRect } from './types';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
 
 export default class BasePageObject {
-  constructor(protected browser: WebdriverIO.Browser) {}
+  constructor(protected browser: Browser) {}
+
+  private async $(selector: string) {
+    //workaround for https://github.com/webdriverio/webdriverio/issues/13440
+    return this.browser.$(selector.replace(/^body/, '//body'));
+  }
 
   async pause(milliseconds: number) {
     await this.browser.pause(milliseconds);
@@ -30,7 +36,7 @@ export default class BasePageObject {
   }
 
   async setWindowSize({ width, height }: { width: number; height: number }) {
-    await this.browser.setWindowSize(width, height);
+    await this.browser.setViewport({ width, height });
   }
 
   async spyOnEvents(selector: string, events: string[]) {
@@ -40,80 +46,80 @@ export default class BasePageObject {
   }
 
   async click(selector: string) {
-    const element = await this.browser.$(selector);
+    const element = await this.$(selector);
     await element.click();
   }
 
   async hoverElement(selector: string, xOffset?: number, yOffset?: number) {
-    const element = await this.browser.$(selector);
+    const element = await this.$(selector);
     await element.moveTo({ xOffset, yOffset });
   }
 
   async buttonDownOnElement(selector: string) {
     // buttonDown exists only in JSON Wire protocol
-    if (this.browser.buttonDown) {
-      await this.hoverElement(selector);
-      await this.browser.buttonDown();
-    } else {
-      // Clean up all previous actions before stating a new batch. Without this line Safari emits extra "mouseup" events
-      await this.browser.releaseActions();
-      const box = await this.getBoundingBox(selector);
-      const center = getElementCenter(box);
-      // W3C alternative is `performActions`. All consecutive actions have to be a part of a single call
-      await this.browser.performActions([
-        {
-          type: 'pointer',
-          id: 'mouse',
-          parameters: { pointerType: 'mouse' },
-          actions: [
-            { type: 'pointerMove', duration: 0, x: center.x, y: center.y },
-            { type: 'pointerDown', button: 0 },
-            // extra delay to let event listeners to be fired
-            { type: 'pause', duration: 10 },
-          ],
-        },
-      ]);
-    }
+    // if (this.browser.buttonDown) {
+    //   await this.hoverElement(selector);
+    //   await this.browser.buttonDown();
+    // } else {
+    // Clean up all previous actions before stating a new batch. Without this line Safari emits extra "mouseup" events
+    await this.browser.releaseActions();
+    const box = await this.getBoundingBox(selector);
+    const center = getElementCenter(box);
+    // W3C alternative is `performActions`. All consecutive actions have to be a part of a single call
+    await this.browser.performActions([
+      {
+        type: 'pointer',
+        id: 'mouse',
+        parameters: { pointerType: 'mouse' },
+        actions: [
+          { type: 'pointerMove', duration: 0, x: center.x, y: center.y },
+          { type: 'pointerDown', button: 0 },
+          // extra delay to let event listeners to be fired
+          { type: 'pause', duration: 10 },
+        ],
+      },
+    ]);
+    // }
   }
 
   async buttonUp() {
     // buttonUp exists only in JSON Wire protocol
-    if (this.browser.buttonUp) {
-      await this.browser.buttonUp();
-    } else {
-      // W3C alternative is `performActions`
-      await this.browser.performActions([
-        {
-          type: 'pointer',
-          id: 'mouse',
-          parameters: { pointerType: 'mouse' },
-          actions: [
-            { type: 'pointerUp', button: 0 },
+    // if (this.browser.buttonUp) {
+    //   await this.browser.buttonUp();
+    // } else {
+    // W3C alternative is `performActions`
+    await this.browser.performActions([
+      {
+        type: 'pointer',
+        id: 'mouse',
+        parameters: { pointerType: 'mouse' },
+        actions: [
+          { type: 'pointerUp', button: 0 },
 
-            // extra delay for Safari to process the event before moving the cursor away
-            { type: 'pause', duration: 10 },
-            // return cursor back to the corner to avoid hover effects on screenshots
-            { type: 'pointerMove', duration: 0, x: 0, y: 0 },
-          ],
-        },
-      ]);
-      // make sure all controls are properly released to avoid conflicts with further actions
-      await this.browser.releaseActions();
-    }
+          // extra delay for Safari to process the event before moving the cursor away
+          { type: 'pause', duration: 10 },
+          // return cursor back to the corner to avoid hover effects on screenshots
+          { type: 'pointerMove', duration: 0, x: 0, y: 0 },
+        ],
+      },
+    ]);
+    // make sure all controls are properly released to avoid conflicts with further actions
+    await this.browser.releaseActions();
+    // }
   }
 
   async dragAndDrop(sourceSelector: string, xOffset = 0, yOffset = 0) {
-    const element = await this.browser.$(sourceSelector);
+    const element = await this.$(sourceSelector);
     await element.dragAndDrop({ x: xOffset, y: yOffset });
   }
 
   async getValue(selector: string) {
-    const element = await this.browser.$(selector);
+    const element = await this.$(selector);
     return element.getValue();
   }
 
   async setValue(selector: string, value: number | string) {
-    const element = await this.browser.$(selector);
+    const element = await this.$(selector);
     await element.setValue(value);
   }
 
@@ -164,41 +170,41 @@ export default class BasePageObject {
   }
 
   async isFocused(selector: string) {
-    const element = await this.browser.$(selector);
+    const element = await this.$(selector);
     return element.isFocused();
   }
 
   async isSelected(selector: string) {
-    const element = await this.browser.$(selector);
+    const element = await this.$(selector);
     return element.isSelected();
   }
 
   async isExisting(selector: string) {
-    const elements = await this.browser.$$(selector);
-    return elements.length > 0;
+    const elements = this.browser.$$(selector);
+    return (await elements.length) > 0;
   }
 
   async isDisplayed(selector: string) {
     // browser.$ throws an error if element is not found, so we use this method to avoid try/catch
-    const elements = await this.browser.$$(selector);
-    if (elements.length === 0) {
+    const elements = this.browser.$$(selector);
+    if ((await elements.length) === 0) {
       return false;
     }
     return elements[0].isDisplayed();
   }
 
   async isClickable(selector: string) {
-    const element = await this.browser.$(selector);
+    const element = await this.$(selector);
     return element.isClickable();
   }
 
   async getElementAttribute(selector: string, attributeName: string) {
-    const element = await this.browser.$(selector);
+    const element = await this.$(selector);
     return element.getAttribute(attributeName);
   }
 
   async getElementProperty(selector: string, propertyName: string) {
-    const element = await this.browser.$(selector);
+    const element = await this.$(selector);
     return element.getProperty(propertyName);
   }
 
@@ -218,12 +224,12 @@ export default class BasePageObject {
   }
 
   async getText(selector: string) {
-    const element = await this.browser.$(selector);
+    const element = await this.$(selector);
     return element.getText();
   }
 
   async getElementsText(selector: string) {
-    return this.browser.$$(selector).map(element => element.getText());
+    return this.browser.$$(selector).map(element => element.getHTML());
   }
 
   /**
@@ -245,8 +251,8 @@ export default class BasePageObject {
     if (!shouldSwitch) {
       return callback();
     }
-    const iframeEl = await this.browser.$(iframeSelector);
-    await this.browser.switchToFrame(iframeEl);
+    const iframeEl = await this.$(iframeSelector);
+    await this.browser.switchToFrame(await iframeEl.getElement());
     await callback();
     // go back to top
     await this.browser.switchToFrame(null);

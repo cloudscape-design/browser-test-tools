@@ -3,12 +3,13 @@
 import { test, expect } from 'vitest';
 import fs from 'fs';
 import { PNG } from 'pngjs';
+import { Browser } from 'webdriverio';
 import useBrowser from '../src/use-browser';
 import { ScreenshotPageObject } from '../src/page-objects';
 import { cropAndCompare, parsePng } from '../src/image-utils';
 import './utils/setup-local-driver';
 
-type TestFn = (page: ScreenshotPageObject, browser: WebdriverIO.Browser) => Promise<void>;
+type TestFn = (page: ScreenshotPageObject, browser: Browser) => Promise<void>;
 
 function setupTest(testFn: TestFn) {
   return useBrowser(async browser => {

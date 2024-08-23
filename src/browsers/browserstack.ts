@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { URL } from 'url';
 import pRetry, { AbortError } from 'p-retry';
+import { Browser } from 'webdriverio';
 import BrowserCreator, { WebDriverOptions } from './browser-creator';
 import { BrowserStackFullQueueErrorText } from '../exceptions';
 import { Capabilities, getCapability } from './capabilities';
@@ -86,7 +87,7 @@ export type BrowserstackOptions = {
   buildName: string;
 };
 export default class BrowserStackBrowserCreator extends BrowserCreator {
-  async getBrowser(options: Partial<WebDriverOptions>): Promise<WebdriverIO.Browser> {
+  async getBrowser(options: Partial<WebDriverOptions>): Promise<Browser> {
     const nSecSleepBeforeRetry = this.options.nSecSleepBeforeRetry || N_SEC_SLEEP_BEFORE_RETRY;
 
     return pRetry(

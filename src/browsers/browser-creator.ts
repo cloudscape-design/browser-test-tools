@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { remote, RemoteOptions } from 'webdriverio';
+import { RemoteConfig } from 'webdriver';
+import { remote } from 'webdriverio';
 import merge from 'lodash/merge';
 
 import { BrowserError } from '../exceptions';
@@ -13,7 +14,7 @@ export interface WebDriverOptions {
   implicitTimeout: number;
   scriptTimeout: number;
   baseUrl?: string;
-  logLevel: RemoteOptions['logLevel'];
+  logLevel: RemoteConfig['logLevel'];
   capabilities?: Record<string, any>;
 }
 
@@ -52,7 +53,8 @@ export default abstract class BrowserCreator {
     await browser.setTimeout({ implicit: options.implicitTimeout, script: options.scriptTimeout });
 
     if (!browser.isMobile) {
-      await browser.$('body').then(body => body.moveTo({ xOffset: 0, yOffset: 0 }));
+      const body = await browser.$('//body');
+      body.moveTo({ xOffset: 0, yOffset: 0 });
       await browser.setWindowSize(options.width, options.height);
     }
 

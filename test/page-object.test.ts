@@ -233,7 +233,7 @@ test(
   setupTest(async page => {
     const height = 250;
     await page.setWindowSize({ width: 300, height });
-    const scrollHeight = (await page.getElementProperty('body', 'scrollHeight')) as number;
+    const scrollHeight = parseFloat((await page.getElementProperty('body', 'scrollHeight')) ?? '0');
 
     await page.scrollToBottom('body');
 

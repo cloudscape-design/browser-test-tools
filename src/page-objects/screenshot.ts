@@ -1,5 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+import { Browser } from 'webdriverio';
 import { scrollToBottom, scrollToRight } from '../browser-scripts';
 import { parsePng } from '../image-utils';
 import BasePageObject from './base';
@@ -7,7 +8,7 @@ import { ElementOffset, ScreenshotCapturingOptions, ScreenshotWithOffset } from 
 import fullPageScreenshot from './full-page-screenshot';
 
 export default class ScreenshotPageObject extends BasePageObject {
-  constructor(browser: WebdriverIO.Browser, public readonly forceScrollAndMerge: boolean = false) {
+  constructor(browser: Browser, public readonly forceScrollAndMerge: boolean = false) {
     super(browser);
   }
 

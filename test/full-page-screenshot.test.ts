@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { test, expect } from 'vitest';
 import type { Browser as PuppeteerBrowser } from 'puppeteer-core';
+import { Browser } from 'webdriverio';
 
 import { parsePng, packPng } from '../src/image-utils/utils';
 import { compareImages } from '../src/image-utils/compare';
@@ -10,7 +11,7 @@ import { scrollAndMergeStrategy, puppeteerStrategy } from '../src/page-objects/f
 import { getPuppeteer } from '../src/page-objects/utils';
 import './utils/setup-local-driver';
 
-type TestFn = (browser: WebdriverIO.Browser) => Promise<void>;
+type TestFn = (browser: Browser) => Promise<void>;
 function setupTest(testFn: TestFn) {
   return useBrowser(async browser => {
     await browser.url('/test-full-page-screenshot.html');

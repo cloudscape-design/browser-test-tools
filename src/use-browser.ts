@@ -3,6 +3,7 @@
 import { WebDriverOptions } from './browsers/browser-creator';
 import getBrowserCreator from './browser';
 import merge from 'lodash/merge';
+import { Browser } from 'webdriverio';
 
 type BrowserOptions = {
   browserName: string;
@@ -20,7 +21,7 @@ const options: BrowserOptions = {
 };
 
 interface TestFunction {
-  (browser: WebdriverIO.Browser): Promise<void> | void;
+  (browser: Browser): Promise<void> | void;
 }
 
 function useBrowser(optionsOverride: Partial<WebDriverOptions>, testFn: TestFunction): () => Promise<void>;
