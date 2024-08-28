@@ -18,6 +18,7 @@
     "clean": "rm -rf build/screenshots coverage lib && mkdir -p build/screenshots",
     "prestart": "npm run clean && npm run build",
     "start": "node demo",
+    "pretest": "chromedriver --version",
     "test": "run-p -r start-http-server run-tests",
     "run-tests": "wait-on http://localhost:9615 && vitest run",
     "start-http-server": "http-server test/fixtures --port=9615 -a localhost --silent",
