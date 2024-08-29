@@ -56,7 +56,7 @@ const defaultCapabilities: Record<string, Capabilities> = {
         '--prerender-from-omnibox=disabled',
         '--no-sandbox',
         '--disable-gpu',
-        '--headless',
+        '--headless=old',
       ],
     },
   },
