@@ -5,6 +5,7 @@ import merge from 'lodash/merge';
 
 import { BrowserError } from '../exceptions';
 import { Capabilities } from './capabilities';
+import { addFirefoxOffset } from './utils';
 
 export interface WebDriverOptions {
   width: number;
@@ -52,8 +53,14 @@ export default abstract class BrowserCreator {
     await browser.setTimeout({ implicit: options.implicitTimeout, script: options.scriptTimeout });
 
     if (!browser.isMobile) {
+      let adjustedSizeOptions = options;
+
       await browser.$('body').then(body => body.moveTo({ xOffset: 0, yOffset: 0 }));
-      await browser.setWindowSize(options.width, options.height);
+
+      if (browser.isFirefox) {
+        adjustedSizeOptions = addFirefoxOffset(options);
+      }
+      await browser.setWindowSize(adjustedSizeOptions.width, adjustedSizeOptions.height);
     }
 
     return browser;

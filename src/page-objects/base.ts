@@ -14,6 +14,7 @@ import {
 import EventsSpy from './events-spy';
 import * as liveAnnouncements from '../browser-scripts/live-announcements';
 import { getElementCenter } from './utils';
+import { FIREFOX_VIEWPORT_OFFSET } from '../browsers/utils';
 
 import { ElementRect } from './types';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
@@ -30,7 +31,8 @@ export default class BasePageObject {
   }
 
   async setWindowSize({ width, height }: { width: number; height: number }) {
-    await this.browser.setWindowSize(width, height);
+    const adjustedHeight = this.browser.isFirefox ? height + FIREFOX_VIEWPORT_OFFSET : height;
+    await this.browser.setWindowSize(width, adjustedHeight);
   }
 
   async spyOnEvents(selector: string, events: string[]) {
