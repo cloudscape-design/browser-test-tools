@@ -94,12 +94,19 @@ test(
   })
 );
 
-test(
-  'setWindowSize',
+test.each([
+  { width: 400, height: 300 },
+  { width: 400, height: 300 },
+])('setWindowSize, width=$width, height=$height', size =>
   setupTest(async page => {
-    await page.setWindowSize({ width: 400, height: 300 });
-    expect(await page.getViewportSize()).toEqual(expect.objectContaining({ width: 400, height: 300 }));
-  })
+    await page.setWindowSize(size);
+    const { width, height } = await page.getViewportSize();
+    expect(width).toBe(size.width);
+
+    // With Chromium --headless=new the window.innerHeight differs from the defined window height.
+    expect(height).toBeGreaterThan(size.height - 100);
+    expect(height).toBeLessThanOrEqual(size.height);
+  })()
 );
 
 test(

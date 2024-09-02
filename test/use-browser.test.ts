@@ -18,13 +18,20 @@ test(
   })
 );
 
-test(
-  'should allow to override browser options',
-  useBrowser({ width: 600, height: 400 }, async browser => {
+test.each([
+  { width: 600, height: 400 },
+  { width: 400, height: 600 },
+  { width: 1900, height: 1200 },
+])('should allow to override browser options, width=$width, height=$height', size =>
+  useBrowser(size, async browser => {
     await browser.url('./index.html');
     const { width, height } = await browser.execute(getViewportSize);
-    expect({ width, height }).toEqual({ width: 600, height: 400 });
-  })
+    expect(width).toBe(size.width);
+
+    // With Chromium --headless=new the window.innerHeight differs from the defined window height.
+    expect(height).toBeGreaterThan(size.height - 100);
+    expect(height).toBeLessThanOrEqual(size.height);
+  })()
 );
 
 test('should close browser after test finish', async () => {

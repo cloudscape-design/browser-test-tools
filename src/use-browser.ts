@@ -19,6 +19,15 @@ const options: BrowserOptions = {
   skipConsoleErrorsCheck: false,
 };
 
+// The errors like { "level": "SEVERE", "source": "network", "message": "http://localhost:8080/favicon.ico - Failed to load resource: the server responded with a status of 404 (Not Found)" }
+// originate in Chromium when using new headless mode. We ignore them as non-severe.
+function isFaviconError(error: Record<string, unknown>) {
+  const testMessages = ['favicon.ico - Failed to load resource', 'favicon.svg - Failed to load resource'];
+  const isNetworkError = 'source' in error && error.source === 'network';
+  const message = 'message' in error && typeof error.message === 'string' ? error.message : '';
+  return isNetworkError && testMessages.some(test => message.includes(test));
+}
+
 interface TestFunction {
   (browser: WebdriverIO.Browser): Promise<void> | void;
 }
@@ -32,6 +41,7 @@ function useBrowser(...args: [Partial<WebDriverOptions>, TestFunction] | [TestFu
   return async () => {
     const creator = getBrowserCreator(options.browserName, options.seleniumType, options.browserCreatorOptions);
     const browser = await creator.getBrowser({ ...options.webdriverOptions, ...optionsOverride });
+
     try {
       if ('getLogs' in browser) {
         // dispose logs from previous sessions, if there are any
@@ -41,7 +51,7 @@ function useBrowser(...args: [Partial<WebDriverOptions>, TestFunction] | [TestFu
       // This method does not exist in w3c protocol
       if (!options.skipConsoleErrorsCheck && 'getLogs' in browser) {
         const logs = (await browser.getLogs('browser')) as Array<{ level: string }>;
-        const errors = logs.filter(entry => entry.level === 'SEVERE');
+        const errors = logs.filter(entry => entry.level === 'SEVERE' && !isFaviconError(entry));
         if (errors.length > 0) {
           throw new Error('Unexpected errors in browser console:\n' + JSON.stringify(errors, null, 2));
         }
