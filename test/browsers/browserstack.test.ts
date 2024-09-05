@@ -7,7 +7,7 @@ import BrowserStackBrowserCreator from '../../src/browsers/browserstack';
 const browserName = 'Chrome';
 const browserOptions = {
   width: 1200,
-  height: 604,
+  height: 800,
   needsKeyboard: false,
   implicitTimeout: 100,
   nSecSleepBeforeRetry: 0.001,

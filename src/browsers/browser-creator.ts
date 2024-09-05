@@ -19,7 +19,7 @@ export interface WebDriverOptions {
 
 const defaultOptions: WebDriverOptions = {
   width: 1200,
-  height: 604,
+  height: 800,
   needsKeyboard: false,
   implicitTimeout: 5000,
   scriptTimeout: 30000,
