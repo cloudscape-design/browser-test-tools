@@ -96,7 +96,7 @@ test(
 
 test.each([
   { width: 400, height: 300 },
-  { width: 400, height: 300 },
+  { width: 300, height: 400 },
 ])('setWindowSize, width=$width, height=$height', size =>
   setupTest(async page => {
     await page.setWindowSize(size);
