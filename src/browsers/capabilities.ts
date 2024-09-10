@@ -1,12 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+
 import lodash from 'lodash';
-import { RemoteOptions } from 'webdriverio';
 import { FatalError } from '../exceptions';
 
-export type Capabilities = RemoteOptions['capabilities'];
-
-const defaultCapabilities: Record<string, Capabilities> = {
+const defaultCapabilities: Record<string, WebdriverIO.Capabilities> = {
   Chrome: {
     browserName: 'chrome',
   },
@@ -77,7 +75,10 @@ const defaultCapabilities: Record<string, Capabilities> = {
   },
 };
 
-export function getCapability(browserName: string, capabilities: Record<string, Capabilities>): Capabilities {
+export function getCapability(
+  browserName: string,
+  capabilities: Record<string, WebdriverIO.Capabilities>
+): WebdriverIO.Capabilities {
   if (!(browserName in capabilities)) {
     throw new FatalError(`Browser ${browserName} is not supported in this provider`);
   }
