@@ -3,7 +3,7 @@
 import { URL } from 'url';
 import { DeviceFarm } from '@aws-sdk/client-device-farm';
 import BrowserCreator from './browser-creator';
-import defaultCapabilities, { Capabilities, getCapability } from './capabilities';
+import defaultCapabilities, { getCapability } from './capabilities';
 import { FatalError } from '../exceptions';
 
 export interface DevicefarmOptions {
@@ -28,7 +28,7 @@ export default class DevicefarmBrowserCreator extends BrowserCreator {
     return new URL(response.url);
   }
 
-  protected __getCapabilities(): Capabilities {
+  protected __getCapabilities(): WebdriverIO.Capabilities {
     return getCapability(this.browserName, defaultCapabilities);
   }
 }
