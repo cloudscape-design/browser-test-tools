@@ -17,9 +17,10 @@ import { getElementCenter } from './utils';
 
 import { ElementRect } from './types';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
+import { Browser } from 'webdriverio';
 
 export default class BasePageObject {
-  constructor(protected browser: WebdriverIO.Browser) {}
+  constructor(protected browser: Browser) {}
 
   async pause(milliseconds: number) {
     await this.browser.pause(milliseconds);
@@ -50,56 +51,45 @@ export default class BasePageObject {
   }
 
   async buttonDownOnElement(selector: string) {
-    // buttonDown exists only in JSON Wire protocol
-    if (this.browser.buttonDown) {
-      await this.hoverElement(selector);
-      await this.browser.buttonDown();
-    } else {
-      // Clean up all previous actions before stating a new batch. Without this line Safari emits extra "mouseup" events
-      await this.browser.releaseActions();
-      const box = await this.getBoundingBox(selector);
-      const center = getElementCenter(box);
-      // W3C alternative is `performActions`. All consecutive actions have to be a part of a single call
-      await this.browser.performActions([
-        {
-          type: 'pointer',
-          id: 'mouse',
-          parameters: { pointerType: 'mouse' },
-          actions: [
-            { type: 'pointerMove', duration: 0, x: center.x, y: center.y },
-            { type: 'pointerDown', button: 0 },
-            // extra delay to let event listeners to be fired
-            { type: 'pause', duration: 10 },
-          ],
-        },
-      ]);
-    }
+    // Clean up all previous actions before stating a new batch. Without this line Safari emits extra "mouseup" events
+    await this.browser.releaseActions();
+    const box = await this.getBoundingBox(selector);
+    const center = getElementCenter(box);
+    // W3C alternative is `performActions`. All consecutive actions have to be a part of a single call
+    await this.browser.performActions([
+      {
+        type: 'pointer',
+        id: 'mouse',
+        parameters: { pointerType: 'mouse' },
+        actions: [
+          { type: 'pointerMove', duration: 0, x: center.x, y: center.y },
+          { type: 'pointerDown', button: 0 },
+          // extra delay to let event listeners to be fired
+          { type: 'pause', duration: 10 },
+        ],
+      },
+    ]);
   }
 
   async buttonUp() {
-    // buttonUp exists only in JSON Wire protocol
-    if (this.browser.buttonUp) {
-      await this.browser.buttonUp();
-    } else {
-      // W3C alternative is `performActions`
-      await this.browser.performActions([
-        {
-          type: 'pointer',
-          id: 'mouse',
-          parameters: { pointerType: 'mouse' },
-          actions: [
-            { type: 'pointerUp', button: 0 },
+    // W3C alternative is `performActions`
+    await this.browser.performActions([
+      {
+        type: 'pointer',
+        id: 'mouse',
+        parameters: { pointerType: 'mouse' },
+        actions: [
+          { type: 'pointerUp', button: 0 },
 
-            // extra delay for Safari to process the event before moving the cursor away
-            { type: 'pause', duration: 10 },
-            // return cursor back to the corner to avoid hover effects on screenshots
-            { type: 'pointerMove', duration: 0, x: 0, y: 0 },
-          ],
-        },
-      ]);
-      // make sure all controls are properly released to avoid conflicts with further actions
-      await this.browser.releaseActions();
-    }
+          // extra delay for Safari to process the event before moving the cursor away
+          { type: 'pause', duration: 10 },
+          // return cursor back to the corner to avoid hover effects on screenshots
+          { type: 'pointerMove', duration: 0, x: 0, y: 0 },
+        ],
+      },
+    ]);
+    // make sure all controls are properly released to avoid conflicts with further actions
+    await this.browser.releaseActions();
   }
 
   async dragAndDrop(sourceSelector: string, xOffset = 0, yOffset = 0) {
@@ -112,7 +102,7 @@ export default class BasePageObject {
     return element.getValue();
   }
 
-  async setValue(selector: string, value: number | string | string[]) {
+  async setValue(selector: string, value: number | string) {
     const element = await this.browser.$(selector);
     await element.setValue(value);
   }
@@ -174,7 +164,7 @@ export default class BasePageObject {
   }
 
   async isExisting(selector: string) {
-    const elements = await this.browser.$$(selector);
+    const elements = await this.browser.$$(selector).map(element => element);
     return elements.length > 0;
   }
 
@@ -185,7 +175,7 @@ export default class BasePageObject {
 
   async isDisplayedInViewport(selector: string) {
     const element = await this.browser.$(selector);
-    return element.isDisplayedInViewport();
+    return element.isDisplayed({ withinViewport: true });
   }
 
   async isClickable(selector: string) {
@@ -224,7 +214,7 @@ export default class BasePageObject {
   }
 
   async getElementsText(selector: string) {
-    const elements = await this.browser.$$(selector);
+    const elements = await this.browser.$$(selector).map(element => element);
     return Promise.all(elements.map(async element => element.getText()));
   }
 
