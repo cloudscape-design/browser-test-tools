@@ -30,13 +30,14 @@
   "dependencies": {
     "@aws-sdk/client-device-farm": "^3.623.0",
     "@types/pngjs": "^6.0.4",
+    "@wdio/globals": "^8.40.5",
     "get-stream": "^6.0.1",
     "lodash": "^4.17.21",
     "p-retry": "^4.6.2",
     "pixelmatch": "^5.3.0",
     "pngjs": "^6.0.0",
     "wait-on": "^7.2.0",
-    "webdriverio": "^7.25.2"
+    "webdriverio": "^8.40.5"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.186",
