@@ -1,10 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 import lodash from 'lodash';
-import { RemoteOptions } from 'webdriverio';
+import { RemoteConfig } from 'webdriver';
 import { FatalError } from '../exceptions';
 
-export type Capabilities = RemoteOptions['capabilities'];
+export type Capabilities = RemoteConfig['capabilities'];
 
 const defaultCapabilities: Record<string, Capabilities> = {
   Chrome: {
