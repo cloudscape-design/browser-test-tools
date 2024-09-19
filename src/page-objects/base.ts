@@ -179,21 +179,13 @@ export default class BasePageObject {
   }
 
   async isDisplayed(selector: string) {
-    try {
-      const element = await this.browser.$(selector);
-      return element.isDisplayed();
-    } catch {
-      return false;
-    }
+    const element = await this.browser.$(selector);
+    return element.isDisplayed();
   }
 
   async isDisplayedInViewport(selector: string) {
-    try {
-      const element = await this.browser.$(selector);
-      return element.isDisplayedInViewport();
-    } catch {
-      return false;
-    }
+    const element = await this.browser.$(selector);
+    return element.isDisplayedInViewport();
   }
 
   async isClickable(selector: string) {
