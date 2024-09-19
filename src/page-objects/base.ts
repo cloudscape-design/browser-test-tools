@@ -179,12 +179,21 @@ export default class BasePageObject {
   }
 
   async isDisplayed(selector: string) {
-    // browser.$ throws an error if element is not found, so we use this method to avoid try/catch
-    const elements = await this.browser.$$(selector);
-    if (elements.length === 0) {
+    try {
+      const element = await this.browser.$(selector);
+      return element.isDisplayed();
+    } catch {
       return false;
     }
-    return elements[0].isDisplayed();
+  }
+
+  async isDisplayedInViewport(selector: string) {
+    try {
+      const element = await this.browser.$(selector);
+      return element.isDisplayedInViewport();
+    } catch {
+      return false;
+    }
   }
 
   async isClickable(selector: string) {
