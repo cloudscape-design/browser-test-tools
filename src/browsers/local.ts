@@ -28,7 +28,9 @@ const localBrowsers: Record<string, WebdriverIO.Capabilities> = {
   Firefox: mergeCapabilities(defaultCapabilities.Firefox, {
     // https://firefox-source-docs.mozilla.org/testing/geckodriver/Capabilities.html
     // Also see: https://github.com/webdriverio/webdriverio/issues/13053
-    'moz:debuggerAddress': true as any,
+    'moz:firefoxOptions': {
+      debuggerAddress: true as any,
+    },
   }),
 };
 
