@@ -176,11 +176,22 @@ test(
 );
 
 test(
-  'isVisible',
+  'isDisplayed',
   setupTest(async page => {
     expect(await page.isDisplayed('#text-content')).toEqual(true);
+    expect(await page.isDisplayed('#text-content-at-page-bottom')).toEqual(true);
     expect(await page.isDisplayed('#hidden')).toEqual(false);
     expect(await page.isDisplayed('#not-existing')).toEqual(false);
+  })
+);
+
+test(
+  'isDisplayedInViewport',
+  setupTest(async page => {
+    expect(await page.isDisplayedInViewport('#text-content')).toEqual(true);
+    expect(await page.isDisplayedInViewport('#text-content-at-page-bottom')).toEqual(false);
+    expect(await page.isDisplayedInViewport('#hidden')).toEqual(false);
+    expect(await page.isDisplayedInViewport('#not-existing')).toEqual(false);
   })
 );
 
