@@ -66,6 +66,7 @@ const defaultCapabilities: Record<string, WebdriverIO.Capabilities> = {
         'fission.bfcacheInParent': false,
       },
     },
+    webSocketUrl: true,
   },
   Safari: {
     browserName: 'safari',
