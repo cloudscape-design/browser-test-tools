@@ -26,7 +26,7 @@ const localBrowsers: Record<string, WebdriverIO.Capabilities> = {
     'wdio:enforceWebDriverClassic': true,
   }),
   Firefox: mergeCapabilities(defaultCapabilities.Firefox, {
-    'moz:debuggerAddress': true,
+    'moz:debuggerAddress': true as any,
   }),
 };
 
