@@ -61,6 +61,7 @@ const defaultCapabilities: Record<string, WebdriverIO.Capabilities> = {
   Firefox: {
     browserName: 'firefox',
     'moz:firefoxOptions': {
+      args: ['-headless'],
       prefs: {
         'fission.webContentIsolationStrategy': 0,
         'fission.bfcacheInParent': false,

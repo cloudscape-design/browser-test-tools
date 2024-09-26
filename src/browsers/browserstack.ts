@@ -16,7 +16,7 @@ const browsers: Record<string, WebdriverIO.Capabilities> = {
     // Leave blank so we get the latest version. 'beta' is also a valid option
     // browserVersion: '69.0',
     'bstack:options': {
-      seleniumVersion: '3.14.0',
+      seleniumVersion: '4.25.0',
       os: 'Windows',
       osVersion: '10',
     },
