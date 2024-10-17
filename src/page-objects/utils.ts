@@ -67,17 +67,18 @@ export async function getPuppeteer(browser: WebdriverIO.Browser) {
   // Make sure to favor IPv4 name resolution over IPv6 so that the localhost debugger can be found.
   dns.setDefaultResultOrder('ipv4first');
 
+  // eslint-disable-next-line
   try {
     const puppeteer = await browser.getPuppeteer();
     return puppeteer;
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes(WebdriverIoUnsupportedPuppeteerErrorText) ||
-        error.message.includes(WebdriverIoRemotePuppeteerErrorText))
-    ) {
-      return null;
-    }
+    // if (
+    //   error instanceof Error &&
+    //   (error.message.includes(WebdriverIoUnsupportedPuppeteerErrorText) ||
+    //     error.message.includes(WebdriverIoRemotePuppeteerErrorText))
+    // ) {
+    //   return null;
+    // }
     throw error;
   }
 }
