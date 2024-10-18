@@ -45,7 +45,7 @@ test.skip(
     const actual = await parsePng(scrollAndMergeImage);
     const diff = compareImages(expected, actual, { width: expected.width, height: expected.height });
 
-    // Dump screenshtos to console for manual review and investigate why the test is flaky
+    // Dump screenshots to console for manual review and investigate why the test is flaky
     console.log('puppeteer image');
     console.log(puppeteerImage);
     console.log('scroll-and-merge image');
