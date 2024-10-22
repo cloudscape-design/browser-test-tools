@@ -23,7 +23,7 @@ export function shutdownWebdriver() {
   }
 }
 
-export async function startWebdriver(port: string = '9515'): Promise<void> {
+export async function startWebdriverNew(port: string = '9515'): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     webdriverProcess = spawnChromeDriver(port);
     webdriverProcess.on('error', error => {
