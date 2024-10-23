@@ -16,5 +16,5 @@ permissions:
 
 jobs:
   build:
-    uses: cloudscape-design/actions/.github/workflows/build-lint-test.yml@main
+    uses: cloudscape-design/actions/.github/workflows/build-lint-test.yml@test/simplify-local-deps
     secrets: inherit
