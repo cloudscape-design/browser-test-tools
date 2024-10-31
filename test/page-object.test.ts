@@ -249,13 +249,13 @@ test(
 test(
   'scrollToBottom',
   setupTest(async page => {
-    const height = 250;
-    await page.setWindowSize({ width: 300, height });
-    const scrollHeight = (await page.getElementProperty('body', 'scrollHeight')) as number;
+    const testElement = '#scrollable-container';
+    const { height } = await page.getBoundingBox(testElement);
+    const scrollHeight = (await page.getElementProperty(testElement, 'scrollHeight')) as number;
 
-    await page.scrollToBottom('body');
+    await page.scrollToBottom(testElement);
 
-    const { top } = await page.getElementScroll('body');
+    const { top } = await page.getElementScroll(testElement);
     expect(top).toBeGreaterThanOrEqual(scrollHeight - height);
   })
 );
