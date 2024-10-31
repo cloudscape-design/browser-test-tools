@@ -5,38 +5,44 @@ export interface ScrollPosition {
   left: number;
 }
 
-export function scrollToBottom(selector: string) {
-  var element = document.querySelector(selector);
+export function scrollAction(
+  action: 'scrollToOffset' | 'scrollToRight' | 'scrollToBottom',
+  selector: string,
+  offset?: { top: number; left: number }
+) {
+  const element = document.querySelector(selector);
   if (!element) {
     throw new Error('Element ' + selector + ' has not been found at the page');
   }
-
-  element.scrollTop = element.scrollHeight;
-}
-
-export function scrollToRight(selector: string) {
-  var element = document.querySelector(selector);
-  if (!element) {
-    throw new Error('Element ' + selector + ' has not been found at the page');
+  if (!['auto', 'scroll'].includes(getComputedStyle(element).overflow) && element !== document.documentElement) {
+    throw new Error('Element ' + selector + ' is not scrollable');
   }
-
-  element.scrollLeft = element.scrollWidth;
-}
-
-export function elementScrollTo(selector: string, top: number, left: number) {
-  var element = document.querySelector(selector);
-  if (!element) {
-    throw new Error('Element ' + selector + ' has not been found at the page');
+  switch (action) {
+    case 'scrollToOffset':
+      if (!offset) {
+        throw new Error('Cannot scroll to offset without an offset');
+      }
+      element.scrollTop = offset.top;
+      element.scrollLeft = offset.left;
+      break;
+    case 'scrollToBottom':
+      element.scrollTop = element.scrollHeight;
+      break;
+    case 'scrollToRight':
+      element.scrollLeft = element.scrollWidth;
+      break;
+    default:
+      throw new Error(`Unsupported scroll action ${action}`);
   }
-  element.scrollTop = top;
-  element.scrollLeft = left;
 }
 
 export function getElementScrollPosition(selector: string): ScrollPosition {
   var element = document.querySelector(selector);
   if (!element) {
-    // We cannnot use our custom error types as they are not available inside the browser context
     throw new Error('Element ' + selector + ' has not been found at the page');
+  }
+  if (getComputedStyle(element).overflow !== 'auto') {
+    throw new Error('Element ' + selector + ' is not scrollable');
   }
   return { top: element.scrollTop, left: element.scrollLeft };
 }
