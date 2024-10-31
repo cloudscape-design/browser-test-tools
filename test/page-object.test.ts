@@ -236,6 +236,15 @@ test(
 );
 
 test(
+  'elementScrollTo should scroll when trying to scroll a non-scrollable element',
+  setupTest(async page => {
+    await expect(() => page.elementScrollTo('#text-content', { left: 40 })).rejects.toThrowError(
+      /Element #text-content is not scrollable/
+    );
+  })
+);
+
+test(
   'scrollToRight',
   setupTest(async page => {
     const width = 400;
