@@ -79,6 +79,13 @@ test(
 );
 
 test(
+  'getElements',
+  setupTest(async page => {
+    expect(await page.getElements('input')).toHaveLength(3);
+  })
+);
+
+test(
   'getElementsCount',
   setupTest(async page => {
     expect(await page.getElementsCount('input')).toBe(3);

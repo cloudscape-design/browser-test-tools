@@ -203,6 +203,11 @@ export default class BasePageObject {
     return element.getProperty(propertyName);
   }
 
+  async getElements(selector: string) {
+    const elements = await this.browser.$$(selector).map(e => e);
+    return elements;
+  }
+
   async getElementsCount(selector: string) {
     const elements = await this.browser.$$(selector);
     return elements.length;
