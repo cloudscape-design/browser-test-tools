@@ -13,7 +13,7 @@ const defaultCapabilities: Record<string, Capabilities> = {
   ChromeHeadless: {
     browserName: 'chrome',
     'goog:chromeOptions': {
-      // inspired by https://github.com/alixaxel/chrome-aws-lambda/blob/master/source/index.js#L71-L114
+      // inspired by https://github.com/alixaxel/chrome-aws-lambda/blob/f9d5a9ff0282ef8e172a29d6d077efc468ca3c76/source/index.ts#L95-L124
       args: [
         '--disable-background-timer-throttling',
         '--disable-breakpad',
