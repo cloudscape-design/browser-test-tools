@@ -1,13 +1,315 @@
 # This workflow executes a full dry-run test, which means that all we build and test all @cloudscape-design packages in GitHub.
 # This ensures that the changes in the current package do not cause any regressions for its consumers.
-name: Dry-run
+name: dry-run
+
 on:
-  workflow_dispatch:
   pull_request:
     branches:
       - main
-  merge_group:
+  workflow_call:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # Disable Husky in CI
+  # https://typicode.github.io/husky/how-to.html#ci-server-and-docker
+  HUSKY: 0
 
 jobs:
-  dry-run:
-    uses: cloudscape-design/actions/.github/workflows/dry-run.yml@main
+  createBuildTree:
+    name: Create build tree
+    runs-on: ubuntu-latest
+    outputs:
+      repositories: ${{ steps.set-build-tree-output.outputs.repositories }}
+    steps:
+      - uses: cloudscape-design/actions/.github/actions/create-build-tree@main
+        id: set-build-tree-output
+        with:
+          package: ${{ github.event.repository.full_name }}
+
+  buildBuildTools:
+    name: Build build-tools
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/build-tools') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/build-tools
+
+  buildJestPreset:
+    name: Build jest-preset
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/jest-preset') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/jest-preset
+
+  buildGlobalStyles:
+    name: Build global-styles
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/global-styles') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/global-styles
+
+  buildCollectionHooks:
+    name: Build collection-hooks
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/collection-hooks') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/collection-hooks
+
+  buildBrowserTestTools:
+    name: Build browser-test-tools
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/browser-test-tools') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/browser-test-tools
+
+  buildDocumenter:
+    name: Build documenter
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/documenter') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/documenter
+
+  buildTestUtils:
+    name: Build test-utils
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+      - buildDocumenter
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/test-utils') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/test-utils
+
+  buildThemingCore:
+    name: Build theming-core
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+      - buildBrowserTestTools
+      - buildComponentToolkit
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/theming-core') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/theming-core
+
+  buildComponentToolkit:
+    name: Build component-toolkit
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+      - buildBrowserTestTools
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/component-toolkit') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/component-toolkit
+
+  buildComponents:
+    name: Build components
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+      - buildBuildTools
+      - buildJestPreset
+      - buildGlobalStyles
+      - buildCollectionHooks
+      - buildBrowserTestTools
+      - buildDocumenter
+      - buildTestUtils
+      - buildThemingCore
+      - buildComponentToolkit
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/components') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/components
+          skip-tests: true
+          cache-working-directory: true
+
+  buildBoardComponents:
+    name: Build board components
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+      - buildBuildTools
+      - buildGlobalStyles
+      - buildBrowserTestTools
+      - buildDocumenter
+      - buildTestUtils
+      - buildComponentToolkit
+      - buildComponents
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/board-components') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/board-components
+
+  buildCodeView:
+    name: Build code view components
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+      - buildBuildTools
+      - buildGlobalStyles
+      - buildBrowserTestTools
+      - buildDocumenter
+      - buildTestUtils
+      - buildComponentToolkit
+      - buildComponents
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/code-view') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/code-view
+
+  buildChatComponents:
+    name: Build chat components
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+      - buildBuildTools
+      - buildGlobalStyles
+      - buildBrowserTestTools
+      - buildDocumenter
+      - buildTestUtils
+      - buildComponentToolkit
+      - buildComponents
+    steps:
+      - if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/chat-components') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/chat-components
+
+  unitTest:
+    name: Components unit tests
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+      - buildComponents
+    steps:
+      - name: Restore cached working directory
+        uses: actions/cache@v4
+        with:
+          key: cloudscape-design/components-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ github.workspace }}
+      - name: Run Unit Tests
+        if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/components') }}
+        run: npm run test:unit
+
+  integTest:
+    name: Components integration tests
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+      - buildComponents
+    steps:
+      - name: Restore cached working directory
+        uses: actions/cache@v4
+        with:
+          key: cloudscape-design/components-${{ github.event.pull_request.head.sha || github.sha }}
+          restore-keys: |
+            cloudscape-design/components-
+          path: ${{ github.workspace }}
+      - name: Integration tests
+        if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/components') }}
+        run: npm run test:integ
+
+  motionTest:
+    name: Components motion tests
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+      - buildComponents
+    steps:
+      - name: Restore cached working directory
+        uses: actions/cache@v4
+        with:
+          key: cloudscape-design/components-${{ github.event.pull_request.head.sha || github.sha }}
+          restore-keys: |
+            cloudscape-design/components-
+          path: ${{ github.workspace }}
+      - name: Motion tests
+        if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/components') }}
+        run: npm run test:motion
+
+  a11yTestShards:
+    name: Components accessibility tests shards
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6]
+    needs:
+      - createBuildTree
+      - buildComponents
+    steps:
+      - name: Restore cached working directory
+        uses: actions/cache@v4
+        with:
+          key: cloudscape-design/components-${{ github.event.pull_request.head.sha || github.sha }}
+          restore-keys: |
+            cloudscape-design/components-
+          path: ${{ github.workspace }}
+      - name: Accessibility tests
+        if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/components') }}
+        run: npm run test:a11y -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+
+
+  a11yTest:
+    name: Components accessibility tests
+    runs-on: ubuntu-latest
+    needs:
+      - a11yTestShards
+    steps:
+      - run: echo "Completed all accessibility tests"
+
+  demosTest:
+    name: Demos tests
+    runs-on: ubuntu-latest
+    needs:
+      - createBuildTree
+      - buildComponents
+      - buildBoardComponents
+      - buildCodeView
+      - buildChatComponents
+      - buildBrowserTestTools
+      - buildCollectionHooks
+      - buildTestUtils
+      - buildGlobalStyles
+      - buildThemingCore
+    steps:
+      - name: Build
+        if: ${{ contains(needs.createBuildTree.outputs.repositories, 'cloudscape-design/demos') }}
+        uses: cloudscape-design/actions/.github/actions/build-repository@main
+        with:
+          repository: cloudscape-design/demos
