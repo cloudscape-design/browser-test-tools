@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { URL } from 'url';
 import BrowserCreator from './browser-creator';
-import defaultCapabilities, { Capabilities, getCapability, mergeCapabilities } from './capabilities';
+import defaultCapabilities, { getCapability, mergeCapabilities } from './capabilities';
 
-const localBrowsers: Record<string, Capabilities> = {
+const localBrowsers: Record<string, WebdriverIO.Capabilities> = {
   ...defaultCapabilities,
   ChromeHeadless: mergeCapabilities(defaultCapabilities.ChromeHeadless, {
     'goog:chromeOptions': {
@@ -15,14 +15,17 @@ const localBrowsers: Record<string, Capabilities> = {
         },
       },
     },
+    // Workaround for https://github.com/webdriverio/webdriverio/issues/13440
+    'wdio:enforceWebDriverClassic': true,
   }),
   ChromeHeadlessIntegration: mergeCapabilities(defaultCapabilities.ChromeHeadless, {
     'goog:chromeOptions': {
       args: ['--force-prefers-reduced-motion'],
     },
+    // Workaround for https://github.com/webdriverio/webdriverio/issues/13440
+    'wdio:enforceWebDriverClassic': true,
   }),
   Firefox: mergeCapabilities(defaultCapabilities.Firefox, {
-    // https://firefox-source-docs.mozilla.org/testing/geckodriver/Capabilities.html
     'moz:debuggerAddress': true,
   }),
 };
@@ -32,7 +35,7 @@ export default class LocalBrowserCreator extends BrowserCreator {
     return new URL(this.options.seleniumUrl);
   }
 
-  __getCapabilities(): Capabilities {
+  __getCapabilities(): WebdriverIO.Capabilities {
     return getCapability(this.browserName, localBrowsers);
   }
 }
