@@ -14,14 +14,14 @@ export function scrollAction(
   if (!element) {
     throw new Error('Element ' + selector + ' has not been found at the page');
   }
+
   const overflowDirection =
     action === 'scrollToOffset' ? 'overflow' : action === 'scrollToBottom' ? 'overflowY' : 'overflowX';
-  if (
-    !['auto', 'scroll'].includes(getComputedStyle(element)[overflowDirection]) &&
-    element !== document.documentElement
-  ) {
+  const overflowStyles = getComputedStyle(element)[overflowDirection].split(' ');
+  if (!overflowStyles.includes('auto') && !overflowStyles.includes('scroll') && element !== document.documentElement) {
     throw new Error('Element ' + selector + ' is not scrollable');
   }
+
   switch (action) {
     case 'scrollToOffset':
       if (!offset) {
