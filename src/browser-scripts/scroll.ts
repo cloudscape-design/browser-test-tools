@@ -14,9 +14,14 @@ export function scrollAction(
   if (!element) {
     throw new Error('Element ' + selector + ' has not been found at the page');
   }
-  if (!['auto', 'scroll'].includes(getComputedStyle(element).overflow) && element !== document.documentElement) {
+
+  const overflowDirection =
+    action === 'scrollToOffset' ? 'overflow' : action === 'scrollToBottom' ? 'overflowY' : 'overflowX';
+  const overflowStyles = getComputedStyle(element)[overflowDirection].split(' ');
+  if (!overflowStyles.includes('auto') && !overflowStyles.includes('scroll') && element !== document.documentElement) {
     throw new Error('Element ' + selector + ' is not scrollable');
   }
+
   switch (action) {
     case 'scrollToOffset':
       if (!offset) {
@@ -41,7 +46,9 @@ export function getElementScrollPosition(selector: string): ScrollPosition {
   if (!element) {
     throw new Error('Element ' + selector + ' has not been found at the page');
   }
-  if (getComputedStyle(element).overflow !== 'auto') {
+
+  const overflowStyles = getComputedStyle(element).overflow.split(' ');
+  if (!overflowStyles.includes('auto')) {
     throw new Error('Element ' + selector + ' is not scrollable');
   }
   return { top: element.scrollTop, left: element.scrollLeft };
