@@ -238,9 +238,9 @@ export default class BasePageObject {
       return callback();
     }
     const iframeEl = await this.browser.$(iframeSelector);
-    await this.browser.switchToFrame(iframeEl);
+    await this.browser.switchFrame(iframeEl);
     await callback();
     // go back to top
-    await this.browser.switchToFrame(null);
+    await this.browser.switchFrame(null);
   }
 }
