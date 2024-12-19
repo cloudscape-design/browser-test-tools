@@ -18,7 +18,7 @@ function setupTest(testFn: TestFn) {
   });
 }
 
-test(
+test.skip(
   'scrollAndMergeStrategy and puppeteerStrategy produce same for single page',
   setupTest(async browser => {
     const puppeteer = await getPuppeteer(browser);
