@@ -24,7 +24,21 @@ async function checkDocumentSize(browser: WebdriverIO.Browser) {
 }
 
 export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
-  const { width, height, pageHeight, screenWidth, screenHeight, pixelRatio } = await checkDocumentSize(browser);
+  const originalWindowSize = await browser.getWindowSize();
+
+  const {
+    width,
+    height: viewportHeight,
+    pageHeight,
+    screenWidth,
+    screenHeight,
+    pixelRatio,
+  } = await checkDocumentSize(browser);
+
+  const windowUIHeight = originalWindowSize.height - viewportHeight;
+
+  await browser.setWindowSize(originalWindowSize.width, pageHeight + windowUIHeight);
+
   let offset = 0;
   const screenshots: string[] = [];
   while (offset < pageHeight) {
@@ -35,7 +49,7 @@ export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
 
     const value = await browser.takeScreenshot();
     screenshots.push(value);
-    offset += height;
+    offset += pageHeight;
   }
   // skip images merge when there is only one screenshot
   if (screenshots.length === 1 && !browser.isIOS) {
@@ -48,7 +62,10 @@ export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
     offsetTop = calculateIosTopOffset({ screenWidth, screenHeight, pixelRatio });
   }
 
-  return mergeImages(screenshots, width * pixelRatio, height * pixelRatio, lastImageOffset * pixelRatio, offsetTop);
+  console.log('Actual window height:', (await browser.getWindowSize()).height);
+  await browser.setWindowSize(originalWindowSize.width, originalWindowSize.height);
+
+  return mergeImages(screenshots, width * pixelRatio, pageHeight * pixelRatio, lastImageOffset * pixelRatio, offsetTop);
 }
 
 export default async function fullPageScreenshot(browser: WebdriverIO.Browser, forceScrollAndMerge: boolean = false) {
