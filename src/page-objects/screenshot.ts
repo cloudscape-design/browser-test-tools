@@ -52,7 +52,7 @@ export default class ScreenshotPageObject extends BasePageObject {
   }
 
   async captureViewport(): Promise<ScreenshotWithOffset> {
-    const { height, width } = await this.getViewportSize();
+    const { height, width, pixelRatio } = await this.getViewportSize();
 
     const offset: ElementOffset = {
       top: 0,
@@ -61,6 +61,6 @@ export default class ScreenshotPageObject extends BasePageObject {
 
     const screenshot = await this.browser.takeScreenshot();
     const image = await parsePng(screenshot);
-    return { image, offset, height, width };
+    return { image, offset, height: height * pixelRatio, width: width * pixelRatio };
   }
 }
