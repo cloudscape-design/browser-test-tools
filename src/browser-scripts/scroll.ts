@@ -5,12 +5,6 @@ export interface ScrollPosition {
   left: number;
 }
 
-type OverflowDirection = 'overflow' | 'overflowY' | 'overflowX';
-function hasScrollStyles(element: Element, overflowDirection: OverflowDirection = 'overflow') {
-  const overflowStyles = getComputedStyle(element)[overflowDirection].split(' ');
-  return overflowStyles.includes('auto') || overflowStyles.includes('scroll');
-}
-
 export function scrollAction(
   action: 'scrollToOffset' | 'scrollToRight' | 'scrollToBottom',
   selector: string,
@@ -24,7 +18,8 @@ export function scrollAction(
   const overflowDirection =
     action === 'scrollToOffset' ? 'overflow' : action === 'scrollToBottom' ? 'overflowY' : 'overflowX';
 
-  if (!hasScrollStyles(element, overflowDirection) && element !== document.documentElement) {
+  const overflowStyles = getComputedStyle(element)[overflowDirection].split(' ');
+  if (!overflowStyles.includes('auto') && !overflowStyles.includes('scroll') && element !== document.documentElement) {
     throw new Error('Element ' + selector + ' is not scrollable');
   }
 
@@ -53,7 +48,9 @@ export function getElementScrollPosition(selector: string): ScrollPosition {
     throw new Error('Element ' + selector + ' has not been found at the page');
   }
 
-  if (!hasScrollStyles(element)) {
+  const overflowStyles = getComputedStyle(element).overflow.split(' ');
+
+  if (!overflowStyles.includes('auto') && !overflowStyles.includes('scroll')) {
     throw new Error('Element ' + selector + ' is not scrollable');
   }
   return { top: element.scrollTop, left: element.scrollLeft };
