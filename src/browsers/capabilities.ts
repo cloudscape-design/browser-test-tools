@@ -41,7 +41,6 @@ const defaultCapabilities: Record<string, WebdriverIO.Capabilities> = {
         '--enable-simple-cache-backend',
         '--enable-tcp-fast-open',
         '--enable-webgl',
-        '--hide-scrollbars',
         '--ignore-gpu-blacklist',
         '--media-cache-size=33554432',
         '--metrics-recording-only',
