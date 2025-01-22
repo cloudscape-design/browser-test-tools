@@ -23,6 +23,7 @@ const browsers: Record<string, WebdriverIO.Capabilities> = {
   },
   Chrome: {
     browserName: 'chrome',
+    browserVersion: 'canary',
     // Leave blank so we get the latest version. 'beta' is also a valid option
     // browserVersion: '75.0',
     'bstack:options': {

@@ -50,6 +50,7 @@ describe('BrowserStack browserCreator ', () => {
       expect.objectContaining({
         capabilities: {
           browserName: 'chrome',
+          browserVersion: 'canary',
           'bstack:options': expect.objectContaining({
             projectName: 'project',
             userName: 'my-user',
