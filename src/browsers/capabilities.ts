@@ -7,11 +7,9 @@ import { FatalError } from '../exceptions';
 const defaultCapabilities: Record<string, WebdriverIO.Capabilities> = {
   Chrome: {
     browserName: 'chrome',
-    browserVersion: 'canary',
   },
   ChromeHeadless: {
     browserName: 'chrome',
-    browserVersion: 'canary',
     'goog:chromeOptions': {
       // inspired by https://github.com/alixaxel/chrome-aws-lambda/blob/master/source/index.js#L71-L114
       args: [

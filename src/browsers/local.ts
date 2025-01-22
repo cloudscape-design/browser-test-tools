@@ -16,14 +16,14 @@ const localBrowsers: Record<string, WebdriverIO.Capabilities> = {
       },
     },
     // Workaround for https://github.com/webdriverio/webdriverio/issues/13440
-    'wdio:enforceWebDriverClassic': true,
+    // 'wdio:enforceWebDriverClassic': true,
   }),
   ChromeHeadlessIntegration: mergeCapabilities(defaultCapabilities.ChromeHeadless, {
     'goog:chromeOptions': {
       args: ['--force-prefers-reduced-motion'],
     },
     // Workaround for https://github.com/webdriverio/webdriverio/issues/13440
-    'wdio:enforceWebDriverClassic': true,
+    // 'wdio:enforceWebDriverClassic': true,
   }),
   Firefox: mergeCapabilities(defaultCapabilities.Firefox, {
     'moz:debuggerAddress': true,
