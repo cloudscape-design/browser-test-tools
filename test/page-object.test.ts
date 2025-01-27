@@ -236,11 +236,19 @@ test(
 );
 
 test(
-  'elementScrollTo should scroll when trying to scroll a non-scrollable element',
+  'elementScrollTo should not scroll when trying to scroll a non-scrollable element',
   setupTest(async page => {
     await expect(() => page.elementScrollTo('#text-content', { left: 40 })).rejects.toThrowError(
       /Element #text-content is not scrollable/
     );
+  })
+);
+
+test(
+  'elementScrollTo should scroll when one direction is scrollable',
+  setupTest(async page => {
+    await page.elementScrollTo('#vertically-scrollable-container', { top: 40 });
+    expect(await page.getElementScroll('#vertically-scrollable-container')).toEqual({ top: 40, left: 0 });
   })
 );
 
