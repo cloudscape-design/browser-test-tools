@@ -52,6 +52,10 @@ export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
 }
 
 export default async function fullPageScreenshot(browser: WebdriverIO.Browser, forceScrollAndMerge: boolean = false) {
+  if (browser.capabilities.browserName?.toLowerCase().includes('firefox')) {
+    return scrollAndMergeStrategy(browser);
+  }
+
   const puppeteer = await getPuppeteer(browser);
   if (puppeteer && !forceScrollAndMerge) {
     // casting due to mismatch in NodeJS types of EventEmitter

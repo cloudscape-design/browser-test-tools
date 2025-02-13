@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { URL } from 'url';
 import BrowserCreator from './browser-creator';
-import { Capabilities, getCapability } from './capabilities';
+import { getCapability } from './capabilities';
 
 // The remaining options like browserName, deviceName, etc. will be covered
 // by default capabilities in DeviceFarm and/or the Appium server.
-const mobileBrowsers: Record<string, Capabilities> = {
+const mobileBrowsers: Record<string, WebdriverIO.Capabilities> = {
   iOS: {
     'appium:automationName': 'XCUITest',
     'appium:platformName': 'iOS',
@@ -24,7 +24,7 @@ export default class MobileBrowserCreator extends BrowserCreator {
     return new URL(this.options.seleniumUrl);
   }
 
-  __getCapabilities(): Capabilities {
+  __getCapabilities(): WebdriverIO.Capabilities {
     return getCapability(this.browserName, mobileBrowsers);
   }
 }
