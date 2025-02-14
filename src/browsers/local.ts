@@ -16,6 +16,7 @@ const localBrowsers: Record<string, WebdriverIO.Capabilities> = {
       },
     },
     // Workaround for https://github.com/webdriverio/webdriverio/issues/13440
+    // Reference: https://webdriver.io/blog/2024/08/15/webdriverio-v9-release/#new-features
     'wdio:enforceWebDriverClassic': true,
   }),
   ChromeHeadlessIntegration: mergeCapabilities(defaultCapabilities.ChromeHeadless, {
@@ -23,10 +24,13 @@ const localBrowsers: Record<string, WebdriverIO.Capabilities> = {
       args: ['--force-prefers-reduced-motion'],
     },
     // Workaround for https://github.com/webdriverio/webdriverio/issues/13440
+    // Reference: https://webdriver.io/blog/2024/08/15/webdriverio-v9-release/#new-features
     'wdio:enforceWebDriverClassic': true,
   }),
   Firefox: mergeCapabilities(defaultCapabilities.Firefox, {
     'moz:debuggerAddress': true,
+    // Workaround for failing internal tests
+    // Reference: https://webdriver.io/blog/2024/08/15/webdriverio-v9-release/#new-features
     'wdio:enforceWebDriverClassic': true,
   }),
 };
