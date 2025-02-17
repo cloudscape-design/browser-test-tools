@@ -253,6 +253,15 @@ test(
 );
 
 test(
+  'elementScrollTo should not scroll in the wrong direction',
+  setupTest(async page => {
+    await expect(() => page.elementScrollTo('#vertically-scrollable-container', { left: 40 })).rejects.toThrowError(
+      / Element #vertically-scrollable-container is not scrollable in left direction/
+    );
+  })
+);
+
+test(
   'scrollToRight',
   setupTest(async page => {
     const width = 400;

@@ -23,6 +23,14 @@ export function scrollAction(
     throw new Error('Element ' + selector + ' is not scrollable');
   }
 
+  if (overflowStyles.length === 2 && offset) {
+    const hasErrorScrollX = !['auto', 'scroll'].includes(overflowStyles[0]) && offset.left > 0;
+    const hasErrorScrollY = !['auto', 'scroll'].includes(overflowStyles[1]) && offset.top > 0;
+    if (hasErrorScrollX || hasErrorScrollY) {
+      throw new Error(`Element ${selector} is not scrollable in ${hasErrorScrollX ? 'left' : 'top'} direction`);
+    }
+  }
+
   switch (action) {
     case 'scrollToOffset':
       if (!offset) {
