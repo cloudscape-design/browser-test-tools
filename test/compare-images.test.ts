@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 import { test, expect, describe } from 'vitest';
+import * as allure from 'allure-js-commons';
 import fs from 'fs';
 import { PNG } from 'pngjs';
 import useBrowser from '../src/use-browser';
@@ -33,7 +34,13 @@ describe('compare images', () => {
       const firstResult = await page.captureBySelector('#box1');
       await browser.refresh();
       const secondResult = await page.captureBySelector('#box1');
-      await expect(cropAndCompare(firstResult, secondResult)).resolves.toEqual({
+      const compareResult = await cropAndCompare(firstResult, secondResult);
+      await allure.attachment('first', compareResult.firstImage, { contentType: allure.ContentType.PNG });
+      await allure.attachment('second', compareResult.secondImage, { contentType: allure.ContentType.PNG });
+      if (compareResult.diffImage) {
+        await allure.attachment('diff', compareResult.diffImage, { contentType: allure.ContentType.PNG });
+      }
+      expect(compareResult).toEqual({
         firstImage: expect.any(Buffer),
         secondImage: expect.any(Buffer),
         diffImage: null,
@@ -46,7 +53,6 @@ describe('compare images', () => {
   test(
     'should compare viewport screenshots',
     setupTest(async (page, browser) => {
-
       const firstResult = await page.captureViewport();
       await browser.refresh();
 
