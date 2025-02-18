@@ -1,7 +1,9 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 import { defineConfig } from 'vitest/config';
+import AllureReporter from 'allure-vitest/reporter';
 import os from 'node:os';
+import path from 'node:path';
 
 export default defineConfig({
   test: {
@@ -27,5 +29,6 @@ export default defineConfig({
         'src/chrome-launcher.ts',
       ],
     },
+    reporters: ['default', new AllureReporter({ resultsDir: path.resolve('build/allure-results') })],
   },
 });

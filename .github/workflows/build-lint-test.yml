@@ -18,3 +18,13 @@ jobs:
   build:
     uses: cloudscape-design/actions/.github/workflows/build-lint-test.yml@main
     secrets: inherit
+    with:
+      artifact-path: build/allure-report
+      artifact-name: allure-report
+  deploy:
+    needs: build
+    uses: cloudscape-design/actions/.github/workflows/deploy.yml@main
+    secrets: inherit
+    with:
+      artifact-name: allure-report
+      deployment-path: build/allure-report
