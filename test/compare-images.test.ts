@@ -114,7 +114,7 @@ describe('compare images', () => {
       const secondResult = await page.captureBySelector('#icon1');
       const compareResult = await cropAndCompare(firstResult, secondResult);
       await dumpScreenshots(compareResult);
-      await expect(compareResult).resolves.toEqual({
+      expect(compareResult).toEqual({
         firstImage: expect.any(Buffer),
         secondImage: expect.any(Buffer),
         diffImage: expect.any(Buffer),
