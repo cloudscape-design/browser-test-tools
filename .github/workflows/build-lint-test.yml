@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   build:
-    uses: cloudscape-design/actions/.github/workflows/build-lint-test.yml@main
+    uses: cloudscape-design/actions/.github/workflows/build-lint-test.yml@always-upload
     secrets: inherit
     with:
       artifact-path: build/allure-report
