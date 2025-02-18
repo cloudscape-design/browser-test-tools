@@ -7,7 +7,16 @@ import { PNG } from 'pngjs';
 import useBrowser from '../src/use-browser';
 import { ScreenshotPageObject } from '../src/page-objects';
 import { cropAndCompare, parsePng } from '../src/image-utils';
+import { CropAndCompareResult } from '../src/image-utils/compare';
 import './utils/setup-local-driver';
+
+async function dumpScreenshots(compareResult: CropAndCompareResult) {
+  await allure.attachment('first', compareResult.firstImage, { contentType: allure.ContentType.PNG });
+  await allure.attachment('second', compareResult.secondImage, { contentType: allure.ContentType.PNG });
+  if (compareResult.diffImage) {
+    await allure.attachment('diff', compareResult.diffImage, { contentType: allure.ContentType.PNG });
+  }
+}
 
 type TestFn = (page: ScreenshotPageObject, browser: WebdriverIO.Browser) => Promise<void>;
 
@@ -35,11 +44,7 @@ describe('compare images', () => {
       await browser.refresh();
       const secondResult = await page.captureBySelector('#box1');
       const compareResult = await cropAndCompare(firstResult, secondResult);
-      await allure.attachment('first', compareResult.firstImage, { contentType: allure.ContentType.PNG });
-      await allure.attachment('second', compareResult.secondImage, { contentType: allure.ContentType.PNG });
-      if (compareResult.diffImage) {
-        await allure.attachment('diff', compareResult.diffImage, { contentType: allure.ContentType.PNG });
-      }
+      await dumpScreenshots(compareResult);
       expect(compareResult).toEqual({
         firstImage: expect.any(Buffer),
         secondImage: expect.any(Buffer),
@@ -57,7 +62,9 @@ describe('compare images', () => {
       await browser.refresh();
 
       const secondResult = await page.captureViewport();
-      await expect(cropAndCompare(firstResult, secondResult)).resolves.toEqual({
+      const compareResult = await cropAndCompare(firstResult, secondResult);
+      await dumpScreenshots(compareResult);
+      expect(compareResult).toEqual({
         firstImage: expect.any(Buffer),
         secondImage: expect.any(Buffer),
         diffImage: null,
@@ -105,7 +112,9 @@ describe('compare images', () => {
       const firstResult = await page.captureBySelector('#box1');
       await browser.refresh();
       const secondResult = await page.captureBySelector('#icon1');
-      await expect(cropAndCompare(firstResult, secondResult)).resolves.toEqual({
+      const compareResult = await cropAndCompare(firstResult, secondResult);
+      await dumpScreenshots(compareResult);
+      await expect(compareResult).resolves.toEqual({
         firstImage: expect.any(Buffer),
         secondImage: expect.any(Buffer),
         diffImage: expect.any(Buffer),
