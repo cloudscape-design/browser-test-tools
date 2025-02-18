@@ -9,6 +9,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globalSetup: './test/utils/global-setup.ts',
+    setupFiles: ['allure-vitest/setup'],
     testTimeout: 60000,
     poolOptions: {
       threads: {
