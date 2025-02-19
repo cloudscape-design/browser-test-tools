@@ -45,8 +45,10 @@ test(
 test(
   'should compare viewport screenshots',
   setupTest(async (page, browser) => {
+    await page.waitForJsTimers(200);
     const firstResult = await page.captureViewport();
     await browser.refresh();
+    await page.waitForJsTimers(200);
     const secondResult = await page.captureViewport();
     await expect(cropAndCompare(firstResult, secondResult)).resolves.toEqual({
       firstImage: expect.any(Buffer),
