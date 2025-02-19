@@ -37,7 +37,7 @@ const browsers: Record<string, WebdriverIO.Capabilities> = {
     'bstack:options': {
       seleniumVersion: '3.141.59',
       os: 'OS X',
-      osVersion: 'Monterey',
+      osVersion: 'Ventura',
     },
   },
   IE11: {
