@@ -236,6 +236,32 @@ test(
 );
 
 test(
+  'elementScrollTo should not scroll when trying to scroll a non-scrollable element',
+  setupTest(async page => {
+    await expect(() => page.elementScrollTo('#text-content', { left: 40 })).rejects.toThrowError(
+      /Element #text-content is not scrollable/
+    );
+  })
+);
+
+test(
+  'elementScrollTo should scroll when one direction is scrollable',
+  setupTest(async page => {
+    await page.elementScrollTo('#vertically-scrollable-container', { top: 40 });
+    expect(await page.getElementScroll('#vertically-scrollable-container')).toEqual({ top: 40, left: 0 });
+  })
+);
+
+test(
+  'elementScrollTo should not scroll in the wrong direction',
+  setupTest(async page => {
+    await expect(() => page.elementScrollTo('#vertically-scrollable-container', { left: 40 })).rejects.toThrowError(
+      / Element #vertically-scrollable-container is not scrollable in left direction/
+    );
+  })
+);
+
+test(
   'scrollToRight',
   setupTest(async page => {
     const width = 400;

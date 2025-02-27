@@ -5,7 +5,7 @@ import pRetry from 'p-retry';
 import {
   getElementScrollPosition,
   getWindowScrollPosition,
-  elementScrollTo,
+  scrollAction,
   windowScrollTo,
   getViewportSize,
   ScrollPosition,
@@ -125,7 +125,7 @@ export default class BasePageObject {
   }
 
   async elementScrollTo(selector: string, { top = 0, left = 0 }: Partial<ScrollPosition>) {
-    await this.browser.execute(elementScrollTo, selector, top, left);
+    await this.browser.execute(scrollAction, 'scrollToOffset', selector, { top, left });
   }
 
   async waitForVisible(selector: string, shouldDisplay = true, timeout?: number) {

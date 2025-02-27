@@ -5,38 +5,61 @@ export interface ScrollPosition {
   left: number;
 }
 
-export function scrollToBottom(selector: string) {
-  var element = document.querySelector(selector);
+export function scrollAction(
+  action: 'scrollToOffset' | 'scrollToRight' | 'scrollToBottom',
+  selector: string,
+  offset?: { top: number; left: number }
+) {
+  const element = document.querySelector(selector);
   if (!element) {
     throw new Error('Element ' + selector + ' has not been found at the page');
   }
 
-  element.scrollTop = element.scrollHeight;
-}
+  const overflowDirection =
+    action === 'scrollToOffset' ? 'overflow' : action === 'scrollToBottom' ? 'overflowY' : 'overflowX';
 
-export function scrollToRight(selector: string) {
-  var element = document.querySelector(selector);
-  if (!element) {
-    throw new Error('Element ' + selector + ' has not been found at the page');
+  const overflowStyles = getComputedStyle(element)[overflowDirection].split(' ');
+  if (!overflowStyles.includes('auto') && !overflowStyles.includes('scroll') && element !== document.documentElement) {
+    throw new Error(`Element ${selector} is not scrollable`);
   }
 
-  element.scrollLeft = element.scrollWidth;
-}
-
-export function elementScrollTo(selector: string, top: number, left: number) {
-  var element = document.querySelector(selector);
-  if (!element) {
-    throw new Error('Element ' + selector + ' has not been found at the page');
+  if (overflowStyles.length === 2 && offset) {
+    const hasErrorScrollX = !['auto', 'scroll'].includes(overflowStyles[0]) && offset.left > 0;
+    const hasErrorScrollY = !['auto', 'scroll'].includes(overflowStyles[1]) && offset.top > 0;
+    if (hasErrorScrollX || hasErrorScrollY) {
+      throw new Error(`Element ${selector} is not scrollable in ${hasErrorScrollX ? 'left' : 'top'} direction`);
+    }
   }
-  element.scrollTop = top;
-  element.scrollLeft = left;
+
+  switch (action) {
+    case 'scrollToOffset':
+      if (!offset) {
+        throw new Error('Cannot scroll to offset without an offset');
+      }
+      element.scrollTop = offset.top;
+      element.scrollLeft = offset.left;
+      break;
+    case 'scrollToBottom':
+      element.scrollTop = element.scrollHeight;
+      break;
+    case 'scrollToRight':
+      element.scrollLeft = element.scrollWidth;
+      break;
+    default:
+      throw new Error(`Unsupported scroll action ${action}`);
+  }
 }
 
 export function getElementScrollPosition(selector: string): ScrollPosition {
-  var element = document.querySelector(selector);
+  const element = document.querySelector(selector);
   if (!element) {
-    // We cannnot use our custom error types as they are not available inside the browser context
     throw new Error('Element ' + selector + ' has not been found at the page');
+  }
+
+  const overflowStyles = getComputedStyle(element).overflow.split(' ');
+
+  if (!overflowStyles.includes('auto') && !overflowStyles.includes('scroll')) {
+    throw new Error('Element ' + selector + ' is not scrollable');
   }
   return { top: element.scrollTop, left: element.scrollLeft };
 }
