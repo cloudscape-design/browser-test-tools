@@ -20,7 +20,7 @@ export function scrollAction(
 
   const overflowStyles = getComputedStyle(element)[overflowDirection].split(' ');
   if (!overflowStyles.includes('auto') && !overflowStyles.includes('scroll') && element !== document.documentElement) {
-    throw new Error('Element ' + selector + ' is not scrollable');
+    throw new Error(`Element ${selector} is not scrollable`);
   }
 
   if (overflowStyles.length === 2 && offset) {
@@ -51,7 +51,7 @@ export function scrollAction(
 }
 
 export function getElementScrollPosition(selector: string): ScrollPosition {
-  var element = document.querySelector(selector);
+  const element = document.querySelector(selector);
   if (!element) {
     throw new Error('Element ' + selector + ' has not been found at the page');
   }
