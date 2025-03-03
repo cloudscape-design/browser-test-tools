@@ -143,6 +143,16 @@ export default class BasePageObject {
     );
   }
 
+  waitForExist(selector: string, shouldExist = true, timeout?: number) {
+    return this.browser.$(selector).waitForExist({
+      reverse: !shouldExist,
+      timeout,
+      timeoutMsg: shouldExist
+        ? `Element "${selector}" is not existing upon waiting`
+        : `Element "${selector}" is still existing after waiting`,
+    });
+  }
+
   async waitForAssertion(expression: () => Promise<void>) {
     const retryOptions = { minTimeout: 100, retries: 5 };
     await pRetry(expression, retryOptions);
