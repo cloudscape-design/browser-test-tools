@@ -134,6 +134,14 @@ test(
   })
 );
 
+test(
+  'waitForExist',
+  setupTest(async page => {
+    await page.waitForExist('#hidden');
+    await page.waitForExist('#not-existing', false);
+  })
+);
+
 describe('waitForAssertion', () => {
   test(
     'successful assertion',
