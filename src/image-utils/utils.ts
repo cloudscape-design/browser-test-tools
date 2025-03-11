@@ -50,8 +50,8 @@ export function cropImage(inImage: PNG, rect: ElementRect, pixelRatio = 1) {
   const safeWidth = Math.min(imageWidth, inImage.width - safeLeft);
   const safeHeight = Math.min(imageHeight, inImage.height - safeTop);
   inImage.bitblt(outImage, safeLeft, safeTop, safeWidth, safeHeight, 0, 0);
-  if (!isValidImage(outImage.data)) {
-    throw new ScreenshotTakeError('Image does not contain enough colors');
-  }
+  // if (!isValidImage(outImage.data)) {
+  //   throw new ScreenshotTakeError('Image does not contain enough colors');
+  // }
   return outImage;
 }
