@@ -18,13 +18,13 @@ function setupTest(testFn: TestFn) {
   });
 }
 
-// test(
-//   'should detect an empty screenshot',
-//   setupTest(async page => {
-//     const result = await page.captureBySelector('#empty-box');
-//     await expect(cropAndCompare(result, result)).rejects.toThrow(/Image does not contain enough colors/);
-//   })
-// );
+test(
+  'should detect an empty screenshot',
+  setupTest(async page => {
+    const result = await page.captureBySelector('#empty-box');
+    await expect(cropAndCompare(result, result)).rejects.toThrow(/Image does not contain enough colors/);
+  })
+);
 
 test(
   'should compare two provided images directly',
