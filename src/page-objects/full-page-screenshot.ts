@@ -31,7 +31,7 @@ export async function scrollAndMergeStrategy(browser: WebdriverIO.Browser) {
     await scroll(browser, offset);
 
     // Wait for scroll effects to settle.
-    await browser.executeAsync(waitForTimerAndAnimationFrame, 200);
+    await browser.executeAsync(waitForTimerAndAnimationFrame, 400);
 
     const value = await browser.takeScreenshot();
     screenshots.push(value);
