@@ -13,6 +13,7 @@ export interface WebDriverOptions {
   needsKeyboard: boolean;
   implicitTimeout: number;
   scriptTimeout: number;
+  connectionRetryTimeout: number;
   baseUrl?: string;
   logLevel: Options.WebDriverLogTypes;
   capabilities?: Record<string, any>;
@@ -24,6 +25,8 @@ const defaultOptions: WebDriverOptions = {
   needsKeyboard: false,
   implicitTimeout: 5000,
   scriptTimeout: 30000,
+  // iOS devices can take 2-3 minutes to boot
+  connectionRetryTimeout: 240_000,
   logLevel: 'error',
 };
 
@@ -39,8 +42,7 @@ export default abstract class BrowserCreator {
     const browser = await remote({
       logLevel: options.logLevel,
       baseUrl: options.baseUrl,
-      // iOS devices can take 2-3 minutes to boot
-      connectionRetryTimeout: 240_000,
+      connectionRetryTimeout: options.connectionRetryTimeout,
       connectionRetryCount: 3,
       waitforTimeout: 5000,
       capabilities: desiredCapabilities,
