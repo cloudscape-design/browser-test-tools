@@ -28,7 +28,6 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@aws-sdk/client-device-farm": "^3.623.0",
     "@types/pngjs": "^6.0.4",
     "@wdio/globals": "^9.7.0",
     "@wdio/types": "^9.6.3",
