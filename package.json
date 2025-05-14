@@ -24,7 +24,7 @@
     "lint": "eslint --ext=ts,js --ignore-path .gitignore .",
     "prebuild": "npm run clean",
     "build": "tsc",
-    "postbuild": "cp package.json README.md LICENSE lib",
+    "postbuild": "cp package.json README.md LICENSE NOTICE lib",
     "prepare": "husky"
   },
   "dependencies": {
