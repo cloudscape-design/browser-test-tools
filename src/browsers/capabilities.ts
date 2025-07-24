@@ -62,6 +62,7 @@ const defaultCapabilities: Record<string, WebdriverIO.Capabilities> = {
     'moz:firefoxOptions': {
       args: ['-headless'],
       prefs: {
+        'ui.prefersReducedMotion': 1,
         'fission.webContentIsolationStrategy': 0,
         'fission.bfcacheInParent': false,
       },
