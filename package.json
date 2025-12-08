@@ -53,6 +53,7 @@
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-unicorn": "^44.0.2",
+    "glob": "^10.5.0",
     "http-server": "^14.1.1",
     "husky": "^9.1.7",
     "lint-staged": "^13.0.3",
@@ -72,5 +73,8 @@
     "*.{js,ts}": [
       "eslint --fix"
     ]
+  },
+  "overrides": {
+    "glob": "^10.5.0"
   }
 }
