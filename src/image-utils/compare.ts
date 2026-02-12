@@ -17,8 +17,8 @@ export function compareImages(firstImage: PNG, secondImage: PNG, { width, height
 
 function normalizeSize(firstScreenshot: ScreenshotWithOffset, secondScreenshot: ScreenshotWithOffset) {
   return {
-    height: Math.ceil(Math.max(firstScreenshot.height, secondScreenshot.height)),
-    width: Math.ceil(Math.max(firstScreenshot.width, secondScreenshot.width)),
+    height: Math.round(Math.max(firstScreenshot.height, secondScreenshot.height)),
+    width: Math.round(Math.max(firstScreenshot.width, secondScreenshot.width)),
   };
 }
 

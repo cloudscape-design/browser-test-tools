@@ -210,3 +210,14 @@ test('detects identical images with higher device pixel ratios', async () => {
 
   expect(diffPixels).toBe(0);
 });
+
+test('should compare large images', async () => {
+  const oldImage = await parsePng(fs.readFileSync(__dirname + '/fixtures/steps-old.png', 'base64'));
+  const newImage = await parsePng(fs.readFileSync(__dirname + '/fixtures/steps-new.png', 'base64'));
+  const { diffPixels, diffImage } = await cropAndCompare(
+    { image: oldImage, offset: { top: 1623.6875, left: 10 }, width: 1190, height: 5734 },
+    { image: newImage, offset: { top: 1623.6875, left: 10 }, width: 1190, height: 5734 }
+  );
+  fs.writeFileSync('build/screenshots/steps-diff.png', diffImage!);
+  expect(diffPixels).not.toBe(0);
+});
