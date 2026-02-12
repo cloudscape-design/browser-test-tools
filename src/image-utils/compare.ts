@@ -17,8 +17,8 @@ export function compareImages(firstImage: PNG, secondImage: PNG, { width, height
 
 function normalizeSize(firstScreenshot: ScreenshotWithOffset, secondScreenshot: ScreenshotWithOffset) {
   return {
-    height: Math.round(Math.max(firstScreenshot.height, secondScreenshot.height)),
-    width: Math.round(Math.max(firstScreenshot.width, secondScreenshot.width)),
+    height: Math.ceil(Math.max(firstScreenshot.height, secondScreenshot.height)),
+    width: Math.ceil(Math.max(firstScreenshot.width, secondScreenshot.width)),
   };
 }
 
@@ -59,6 +59,7 @@ export async function cropAndCompare(
     top: secondScreenshot.offset.top,
     left: secondScreenshot.offset.left,
   };
+  console.log('DEBUG', firstImageCropRect, secondImageCropRect);
   const firstImage = cropImage(firstScreenshot.image, firstImageCropRect, pixelRatio);
   const secondImage = cropImage(secondScreenshot.image, secondImageCropRect, pixelRatio);
   const { diffImage, diffPixels } = compareImages(firstImage, secondImage, scaleSize(size, pixelRatio));
