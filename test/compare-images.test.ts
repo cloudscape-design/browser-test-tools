@@ -4,7 +4,7 @@ import { test, expect } from 'vitest';
 import fs from 'fs';
 import { PNG } from 'pngjs';
 import useBrowser from '../src/use-browser';
-import { ScreenshotPageObject } from '../src/page-objects';
+import { ScreenshotPageObject, ScreenshotWithOffset } from '../src/page-objects';
 import { cropAndCompare, parsePng } from '../src/image-utils';
 import './utils/setup-local-driver';
 
@@ -18,11 +18,22 @@ function setupTest(testFn: TestFn) {
   });
 }
 
+async function cropAndCompareTest(s1: ScreenshotWithOffset, s2: ScreenshotWithOffset) {
+  const { firstImage, secondImage, diffImage, isEqual, diffPixels } = await cropAndCompare(s1, s2);
+  return {
+    firstImage: firstImage instanceof Buffer,
+    secondImage: secondImage instanceof Buffer,
+    diffImage: diffImage instanceof Buffer,
+    isEqual,
+    diffPixels,
+  };
+}
+
 test(
   'should detect an empty screenshot',
   setupTest(async page => {
     const result = await page.captureBySelector('#empty-box');
-    await expect(cropAndCompare(result, result)).rejects.toThrow(/Image does not contain enough colors/);
+    await expect(cropAndCompareTest(result, result)).rejects.toThrow(/Image does not contain enough colors/);
   })
 );
 
@@ -32,10 +43,10 @@ test(
     const firstResult = await page.captureBySelector('#box1');
     await browser.refresh();
     const secondResult = await page.captureBySelector('#box1');
-    await expect(cropAndCompare(firstResult, secondResult)).resolves.toEqual({
-      firstImage: expect.any(Buffer),
-      secondImage: expect.any(Buffer),
-      diffImage: null,
+    await expect(cropAndCompareTest(firstResult, secondResult)).resolves.toEqual({
+      firstImage: true,
+      secondImage: true,
+      diffImage: false,
       diffPixels: 0,
       isEqual: true,
     });
@@ -50,10 +61,10 @@ test(
     await browser.refresh();
     await page.waitForJsTimers(200);
     const secondResult = await page.captureViewport();
-    await expect(cropAndCompare(firstResult, secondResult)).resolves.toEqual({
-      firstImage: expect.any(Buffer),
-      secondImage: expect.any(Buffer),
-      diffImage: null,
+    await expect(cropAndCompareTest(firstResult, secondResult)).resolves.toEqual({
+      firstImage: true,
+      secondImage: true,
+      diffImage: false,
       diffPixels: 0,
       isEqual: true,
     });
@@ -66,10 +77,10 @@ test(
     const firstResult = await page.captureBySelector('#box1');
     await browser.refresh();
     const secondResult = await page.captureBySelector('#box2');
-    await expect(cropAndCompare(firstResult, secondResult)).resolves.toEqual({
-      firstImage: expect.any(Buffer),
-      secondImage: expect.any(Buffer),
-      diffImage: expect.any(Buffer),
+    await expect(cropAndCompareTest(firstResult, secondResult)).resolves.toEqual({
+      firstImage: true,
+      secondImage: true,
+      diffImage: true,
       diffPixels: 0,
       isEqual: true,
     });
@@ -82,10 +93,10 @@ test(
     const firstResult = await page.captureBySelector('#box1');
     await browser.refresh();
     const secondResult = await page.captureBySelector('#box3');
-    await expect(cropAndCompare(firstResult, secondResult)).resolves.toEqual({
-      firstImage: expect.any(Buffer),
-      secondImage: expect.any(Buffer),
-      diffImage: expect.any(Buffer),
+    await expect(cropAndCompareTest(firstResult, secondResult)).resolves.toEqual({
+      firstImage: true,
+      secondImage: true,
+      diffImage: true,
       diffPixels: expect.any(Number),
       isEqual: false,
     });
@@ -98,10 +109,10 @@ test(
     const firstResult = await page.captureBySelector('#box1');
     await browser.refresh();
     const secondResult = await page.captureBySelector('#icon1');
-    await expect(cropAndCompare(firstResult, secondResult)).resolves.toEqual({
-      firstImage: expect.any(Buffer),
-      secondImage: expect.any(Buffer),
-      diffImage: expect.any(Buffer),
+    await expect(cropAndCompareTest(firstResult, secondResult)).resolves.toEqual({
+      firstImage: true,
+      secondImage: true,
+      diffImage: true,
       diffPixels: expect.any(Number),
       isEqual: false,
     });
@@ -113,10 +124,10 @@ test(
   setupTest(async page => {
     const firstResult = await page.captureBySelector('#box-offscreen');
     const secondResult = await page.captureBySelector('#box-offscreen');
-    await expect(cropAndCompare(firstResult, secondResult)).resolves.toEqual({
-      firstImage: expect.any(Buffer),
-      secondImage: expect.any(Buffer),
-      diffImage: null,
+    await expect(cropAndCompareTest(firstResult, secondResult)).resolves.toEqual({
+      firstImage: true,
+      secondImage: true,
+      diffImage: false,
       diffPixels: 0,
       isEqual: true,
     });
@@ -152,7 +163,7 @@ test('should generate valid diffs for fractional offsets', async () => {
     top: 33.33333,
     left: 33.33333,
   };
-  const { diffPixels } = await cropAndCompare(
+  const { diffPixels } = await cropAndCompareTest(
     { image: red, offset, width, height },
     { image: blue, offset, width, height }
   );
@@ -203,10 +214,47 @@ test('detects identical images with higher device pixel ratios', async () => {
     width: 500,
     height: 150,
   };
-  const { diffPixels } = await cropAndCompare(
+  const { diffPixels } = await cropAndCompareTest(
     { image: img, pixelRatio: 2, offset, width: img.width, height: img.height },
     { image: img, pixelRatio: 2, offset, width: img.width, height: img.height }
   );
 
   expect(diffPixels).toBe(0);
+});
+
+test('returns isEqual=false when comparing images with 0-size', async () => {
+  const image = await parsePng(fs.readFileSync(__dirname + '/fixtures/blue@2x.png', 'base64'));
+  const props = { image, pixelRatio: 2, offset: { top: 10, left: 10 }, width: 100, height: 100 };
+
+  // Normalized width and height is 100.
+  expect(await cropAndCompareTest({ ...props, width: 0 }, { ...props })).toEqual(
+    expect.objectContaining({ isEqual: true, diffPixels: 0 })
+  );
+  expect(await cropAndCompareTest({ ...props }, { ...props, height: 0 })).toEqual(
+    expect.objectContaining({ isEqual: true, diffPixels: 0 })
+  );
+
+  // Normalized width is 0.
+  expect(await cropAndCompareTest({ ...props, width: 0 }, { ...props, width: 0 })).toEqual(
+    expect.objectContaining({
+      isEqual: false,
+      diffPixels: -1,
+    })
+  );
+
+  // Normalized height is 0.
+  expect(await cropAndCompareTest({ ...props, height: 0 }, { ...props, height: 0 })).toEqual(
+    expect.objectContaining({
+      isEqual: false,
+      diffPixels: -1,
+    })
+  );
+
+  // Normalized width and height is 0.
+  expect(await cropAndCompareTest({ ...props, width: 0, height: 0 }, { ...props, width: 0, height: 0 })).toEqual(
+    expect.objectContaining({
+      isEqual: false,
+      diffPixels: -1,
+    })
+  );
 });
