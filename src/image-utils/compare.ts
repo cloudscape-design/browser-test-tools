@@ -6,6 +6,10 @@ import { packPng, cropImage } from './utils';
 import { ElementRect, ElementSize, ScreenshotWithOffset } from '../page-objects/types';
 
 export function compareImages(firstImage: PNG, secondImage: PNG, { width, height }: ElementSize) {
+  // This prevents an error thrown from pixelmatch when comparing 0-sized images.
+  if (width === 0 || height === 0) {
+    return { diffPixels: -1, diffImage: null };
+  }
   // fast path when two image files are identical
   if (firstImage.data.equals(secondImage.data)) {
     return { diffPixels: 0, diffImage: null };
@@ -71,7 +75,7 @@ export async function cropAndCompare(
     firstImage: firstPacked,
     secondImage: secondPacked,
     diffImage: diffPacked,
-    isEqual: diffPixels <= 1,
+    isEqual: diffPixels >= 0 && diffPixels <= 1,
     diffPixels,
   };
 }
