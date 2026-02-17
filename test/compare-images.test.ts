@@ -53,23 +53,25 @@ test(
   })
 );
 
-test(
-  'should compare viewport screenshots',
-  setupTest(async (page, browser) => {
-    await page.waitForJsTimers(200);
-    const firstResult = await page.captureViewport();
-    await browser.refresh();
-    await page.waitForJsTimers(200);
-    const secondResult = await page.captureViewport();
-    await expect(cropAndCompareTest(firstResult, secondResult)).resolves.toEqual({
-      firstImage: true,
-      secondImage: true,
-      diffImage: false,
-      diffPixels: 0,
-      isEqual: true,
-    });
-  })
-);
+for (let i = 0; i < 100; i++) {
+  test(
+    'should compare viewport screenshots',
+    setupTest(async (page, browser) => {
+      await page.waitForJsTimers(1000);
+      const firstResult = await page.captureViewport();
+      await browser.refresh();
+      await page.waitForJsTimers(1000);
+      const secondResult = await page.captureViewport();
+      await expect(cropAndCompareTest(firstResult, secondResult)).resolves.toEqual({
+        firstImage: true,
+        secondImage: true,
+        diffImage: false,
+        diffPixels: 0,
+        isEqual: true,
+      });
+    })
+  );
+}
 
 test(
   'should tolerate small color differences',
