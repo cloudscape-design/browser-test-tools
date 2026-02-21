@@ -1,4 +1,4 @@
-## Browser test tools for Cloudscape Design System
+## Browser Test Tools for Cloudscape Design System
 
 This package contains the source code for tools used for building and testing the React components for the [Cloudscape Design System](https://cloudscape.design/).
 
