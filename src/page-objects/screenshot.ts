@@ -16,11 +16,11 @@ export default class ScreenshotPageObject extends BasePageObject {
   }
 
   async scrollToBottom(selector: string) {
-    await this.browser.execute(scrollAction, 'scrollToBottom', selector);
+    await this.browser.execute(scrollAction, 'scrollToBottom' as const, selector, undefined);
   }
 
   async scrollToRight(selector: string) {
-    await this.browser.execute(scrollAction, 'scrollToRight', selector);
+    await this.browser.execute(scrollAction, 'scrollToRight' as const, selector, undefined);
   }
 
   async fullPageScreenshot() {

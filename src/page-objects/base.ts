@@ -125,7 +125,7 @@ export default class BasePageObject {
   }
 
   async elementScrollTo(selector: string, { top = 0, left = 0 }: Partial<ScrollPosition>) {
-    await this.browser.execute(scrollAction, 'scrollToOffset', selector, { top, left });
+    await this.browser.execute(scrollAction, 'scrollToOffset' as const, selector, { top, left });
   }
 
   async waitForVisible(selector: string, shouldDisplay = true, timeout?: number) {
@@ -210,7 +210,7 @@ export default class BasePageObject {
 
   async getFocusedElementText() {
     const activeNode = await this.browser.getActiveElement();
-    const element = await this.browser.$(activeNode);
+    const element = await this.browser.$(activeNode as any);
     return element.getText();
   }
 
