@@ -17,7 +17,7 @@ import { getElementCenter } from './utils';
 
 import { ElementRect } from './types';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
-import { Browser } from 'webdriverio';
+import { Browser, Selector } from 'webdriverio';
 
 export default class BasePageObject {
   constructor(protected browser: Browser) {}
@@ -209,8 +209,8 @@ export default class BasePageObject {
   }
 
   async getFocusedElementText() {
-    const activeNode = await this.browser.getActiveElement();
-    const element = await this.browser.$(activeNode as any);
+    const activeNode = (await this.browser.getActiveElement()) as Selector;
+    const element = await this.browser.$(activeNode);
     return element.getText();
   }
 
