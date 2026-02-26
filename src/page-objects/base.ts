@@ -98,8 +98,11 @@ export default class BasePageObject {
   }
 
   async getValue(selector: string) {
-    const element = await this.browser.$(selector);
-    return element.getValue();
+    const element = this.browser.$(selector);
+    const value = await element.getValue();
+    // getValue should return a Promise<string>, but the latest Webdriver is providing a wrong type for it,
+    // so we need to cast it until https://github.com/webdriverio/webdriverio/issues/15097 is resolved.
+    return value as string;
   }
 
   async setValue(selector: string, value: number | string) {
