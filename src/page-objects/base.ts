@@ -10,6 +10,7 @@ import {
   getViewportSize,
   ScrollPosition,
   getBoundingClientRect,
+  ScrollAction,
 } from '../browser-scripts';
 import EventsSpy from './events-spy';
 import * as liveAnnouncements from '../browser-scripts/live-announcements';
@@ -128,7 +129,8 @@ export default class BasePageObject {
   }
 
   async elementScrollTo(selector: string, { top = 0, left = 0 }: Partial<ScrollPosition>) {
-    await this.browser.execute(scrollAction, 'scrollToOffset' as const, selector, { top, left });
+    const action: ScrollAction = 'scrollToOffset';
+    await this.browser.execute(scrollAction, { action, selector, offset: { top, left } });
   }
 
   async waitForVisible(selector: string, shouldDisplay = true, timeout?: number) {
