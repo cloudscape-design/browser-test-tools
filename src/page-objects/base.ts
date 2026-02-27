@@ -214,8 +214,9 @@ export default class BasePageObject {
   }
 
   async getFocusedElementText() {
+    // Cast to Selector as workaround for https://github.com/webdriverio/webdriverio/issues/15118
     const activeNode = (await this.browser.getActiveElement()) as Selector;
-    const element = await this.browser.$(activeNode);
+    const element = this.browser.$(activeNode);
     return element.getText();
   }
 
