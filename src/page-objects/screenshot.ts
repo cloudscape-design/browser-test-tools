@@ -1,6 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { scrollAction } from '../browser-scripts';
+import { ScrollAction, scrollAction } from '../browser-scripts';
 import { parsePng } from '../image-utils';
 import BasePageObject from './base';
 import { ElementOffset, ScreenshotCapturingOptions, ScreenshotWithOffset } from './types';
@@ -16,11 +16,13 @@ export default class ScreenshotPageObject extends BasePageObject {
   }
 
   async scrollToBottom(selector: string) {
-    await this.browser.execute(scrollAction, 'scrollToBottom', selector);
+    const action: ScrollAction = 'scrollToBottom';
+    await this.browser.execute(scrollAction, { action, selector });
   }
 
   async scrollToRight(selector: string) {
-    await this.browser.execute(scrollAction, 'scrollToRight', selector);
+    const action: ScrollAction = 'scrollToRight';
+    await this.browser.execute(scrollAction, { action, selector });
   }
 
   async fullPageScreenshot() {

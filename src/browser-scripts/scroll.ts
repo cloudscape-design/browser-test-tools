@@ -5,11 +5,17 @@ export interface ScrollPosition {
   left: number;
 }
 
-export function scrollAction(
-  action: 'scrollToOffset' | 'scrollToRight' | 'scrollToBottom',
-  selector: string,
-  offset?: { top: number; left: number }
-) {
+export type ScrollAction = 'scrollToOffset' | 'scrollToRight' | 'scrollToBottom';
+
+export function scrollAction({
+  action,
+  selector,
+  offset,
+}: {
+  action: ScrollAction;
+  selector: string;
+  offset?: { top: number; left: number };
+}) {
   const element = document.querySelector(selector);
   if (!element) {
     throw new Error('Element ' + selector + ' has not been found at the page');

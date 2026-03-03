@@ -10,6 +10,7 @@ import {
   getViewportSize,
   ScrollPosition,
   getBoundingClientRect,
+  ScrollAction,
 } from '../browser-scripts';
 import EventsSpy from './events-spy';
 import * as liveAnnouncements from '../browser-scripts/live-announcements';
@@ -17,7 +18,7 @@ import { getElementCenter } from './utils';
 
 import { ElementRect } from './types';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
-import { Browser } from 'webdriverio';
+import { Browser, Selector } from 'webdriverio';
 
 export default class BasePageObject {
   constructor(protected browser: Browser) {}
@@ -98,8 +99,11 @@ export default class BasePageObject {
   }
 
   async getValue(selector: string) {
-    const element = await this.browser.$(selector);
-    return element.getValue();
+    const element = this.browser.$(selector);
+    const value = await element.getValue();
+    // getValue should return a Promise<string>, but the latest Webdriver is providing a wrong type for it,
+    // so we need to cast it until https://github.com/webdriverio/webdriverio/issues/15097 is resolved.
+    return value as string;
   }
 
   async setValue(selector: string, value: number | string) {
@@ -125,7 +129,8 @@ export default class BasePageObject {
   }
 
   async elementScrollTo(selector: string, { top = 0, left = 0 }: Partial<ScrollPosition>) {
-    await this.browser.execute(scrollAction, 'scrollToOffset', selector, { top, left });
+    const action: ScrollAction = 'scrollToOffset';
+    await this.browser.execute(scrollAction, { action, selector, offset: { top, left } });
   }
 
   async waitForVisible(selector: string, shouldDisplay = true, timeout?: number) {
@@ -209,8 +214,9 @@ export default class BasePageObject {
   }
 
   async getFocusedElementText() {
-    const activeNode = await this.browser.getActiveElement();
-    const element = await this.browser.$(activeNode);
+    // Cast to Selector as workaround for https://github.com/webdriverio/webdriverio/issues/15118
+    const activeNode = (await this.browser.getActiveElement()) as Selector;
+    const element = this.browser.$(activeNode);
     return element.getText();
   }
 
