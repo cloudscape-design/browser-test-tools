@@ -5,14 +5,14 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "unicorn", "header"],
+  "plugins": ["@typescript-eslint", "unicorn", "@tony.ganchev/header"],
   "rules": {
     "unicorn/filename-case": "error",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/camelcase": "off",
     "@typescript-eslint/no-inferrable-types": "off",
     "curly": "error",
-    "header/header": [
+    "@tony.ganchev/header/header": [
       "error",
       "line",
       [" Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.", " SPDX-License-Identifier: Apache-2.0"]
