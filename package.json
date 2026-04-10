@@ -41,6 +41,7 @@
     "webdriverio": "^9.24.0"
   },
   "devDependencies": {
+    "@tony.ganchev/eslint-plugin-header": "^3.3.1",
     "@types/lodash": "^4.14.186",
     "@types/node": "^18.0.0",
     "@types/pixelmatch": "^5.2.4",
@@ -50,7 +51,6 @@
     "@vitest/coverage-istanbul": "^3.0.7",
     "eslint": "^8.26.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-unicorn": "^44.0.2",
     "glob": "^10.5.0",
