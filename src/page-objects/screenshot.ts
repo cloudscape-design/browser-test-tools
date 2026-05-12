@@ -1,36 +1,19 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { ScrollAction, scrollAction } from '../browser-scripts';
+import {
+  ScrollAction,
+  scrollAction,
+  getPermutationSizes,
+  getPageDimensions,
+  PermutationInfo,
+} from '../browser-scripts';
 import { parsePng } from '../image-utils';
 import BasePageObject from './base';
-import { ElementOffset, ElementSize, ScreenshotCapturingOptions, ScreenshotWithOffset } from './types';
+import { ElementOffset, ScreenshotCapturingOptions, ScreenshotWithOffset } from './types';
 import fullPageScreenshot from './full-page-screenshot';
-
-interface PermutationInfo extends ElementSize {
-  id: string;
-  offset: ElementOffset;
-}
 
 export interface PermutationScreenshot extends ScreenshotWithOffset {
   id: string;
-}
-
-function getPermutationSizes(): PermutationInfo[] {
-  const pixelRatio = window.devicePixelRatio || 1;
-  return Array.prototype.slice
-    .call(document.querySelectorAll('[data-permutation]'))
-    .map(function (element: HTMLElement) {
-      const rect = element.getBoundingClientRect();
-      return {
-        id: element.getAttribute('data-permutation')!,
-        width: rect.width * pixelRatio,
-        height: rect.height * pixelRatio,
-        offset: {
-          top: rect.top * pixelRatio,
-          left: rect.left * pixelRatio,
-        },
-      };
-    });
 }
 
 export default class ScreenshotPageObject extends BasePageObject {
@@ -110,15 +93,12 @@ export default class ScreenshotPageObject extends BasePageObject {
       throw new Error('No permutations found on current page.');
     }
 
-    return permutations.map(permutation => ({ ...permutation, image }));
+    return permutations.map((permutation: PermutationInfo) => ({ ...permutation, image }));
   }
 
   private async fitWindowHeightToContent(): Promise<{ width: number; height: number }> {
     const originalWindowSize = await this.browser.getWindowSize();
-    const { viewportHeight, pageHeight } = await this.browser.execute(() => ({
-      pageHeight: document.documentElement.scrollHeight,
-      viewportHeight: window.innerHeight,
-    }));
+    const { viewportHeight, pageHeight } = await this.browser.execute(getPageDimensions);
     const windowUIHeight = originalWindowSize.height - viewportHeight;
     await this.safeSetWindowSize(originalWindowSize.width, pageHeight + windowUIHeight);
     return originalWindowSize;

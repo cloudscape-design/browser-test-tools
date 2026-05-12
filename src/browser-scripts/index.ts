@@ -3,3 +3,4 @@
 export * from './scroll';
 export * from './sizes';
 export * from './events-spy';
+export * from './permutations';
