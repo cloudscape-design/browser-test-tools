@@ -6,9 +6,9 @@ import useBrowser from '../src/use-browser';
 import './utils/setup-local-driver';
 
 type TestFn = (page: ScreenshotPageObject) => Promise<void>;
-function setupTest(testFn: TestFn) {
+function setupTest(testFn: TestFn, url = './test-page-object.html') {
   return useBrowser(async browser => {
-    await browser.url('./test-page-object.html');
+    await browser.url(url);
     await testFn(new ScreenshotPageObject(browser));
   });
 }
@@ -362,3 +362,34 @@ test(
     });
   })
 );
+
+describe('capturePermutations', () => {
+  test(
+    'captures all permutations with correct ids and dimensions',
+    setupTest(async page => {
+      const permutations = await page.capturePermutations();
+
+      expect(permutations).toHaveLength(3);
+      expect(permutations.map(p => p.id)).toEqual(['perm-1', 'perm-2', 'perm-3']);
+
+      permutations.forEach(perm => {
+        expect(perm.image).toBeDefined();
+        expect(perm.width).toBeGreaterThan(0);
+        expect(perm.height).toBeGreaterThan(0);
+        expect(perm.offset.top).toBeGreaterThanOrEqual(0);
+        expect(perm.offset.left).toBeGreaterThanOrEqual(0);
+      });
+
+      // Verify permutations are in order (top to bottom)
+      expect(permutations[0].offset.top).toBeLessThan(permutations[1].offset.top);
+      expect(permutations[1].offset.top).toBeLessThan(permutations[2].offset.top);
+    }, './test-permutations.html')
+  );
+
+  test(
+    'throws error when no permutations found',
+    setupTest(async page => {
+      await expect(page.capturePermutations()).rejects.toThrowError('No permutations found on current page.');
+    })
+  );
+});
