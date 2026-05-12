@@ -104,11 +104,14 @@ export default class ScreenshotPageObject extends BasePageObject {
     return originalWindowSize;
   }
 
+  /* istanbul ignore next -- setWindowSize is unsupported on some mobile browsers, not testable in CI */
   private async safeSetWindowSize(width: number, height: number): Promise<void> {
     try {
       await this.browser.setWindowSize(width, height);
-    } catch (error) /* istanbul ignore next -- setWindowSize is unsupported on some mobile browsers, not testable in CI */ {
-      if (!(error instanceof Error && error.message.includes('Method has not yet been implemented'))) {
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Method has not yet been implemented')) {
+        console.log('setWindowSize is not supported on this device');
+      } else {
         throw error;
       }
     }
