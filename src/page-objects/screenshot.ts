@@ -3,8 +3,35 @@
 import { ScrollAction, scrollAction } from '../browser-scripts';
 import { parsePng } from '../image-utils';
 import BasePageObject from './base';
-import { ElementOffset, ScreenshotCapturingOptions, ScreenshotWithOffset } from './types';
+import { ElementOffset, ElementSize, ScreenshotCapturingOptions, ScreenshotWithOffset } from './types';
 import fullPageScreenshot from './full-page-screenshot';
+
+interface PermutationInfo extends ElementSize {
+  id: string;
+  offset: ElementOffset;
+}
+
+export interface PermutationScreenshot extends ScreenshotWithOffset {
+  id: string;
+}
+
+function getPermutationSizes(): PermutationInfo[] {
+  const pixelRatio = window.devicePixelRatio || 1;
+  return Array.prototype.slice
+    .call(document.querySelectorAll('[data-permutation]'))
+    .map(function (element: HTMLElement) {
+      const rect = element.getBoundingClientRect();
+      return {
+        id: element.getAttribute('data-permutation')!,
+        width: rect.width * pixelRatio,
+        height: rect.height * pixelRatio,
+        offset: {
+          top: rect.top * pixelRatio,
+          left: rect.left * pixelRatio,
+        },
+      };
+    });
+}
 
 export default class ScreenshotPageObject extends BasePageObject {
   constructor(browser: WebdriverIO.Browser, public readonly forceScrollAndMerge: boolean = false) {
@@ -64,5 +91,48 @@ export default class ScreenshotPageObject extends BasePageObject {
     const screenshot = await this.browser.takeScreenshot();
     const image = await parsePng(screenshot);
     return { image, offset, height, width };
+  }
+
+  async capturePermutations(): Promise<PermutationScreenshot[]> {
+    await this.windowScrollTo({ top: 0, left: 0 });
+
+    // Adapt viewport height to fit all elements before taking a screenshot
+    const originalWindowSize = await this.fitWindowHeightToContent();
+
+    const screenshot = await this.fullPageScreenshot();
+    const image = await parsePng(screenshot);
+    const permutations = await this.browser.execute(getPermutationSizes);
+
+    // Restore window size after taking the screenshot
+    await this.safeSetWindowSize(originalWindowSize.width, originalWindowSize.height);
+
+    if (permutations.length === 0) {
+      throw new Error('No permutations found on current page.');
+    }
+
+    return permutations.map(permutation => ({ ...permutation, image }));
+  }
+
+  private async fitWindowHeightToContent(): Promise<{ width: number; height: number }> {
+    const originalWindowSize = await this.browser.getWindowSize();
+    const { viewportHeight, pageHeight } = await this.browser.execute(() => ({
+      pageHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+    }));
+    const windowUIHeight = originalWindowSize.height - viewportHeight;
+    await this.safeSetWindowSize(originalWindowSize.width, pageHeight + windowUIHeight);
+    return originalWindowSize;
+  }
+
+  private async safeSetWindowSize(width: number, height: number): Promise<void> {
+    try {
+      await this.browser.setWindowSize(width, height);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Method has not yet been implemented')) {
+        console.log('setWindowSize is not supported on this device');
+      } else {
+        throw error;
+      }
+    }
   }
 }
