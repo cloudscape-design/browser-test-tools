@@ -108,8 +108,10 @@ export default class ScreenshotPageObject extends BasePageObject {
     try {
       await this.browser.setWindowSize(width, height);
     } catch (error) {
-      /* istanbul ignore next -- setWindowSize is unsupported on some mobile browsers, not testable in CI */
-      if (!(error instanceof Error && error.message.includes('Method has not yet been implemented'))) {
+      // setWindowSize is unsupported on some mobile browsers, not testable in CI
+      /* istanbul ignore next */ if (
+        !(error instanceof Error && error.message.includes('Method has not yet been implemented'))
+      ) {
         throw error;
       }
     }
