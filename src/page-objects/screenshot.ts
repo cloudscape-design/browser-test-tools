@@ -84,15 +84,15 @@ export default class ScreenshotPageObject extends BasePageObject {
 
     const permutations = await this.browser.execute(getPermutationSizes);
 
-    // Restore window size after taking the screenshot
-    await this.safeSetWindowSize(originalWindowSize.width, originalWindowSize.height);
-
     if (permutations.length === 0) {
       throw new Error('No permutations found on current page.');
     }
 
     const screenshot = await this.fullPageScreenshot();
     const image = await parsePng(screenshot);
+
+    // Restore window size after taking the screenshot
+    await this.safeSetWindowSize(originalWindowSize.width, originalWindowSize.height);
 
     return permutations.map((permutation: PermutationInfo) => ({ ...permutation, image }));
   }
