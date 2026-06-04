@@ -43,12 +43,12 @@
   "devDependencies": {
     "@tony.ganchev/eslint-plugin-header": "^3.3.1",
     "@types/lodash": "^4.14.186",
-    "@types/node": "^18.0.0",
+    "@types/node": "^20.17.14",
     "@types/pixelmatch": "^5.2.4",
     "@types/wait-on": "^5.3.4",
     "@typescript-eslint/eslint-plugin": "^5.41.0",
     "@typescript-eslint/parser": "^5.41.0",
-    "@vitest/coverage-istanbul": "^3.0.7",
+    "@vitest/coverage-istanbul": "^4.1.8",
     "eslint": "^8.26.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
@@ -61,7 +61,7 @@
     "prettier": "^2.7.1",
     "puppeteer-core": "^22.15.0",
     "typescript": "^5.7.3",
-    "vitest": "^3.0.7"
+    "vitest": "^4.1.8"
   },
   "exports": {
     "./chrome-launcher": "./chrome-launcher.js",
