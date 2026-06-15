@@ -37,7 +37,7 @@
     "p-retry": "^4.6.2",
     "pixelmatch": "^5.3.0",
     "pngjs": "^6.0.0",
-    "wait-on": "^8.0.3",
+    "wait-on": "^8.0.5",
     "webdriverio": "^9.24.0"
   },
   "devDependencies": {
