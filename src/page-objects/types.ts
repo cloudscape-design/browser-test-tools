@@ -28,8 +28,18 @@ export interface ScreenshotCapturingOptions {
   viewportOnly?: boolean;
 }
 
-export interface ScreenshotWithOffset extends ElementSize {
-  image: PNG;
-  offset: ElementOffset;
+export interface Screenshot extends ElementSize {
+  image?: PNG;
   pixelRatio?: number;
+  /**
+   * The raw base64-encoded PNG from WebDriver, retained for fast byte-equality
+   * comparison in cropAndCompare. When two screenshots have the same rawBase64
+   * and no cropping is needed, expensive decoding is skipped entirely.
+   */
+  rawBase64: string;
+  offset?: ElementOffset;
+}
+
+export interface ScreenshotWithOffset extends Screenshot {
+  offset: ElementOffset;
 }

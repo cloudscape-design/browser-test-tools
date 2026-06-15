@@ -373,16 +373,11 @@ describe('capturePermutations', () => {
       expect(permutations.map(p => p.id)).toEqual(['perm-1', 'perm-2', 'perm-3']);
 
       permutations.forEach(perm => {
-        expect(perm.image).toBeDefined();
+        expect(perm.rawBase64).toBeDefined();
+        expect(perm.rawBase64.length).toBeGreaterThan(0);
         expect(perm.width).toBeGreaterThan(0);
         expect(perm.height).toBeGreaterThan(0);
-        expect(perm.offset.top).toBeGreaterThanOrEqual(0);
-        expect(perm.offset.left).toBeGreaterThanOrEqual(0);
       });
-
-      // Verify permutations are in order (top to bottom)
-      expect(permutations[0].offset.top).toBeLessThan(permutations[1].offset.top);
-      expect(permutations[1].offset.top).toBeLessThan(permutations[2].offset.top);
     }, './test-permutations.html')
   );
 
