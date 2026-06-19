@@ -1,21 +1,19 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 import { WebDriverOptions } from './browsers/browser-creator';
-import getBrowserCreator from './browser';
+import getBrowserCreator, { BrowserProviderConfig } from './browser';
 import merge from 'lodash/merge';
 import { Browser } from 'webdriverio';
 
-type BrowserOptions = {
+type BrowserOptions = BrowserProviderConfig & {
   browserName: string;
-  seleniumType: string;
-  browserCreatorOptions: Record<string, any>;
   webdriverOptions: Partial<WebDriverOptions>;
   skipConsoleErrorsCheck: boolean;
 };
 const options: BrowserOptions = {
   browserName: 'ChromeHeadless',
   seleniumType: 'local',
-  browserCreatorOptions: {},
+  browserCreatorOptions: { seleniumUrl: '' },
   webdriverOptions: {},
   skipConsoleErrorsCheck: false,
 };
@@ -40,7 +38,7 @@ function useBrowser(...args: [Partial<WebDriverOptions>, TestFunction] | [TestFu
   const optionsOverride = args.length === 1 ? {} : args[0];
   const testFn = args.length === 1 ? args[0] : args[1];
   return async () => {
-    const creator = getBrowserCreator(options.browserName, options.seleniumType, options.browserCreatorOptions);
+    const creator = getBrowserCreator(options.browserName, options);
     const browser = await creator.getBrowser({ ...options.webdriverOptions, ...optionsOverride });
 
     try {

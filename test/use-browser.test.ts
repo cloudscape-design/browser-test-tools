@@ -1,6 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { test, expect, vi } from 'vitest';
+import { test, expect, vi, type MockInstance } from 'vitest';
 import { promisify } from 'util';
 import useBrowser from '../src/use-browser';
 import { configure } from '../src/use-browser';
@@ -35,15 +35,13 @@ test.each([
 );
 
 test('should close browser after test finish', async () => {
-  const onDeleteSession = vi.fn();
+  // Spy on the real `deleteSession` (call-through) to verify the session is
+  // closed after the test, without replacing the actual cleanup behavior.
+  let deleteSessionSpy!: MockInstance<WebdriverIO.Browser['deleteSession']>;
   await useBrowser(async browser => {
-    // FIXME: Casting to any isn't ideal, but it's the only way to overwrite this command
-    (browser as any).overwriteCommand('deleteSession', async (originalCommand: any) => {
-      await originalCommand();
-      onDeleteSession();
-    });
+    deleteSessionSpy = vi.spyOn(browser, 'deleteSession');
   })();
-  expect(onDeleteSession).toHaveBeenCalled();
+  expect(deleteSessionSpy).toHaveBeenCalled();
 });
 
 // the browser is configured to wait for 3x5000ms before throwing an error

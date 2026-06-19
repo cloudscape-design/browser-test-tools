@@ -25,6 +25,10 @@ describe('Mobile Devicefarm browserCreator', () => {
     const browserCreator = new MobileBrowserCreator('Android', { seleniumUrl });
 
     const browser = await browserCreator.getBrowser({});
-    expect((browser.options.capabilities as any)['appium:platformName']).toEqual('Android');
+    expect(browser.options).toEqual(
+      expect.objectContaining({
+        capabilities: expect.objectContaining({ 'appium:platformName': 'Android' }),
+      })
+    );
   });
 });

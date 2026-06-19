@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 import { URL } from 'url';
-import BrowserCreator from './browser-creator';
+import BrowserCreator, { SeleniumUrlOptions } from './browser-creator';
 import { getCapability } from './capabilities';
 
 // The remaining options like browserName, deviceName, etc. will be covered
@@ -19,7 +19,7 @@ const mobileBrowsers: Record<string, WebdriverIO.Capabilities> = {
   },
 };
 
-export default class MobileBrowserCreator extends BrowserCreator {
+export default class MobileBrowserCreator extends BrowserCreator<SeleniumUrlOptions> {
   async __getBrowserUrl() {
     return new URL(this.options.seleniumUrl);
   }

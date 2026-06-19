@@ -85,7 +85,7 @@ export type BrowserstackOptions = {
   projectName: string;
   buildName: string;
 };
-export default class BrowserStackBrowserCreator extends BrowserCreator {
+export default class BrowserStackBrowserCreator extends BrowserCreator<BrowserstackOptions> {
   async getBrowser(options: Partial<WebDriverOptions>): Promise<WebdriverIO.Browser> {
     const nSecSleepBeforeRetry = this.options.nSecSleepBeforeRetry || N_SEC_SLEEP_BEFORE_RETRY;
 
@@ -113,7 +113,7 @@ export default class BrowserStackBrowserCreator extends BrowserCreator {
 
   protected __getCapabilities(): WebdriverIO.Capabilities {
     const capabilities = getCapability(this.browserName, browsers);
-    const browserstackOptions = this.options as BrowserstackOptions;
+    const browserstackOptions = this.options;
     return {
       ...capabilities,
       'bstack:options': {

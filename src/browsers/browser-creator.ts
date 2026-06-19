@@ -7,6 +7,10 @@ import merge from 'lodash/merge';
 
 import { BrowserError } from '../exceptions';
 
+export interface SeleniumUrlOptions {
+  seleniumUrl: string;
+}
+
 export interface WebDriverOptions {
   width: number;
   height: number;
@@ -16,7 +20,7 @@ export interface WebDriverOptions {
   connectionRetryTimeout: number;
   baseUrl?: string;
   logLevel: Options.WebDriverLogTypes;
-  capabilities?: Record<string, any>;
+  capabilities?: WebdriverIO.Capabilities;
 }
 
 const defaultOptions: WebDriverOptions = {
@@ -30,8 +34,8 @@ const defaultOptions: WebDriverOptions = {
   logLevel: 'error',
 };
 
-export default abstract class BrowserCreator {
-  constructor(protected browserName: string, protected options: Record<string, any>) {}
+export default abstract class BrowserCreator<Options = unknown> {
+  constructor(protected browserName: string, protected options: Options) {}
 
   protected async setupBrowser(overrides: Partial<WebDriverOptions>) {
     const options = merge({}, defaultOptions, overrides);

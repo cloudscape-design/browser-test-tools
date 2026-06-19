@@ -12,9 +12,9 @@ export interface DevicefarmOptions {
   expiresInSeconds?: number;
 }
 
-export default class DevicefarmBrowserCreator extends BrowserCreator {
+export default class DevicefarmBrowserCreator extends BrowserCreator<DevicefarmOptions> {
   protected async __getBrowserUrl(): Promise<URL> {
-    const options = this.options as DevicefarmOptions;
+    const options = this.options;
     const client = new DeviceFarm({ region: 'us-west-2' });
 
     const response = await client.createTestGridUrl({
