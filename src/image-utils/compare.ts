@@ -33,10 +33,6 @@ function scaleSize(size: ElementSize, pixelRatio: number) {
   };
 }
 
-function isZeroOffset(screenshot: ScreenshotWithOffset): boolean {
-  return !screenshot.offset;
-}
-
 export interface CropAndCompareResult {
   firstImage: Buffer;
   secondImage: Buffer;
