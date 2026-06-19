@@ -3,4 +3,4 @@
 export { default as BasePageObject } from './base';
 export { default as ScreenshotPageObject, PermutationScreenshot } from './screenshot';
 export { default as EventsSpy } from './events-spy';
-export { ScreenshotWithOffset, ElementSize, ElementRect, ElementOffset } from './types';
+export { Screenshot, ScreenshotWithOffset, ElementSize, ElementRect, ElementOffset } from './types';
