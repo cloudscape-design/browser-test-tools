@@ -93,7 +93,7 @@ export default class ScreenshotPageObject extends BasePageObject {
 
     const results = this.takePermutationScreenshots(options?.individualScreenshots);
 
-    // Restore original viewport height
+    // Restore window size after taking the screenshot
     await this.safeSetWindowSize(originalWindowSize.width, originalWindowSize.height);
 
     return results;
@@ -130,13 +130,14 @@ export default class ScreenshotPageObject extends BasePageObject {
         return this.takePermutationScreenshots();
       }
     } else {
-      // Single full-page screenshot with bounding box metadata
+      // Single full-page screenshot with bounding box metadata for cropping
+
+      const screenshot = await this.fullPageScreenshot();
       const permutations = await this.browser.execute(getPermutationSizes);
-      const rawBase64 = await this.browser.takeScreenshot();
 
       return permutations.map((permutation: PermutationInfo) => ({
         id: permutation.id,
-        rawBase64,
+        rawBase64: screenshot,
         offset: permutation.offset,
         width: permutation.width,
         height: permutation.height,
