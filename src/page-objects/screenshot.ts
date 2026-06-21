@@ -87,44 +87,55 @@ export default class ScreenshotPageObject extends BasePageObject {
    * Consumers can compare rawBase64 directly for fast byte-equality checks and
    * only call parsePng(rawBase64) when a diff is needed.
    */
-  async capturePermutations(): Promise<PermutationScreenshot[]> {
-    await this.windowScrollTo({ top: 0, left: 0 });
-
-    const elements = await this.browser.$$('[data-permutation]');
-
-    if ((await elements.length) === 0) {
-      throw new Error('No permutations found on current page.');
-    }
-
+  async capturePermutations(options?: { individualScreenshots?: boolean }): Promise<PermutationScreenshot[]> {
     // Adapt viewport height to fit all elements before taking screenshots
     const originalWindowSize = await this.fitWindowHeightToContent();
 
-    let results: PermutationScreenshot[];
-    try {
-      // Fast path: capture each element individually via takeElementScreenshot.
-      // Each screenshot is already cropped to the element — no parsePng needed.
-      const pixelRatio = await this.browser.execute(function () {
-        return window.devicePixelRatio || 1;
-      });
-      results = [];
-      for (const element of elements) {
-        const id = (await element.getAttribute('data-permutation')) || '';
-        const rawBase64 = await this.browser.takeElementScreenshot(element.elementId);
-        const size = await element.getSize();
-        results.push({
-          id,
-          rawBase64,
-          width: size.width * pixelRatio,
-          height: size.height * pixelRatio,
+    const results = this.takePermutationScreenshots(options?.individualScreenshots);
+
+    // Restore original viewport height
+    await this.safeSetWindowSize(originalWindowSize.width, originalWindowSize.height);
+
+    return results;
+  }
+
+  private async takePermutationScreenshots(individualScreenshots = false) {
+    const elements = this.browser.$$('[data-permutation]');
+    if ((await elements.length) === 0) {
+      throw new Error('No permutations found on current page.');
+    }
+    if (individualScreenshots) {
+      try {
+        // Try to capture each element individually via takeElementScreenshot.
+        // Each screenshot is already cropped to the element — no need to decode, crop and re-encode to PNG.
+        const results: PermutationScreenshot[] = [];
+        const pixelRatio = await this.browser.execute(function () {
+          return window.devicePixelRatio || 1;
         });
+        for (const element of elements) {
+          const id = (await element.getAttribute('data-permutation')) || '';
+          const rawBase64 = await this.browser.takeElementScreenshot(element.elementId);
+          const size = await element.getSize();
+          results.push({
+            id,
+            rawBase64,
+            width: size.width * pixelRatio,
+            height: size.height * pixelRatio,
+          });
+        }
+        return results;
+      } catch {
+        // If takeElementScreenshot fails (for example for browsers where this API is not available),
+        // fall back to taking one single screenshot and cropping it
+        return this.capturePermutations();
       }
-    } catch {
+    } else {
       // Fallback: single full-page screenshot with bounding box metadata
       const permutations = await this.browser.execute(getPermutationSizes);
       const rawBase64 = await this.browser.takeScreenshot();
       const image = await parsePng(rawBase64);
 
-      results = permutations.map((permutation: PermutationInfo) => ({
+      return permutations.map((permutation: PermutationInfo) => ({
         id: permutation.id,
         rawBase64,
         image,
@@ -133,9 +144,6 @@ export default class ScreenshotPageObject extends BasePageObject {
         height: permutation.height,
       }));
     }
-
-    await this.safeSetWindowSize(originalWindowSize.width, originalWindowSize.height);
-    return results;
   }
 
   private async fitWindowHeightToContent(): Promise<{ width: number; height: number }> {
