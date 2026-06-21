@@ -99,7 +99,7 @@ export default class ScreenshotPageObject extends BasePageObject {
     return results;
   }
 
-  private async takePermutationScreenshots(individualScreenshots = false) {
+  private async takePermutationScreenshots(individualScreenshots = false): Promise<PermutationScreenshot[]> {
     const elements = this.browser.$$('[data-permutation]');
     if ((await elements.length) === 0) {
       throw new Error('No permutations found on current page.');
@@ -127,18 +127,16 @@ export default class ScreenshotPageObject extends BasePageObject {
       } catch {
         // If takeElementScreenshot fails (for example for browsers where this API is not available),
         // fall back to taking one single screenshot and cropping it
-        return this.capturePermutations();
+        return this.takePermutationScreenshots();
       }
     } else {
-      // Fallback: single full-page screenshot with bounding box metadata
+      // Single full-page screenshot with bounding box metadata
       const permutations = await this.browser.execute(getPermutationSizes);
       const rawBase64 = await this.browser.takeScreenshot();
-      const image = await parsePng(rawBase64);
 
       return permutations.map((permutation: PermutationInfo) => ({
         id: permutation.id,
         rawBase64,
-        image,
         offset: permutation.offset,
         width: permutation.width,
         height: permutation.height,

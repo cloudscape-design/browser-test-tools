@@ -3,7 +3,7 @@
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { packPng, cropImage, parsePng } from './utils';
-import { ElementRect, ElementSize, Screenshot, ScreenshotWithOffset } from '../page-objects/types';
+import { ElementRect, ElementSize, Screenshot } from '../page-objects/types';
 
 export function compareImages(firstImage: PNG, secondImage: PNG, { width, height }: ElementSize) {
   // This prevents an error thrown from pixelmatch when comparing 0-sized images.
@@ -70,10 +70,10 @@ export async function cropAndCompare(
   const secondDecoded = secondScreenshot.image ?? (await parsePng(secondScreenshot.rawBase64));
 
   const firstImage = firstNeedsCrop
-    ? cropImage(firstDecoded, buildCropRect(firstScreenshot as ScreenshotWithOffset, size), pixelRatio)
+    ? cropImage(firstDecoded, buildCropRect(firstScreenshot, size), pixelRatio)
     : firstDecoded;
   const secondImage = secondNeedsCrop
-    ? cropImage(secondDecoded, buildCropRect(secondScreenshot as ScreenshotWithOffset, size), pixelRatio)
+    ? cropImage(secondDecoded, buildCropRect(secondScreenshot, size), pixelRatio)
     : secondDecoded;
 
   const { diffImage, diffPixels } = compareImages(firstImage, secondImage, scaledSize);
@@ -98,13 +98,15 @@ export async function cropAndCompare(
   };
 }
 
-function buildCropRect(screenshot: ScreenshotWithOffset, size: ElementSize): ElementRect {
+function buildCropRect(screenshot: Screenshot, size: ElementSize): ElementRect {
+  const top = screenshot.offset?.top ?? 0;
+  const left = screenshot.offset?.left ?? 0;
   return {
     height: size.height,
     width: size.width,
-    bottom: screenshot.offset.top + size.height,
-    right: screenshot.offset.left + size.width,
-    top: screenshot.offset.top,
-    left: screenshot.offset.left,
+    bottom: top + size.height,
+    right: left + size.width,
+    top,
+    left,
   };
 }
