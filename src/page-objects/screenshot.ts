@@ -53,12 +53,11 @@ export default class ScreenshotPageObject extends BasePageObject {
     const box = await this.getBoundingBox(selector);
 
     try {
-      // Fast path: element screenshot is already cropped, no parsePng needed
       const element = this.browser.$(selector);
       const rawBase64 = await this.browser.takeElementScreenshot(await element.elementId);
       return { rawBase64, pixelRatio, height: box.height, width: box.width };
     } catch {
-      // Fallback: full-page or viewport screenshot with offset
+      console.warn('Could not use takeElementScreenshot. Falling back to full-page screenshot and cropping');
       const { top, left } = await this.getViewportSize();
       const rawBase64 = options.viewportOnly ? await this.browser.takeScreenshot() : await this.fullPageScreenshot();
       const image = await parsePng(rawBase64);
@@ -88,6 +87,8 @@ export default class ScreenshotPageObject extends BasePageObject {
    * only call parsePng(rawBase64) when a diff is needed.
    */
   async capturePermutations(options?: { individualScreenshots?: boolean }): Promise<PermutationScreenshot[]> {
+    await this.windowScrollTo({ top: 0, left: 0 });
+
     // Adapt viewport height to fit all elements before taking screenshots
     const originalWindowSize = await this.fitWindowHeightToContent();
 
@@ -125,8 +126,7 @@ export default class ScreenshotPageObject extends BasePageObject {
         }
         return results;
       } catch {
-        // If takeElementScreenshot fails (for example for browsers where this API is not available),
-        // fall back to taking one single screenshot and cropping it
+        console.warn('Could not use takeElementScreenshot. Falling back to full-page screenshot and cropping');
         return this.takePermutationScreenshots();
       }
     } else {
