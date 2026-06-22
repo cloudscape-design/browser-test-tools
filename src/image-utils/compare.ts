@@ -3,7 +3,12 @@
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { packPng, cropImage, parsePng } from './utils';
-import { ElementRect, ElementSize, Screenshot } from '../page-objects/types';
+import { ElementRect, ElementSize, Screenshot, ScreenshotWithOffset } from '../page-objects/types';
+
+interface Size {
+  width: number;
+  height: number;
+}
 
 export function compareImages(firstImage: PNG, secondImage: PNG, { width, height }: ElementSize) {
   // This prevents an error thrown from pixelmatch when comparing 0-sized images.
@@ -19,14 +24,14 @@ export function compareImages(firstImage: PNG, secondImage: PNG, { width, height
   return { diffPixels, diffImage };
 }
 
-function normalizeSize(firstScreenshot: Screenshot, secondScreenshot: Screenshot) {
+function normalizeSize(firstScreenshot: Screenshot, secondScreenshot: Screenshot): Size {
   return {
     height: Math.round(Math.max(firstScreenshot.height, secondScreenshot.height)),
     width: Math.round(Math.max(firstScreenshot.width, secondScreenshot.width)),
   };
 }
 
-function scaleSize(size: ElementSize, pixelRatio: number) {
+function scaleSize(size: ElementSize, pixelRatio: number): Size {
   return {
     width: Math.ceil(size.width * pixelRatio),
     height: Math.ceil(size.height * pixelRatio),
@@ -39,6 +44,22 @@ export interface CropAndCompareResult {
   diffImage: Buffer | null;
   isEqual: boolean;
   diffPixels: number;
+}
+
+async function getScreenshotImage(screenshot: Screenshot) {
+  if (!screenshot.image) {
+    screenshot.image = await parsePng(screenshot.rawBase64);
+  }
+  return screenshot.image;
+}
+
+async function cropIfNeeded(screenshot: Screenshot, size: Size) {
+  const image = await getScreenshotImage(screenshot);
+  if (screenshot.offset) {
+    return cropImage(image, buildCropRect(screenshot as ScreenshotWithOffset, size), screenshot.pixelRatio);
+  } else {
+    return image;
+  }
 }
 
 export async function cropAndCompare(
@@ -58,32 +79,35 @@ export async function cropAndCompare(
     return { firstImage: buffer, secondImage: buffer, diffImage: null, isEqual: true, diffPixels: 0 };
   }
 
+  console.log('first', { ...firstScreenshot, image: undefined, rawBase64: undefined });
+  console.log('second', { ...secondScreenshot, image: undefined, rawBase64: undefined });
+
   const pixelRatio = firstScreenshot.pixelRatio || 1;
+
   const size = normalizeSize(firstScreenshot, secondScreenshot);
   const scaledSize = scaleSize(size, pixelRatio);
 
-  const firstNeedsCrop = !!firstScreenshot.offset;
-  const secondNeedsCrop = !!secondScreenshot.offset;
+  console.log({ scaledSize });
 
-  // Decode images on demand: use pre-decoded image if available, otherwise parse from rawBase64
-  const firstDecoded = firstScreenshot.image ?? (await parsePng(firstScreenshot.rawBase64));
-  const secondDecoded = secondScreenshot.image ?? (await parsePng(secondScreenshot.rawBase64));
+  const firstImage = await cropIfNeeded(firstScreenshot, scaledSize);
+  const secondImage = await cropIfNeeded(secondScreenshot, scaledSize);
 
-  const firstImage = firstNeedsCrop
-    ? cropImage(firstDecoded, buildCropRect(firstScreenshot, size), pixelRatio)
-    : firstDecoded;
-  const secondImage = secondNeedsCrop
-    ? cropImage(secondDecoded, buildCropRect(secondScreenshot, size), pixelRatio)
-    : secondDecoded;
+  // Make sure the size of both images to compare is the same
+  const compareSize = {
+    width: Math.max(firstImage.width, secondImage.width),
+    height: Math.max(firstImage.height, secondImage.height),
+  };
 
-  const { diffImage, diffPixels } = compareImages(firstImage, secondImage, scaledSize);
+  console.log({ compareSize });
+
+  const { diffImage, diffPixels } = compareImages(firstImage, secondImage, compareSize);
 
   // Skip packPng when no cropping was needed and rawBase64 is available
   const [firstPacked, secondPacked, diffPacked] = await Promise.all([
-    !firstNeedsCrop && firstScreenshot.rawBase64
+    !firstScreenshot.offset && firstScreenshot.rawBase64
       ? Buffer.from(firstScreenshot.rawBase64, 'base64')
       : packPng(firstImage),
-    !secondNeedsCrop && secondScreenshot.rawBase64
+    !secondScreenshot.offset && secondScreenshot.rawBase64
       ? Buffer.from(secondScreenshot.rawBase64, 'base64')
       : packPng(secondImage),
     diffImage && packPng(diffImage),
@@ -98,7 +122,7 @@ export async function cropAndCompare(
   };
 }
 
-function buildCropRect(screenshot: Screenshot, size: ElementSize): ElementRect {
+function buildCropRect(screenshot: ScreenshotWithOffset, size: ElementSize): ElementRect {
   const top = screenshot.offset?.top ?? 0;
   const left = screenshot.offset?.left ?? 0;
   return {
