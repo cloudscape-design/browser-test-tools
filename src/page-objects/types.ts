@@ -26,6 +26,7 @@ export interface ViewportSize extends ElementOffset, ElementSize {
 
 export interface ScreenshotCapturingOptions {
   viewportOnly?: boolean;
+  singleElements?: boolean;
 }
 
 export interface Screenshot extends ElementSize {

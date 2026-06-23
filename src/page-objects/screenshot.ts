@@ -52,18 +52,21 @@ export default class ScreenshotPageObject extends BasePageObject {
     const { pixelRatio } = await this.getViewportSize();
     const box = await this.getBoundingBox(selector);
 
-    try {
-      const originalWindowSize = await this.fitWindowHeightToContent();
+    if (options?.singleElements) {
+      try {
+        const originalWindowSize = await this.fitWindowHeightToContent();
 
-      const element = this.browser.$(selector);
-      const rawBase64 = await this.browser.takeElementScreenshot(await element.elementId);
+        const element = this.browser.$(selector);
+        const rawBase64 = await this.browser.takeElementScreenshot(await element.elementId);
 
-      await this.safeSetWindowSize(originalWindowSize.width, originalWindowSize.height);
+        await this.safeSetWindowSize(originalWindowSize.width, originalWindowSize.height);
 
-      return { rawBase64, pixelRatio, height: box.height, width: box.width };
-    } catch {
-      console.warn('Could not use takeElementScreenshot. Falling back to full-page screenshot and cropping');
-
+        return { rawBase64, pixelRatio, height: box.height, width: box.width };
+      } catch {
+        console.warn('Could not use takeElementScreenshot. Falling back to full-page screenshot and cropping');
+        return this.captureBySelector(selector, { ...options, singleElements: false });
+      }
+    } else {
       const { top, left } = await this.getViewportSize();
       const rawBase64 = options.viewportOnly ? await this.browser.takeScreenshot() : await this.fullPageScreenshot();
       const image = await parsePng(rawBase64);
@@ -84,21 +87,13 @@ export default class ScreenshotPageObject extends BasePageObject {
     return { height, width, rawBase64 };
   }
 
-  /**
-   * Captures all permutation elements. Uses takeElementScreenshot when available
-   * to return pre-cropped PNGs without decoding. Falls back to a single full-page
-   * screenshot with bounding box metadata if takeElementScreenshot is unavailable.
-   *
-   * Consumers can compare rawBase64 directly for fast byte-equality checks and
-   * only call parsePng(rawBase64) when a diff is needed.
-   */
-  async capturePermutations(options?: { individualScreenshots?: boolean }): Promise<PermutationScreenshot[]> {
+  async capturePermutations(options?: { singleElements?: boolean }): Promise<PermutationScreenshot[]> {
     await this.windowScrollTo({ top: 0, left: 0 });
 
     // Adapt viewport height to fit all elements before taking screenshots
     const originalWindowSize = await this.fitWindowHeightToContent();
 
-    const results = this.takePermutationScreenshots(options?.individualScreenshots);
+    const results = this.takePermutationScreenshots(options?.singleElements);
 
     // Restore window size after taking the screenshot
     await this.safeSetWindowSize(originalWindowSize.width, originalWindowSize.height);
@@ -106,12 +101,12 @@ export default class ScreenshotPageObject extends BasePageObject {
     return results;
   }
 
-  private async takePermutationScreenshots(individualScreenshots = false): Promise<PermutationScreenshot[]> {
+  private async takePermutationScreenshots(singleElements = false): Promise<PermutationScreenshot[]> {
     const elements = this.browser.$$('[data-permutation]');
     if ((await elements.length) === 0) {
       throw new Error('No permutations found on current page.');
     }
-    if (individualScreenshots) {
+    if (singleElements) {
       try {
         // Try to capture each element individually via takeElementScreenshot.
         // Each screenshot is already cropped to the element — no need to decode, crop and re-encode to PNG.
