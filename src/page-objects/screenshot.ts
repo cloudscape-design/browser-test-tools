@@ -133,15 +133,10 @@ export default class ScreenshotPageObject extends BasePageObject {
       // Single full-page screenshot with bounding box metadata for cropping
 
       const screenshot = await this.fullPageScreenshot();
+      const image = await parsePng(screenshot);
       const permutations = await this.browser.execute(getPermutationSizes);
 
-      return permutations.map((permutation: PermutationInfo) => ({
-        id: permutation.id,
-        rawBase64: screenshot,
-        offset: permutation.offset,
-        width: permutation.width,
-        height: permutation.height,
-      }));
+      return permutations.map((permutation: PermutationInfo) => ({ ...permutation, image, rawBase64: screenshot }));
     }
   }
 
