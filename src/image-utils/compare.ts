@@ -31,6 +31,10 @@ function normalizeSize(firstScreenshot: Screenshot, secondScreenshot: Screenshot
   };
 }
 
+function isScreenshotWithOffset(s: Screenshot): s is ScreenshotWithOffset {
+  return 'offset' in s && s.offset !== undefined;
+}
+
 function scaleSize(size: ElementSize, pixelRatio: number): Size {
   return {
     width: Math.ceil(size.width * pixelRatio),
@@ -55,7 +59,7 @@ async function getScreenshotImage(screenshot: Screenshot) {
 
 async function cropIfNeeded(screenshot: Screenshot, size: Size) {
   const image = await getScreenshotImage(screenshot);
-  if (screenshot.offset) {
+  if (isScreenshotWithOffset(screenshot)) {
     return cropImage(image, buildCropRect(screenshot as ScreenshotWithOffset, size), screenshot.pixelRatio);
   } else {
     return image;
@@ -67,7 +71,11 @@ export async function cropAndCompare(
   secondScreenshot: Screenshot
 ): Promise<CropAndCompareResult> {
   // Fast path: if rawBase64 is present on both, identical, and no cropping needed, skip all decoding entirely.
-  if (!firstScreenshot.offset && !secondScreenshot.offset && firstScreenshot.rawBase64 === secondScreenshot.rawBase64) {
+  if (
+    !isScreenshotWithOffset(firstScreenshot) &&
+    !isScreenshotWithOffset(secondScreenshot) &&
+    firstScreenshot.rawBase64 === secondScreenshot.rawBase64
+  ) {
     const buffer = Buffer.from(firstScreenshot.rawBase64, 'base64');
     return { firstImage: buffer, secondImage: buffer, diffImage: null, isEqual: true, diffPixels: 0 };
   }
@@ -84,10 +92,8 @@ export async function cropAndCompare(
 
   // Skip packPng when no cropping was needed and rawBase64 is available
   const [firstPacked, secondPacked, diffPacked] = await Promise.all([
-    !firstScreenshot.offset && firstScreenshot.rawBase64
-      ? Buffer.from(firstScreenshot.rawBase64, 'base64')
-      : packPng(firstImage),
-    !secondScreenshot.offset && secondScreenshot.rawBase64
+    !isScreenshotWithOffset(firstScreenshot) ? Buffer.from(firstScreenshot.rawBase64, 'base64') : packPng(firstImage),
+    !isScreenshotWithOffset(secondScreenshot)
       ? Buffer.from(secondScreenshot.rawBase64, 'base64')
       : packPng(secondImage),
     diffImage && packPng(diffImage),

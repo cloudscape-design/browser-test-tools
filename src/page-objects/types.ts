@@ -29,18 +29,24 @@ export interface ScreenshotCapturingOptions {
   singleElements?: boolean;
 }
 
-export interface Screenshot extends ElementSize {
+/**
+ * A raw screenshot with base64 data and dimensions. No decoded image, no offset.
+ * Returned when singleElements is true (takeElementScreenshot was used).
+ */
+export interface RawScreenshot extends ElementSize {
   image?: PNG;
-  pixelRatio?: number;
-  /**
-   * The raw base64-encoded PNG from WebDriver, retained for fast byte-equality
-   * comparison in cropAndCompare. When two screenshots have the same rawBase64
-   * and no cropping is needed, expensive decoding is skipped entirely.
-   */
   rawBase64: string;
-  offset?: ElementOffset;
+  pixelRatio?: number;
 }
 
-export interface ScreenshotWithOffset extends Screenshot {
+/**
+ * A decoded screenshot with image data, offset for cropping, and optional rawBase64.
+ * Returned when singleElements is false/absent (full-page screenshot path).
+ */
+export interface ScreenshotWithOffset extends RawScreenshot {
+  image: PNG;
   offset: ElementOffset;
 }
+
+/** Union of both screenshot types. */
+export type Screenshot = RawScreenshot | ScreenshotWithOffset;
