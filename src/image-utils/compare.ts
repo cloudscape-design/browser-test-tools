@@ -66,41 +66,21 @@ export async function cropAndCompare(
   firstScreenshot: Screenshot,
   secondScreenshot: Screenshot
 ): Promise<CropAndCompareResult> {
-  // Fast path: if rawBase64 is present on both, identical, and no cropping needed,
-  // skip all decoding entirely.
-  if (
-    firstScreenshot.rawBase64 &&
-    secondScreenshot.rawBase64 &&
-    firstScreenshot.rawBase64 === secondScreenshot.rawBase64 &&
-    !firstScreenshot.offset &&
-    !secondScreenshot.offset
-  ) {
+  // Fast path: if rawBase64 is present on both, identical, and no cropping needed, skip all decoding entirely.
+  if (!firstScreenshot.offset && !secondScreenshot.offset && firstScreenshot.rawBase64 === secondScreenshot.rawBase64) {
     const buffer = Buffer.from(firstScreenshot.rawBase64, 'base64');
     return { firstImage: buffer, secondImage: buffer, diffImage: null, isEqual: true, diffPixels: 0 };
   }
-
-  console.log('first', { ...firstScreenshot, image: undefined, rawBase64: undefined });
-  console.log('second', { ...secondScreenshot, image: undefined, rawBase64: undefined });
 
   const pixelRatio = firstScreenshot.pixelRatio || 1;
 
   const size = normalizeSize(firstScreenshot, secondScreenshot);
   const scaledSize = scaleSize(size, pixelRatio);
 
-  console.log({ scaledSize });
-
   const firstImage = await cropIfNeeded(firstScreenshot, scaledSize);
   const secondImage = await cropIfNeeded(secondScreenshot, scaledSize);
 
-  // Make sure the size of both images to compare is the same
-  const compareSize = {
-    width: Math.max(firstImage.width, secondImage.width),
-    height: Math.max(firstImage.height, secondImage.height),
-  };
-
-  console.log({ compareSize });
-
-  const { diffImage, diffPixels } = compareImages(firstImage, secondImage, compareSize);
+  const { diffImage, diffPixels } = compareImages(firstImage, secondImage, size);
 
   // Skip packPng when no cropping was needed and rawBase64 is available
   const [firstPacked, secondPacked, diffPacked] = await Promise.all([

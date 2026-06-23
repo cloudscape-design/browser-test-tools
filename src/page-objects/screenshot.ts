@@ -53,11 +53,17 @@ export default class ScreenshotPageObject extends BasePageObject {
     const box = await this.getBoundingBox(selector);
 
     try {
+      const originalWindowSize = await this.fitWindowHeightToContent();
+
       const element = this.browser.$(selector);
       const rawBase64 = await this.browser.takeElementScreenshot(await element.elementId);
+
+      await this.safeSetWindowSize(originalWindowSize.width, originalWindowSize.height);
+
       return { rawBase64, pixelRatio, height: box.height, width: box.width };
     } catch {
       console.warn('Could not use takeElementScreenshot. Falling back to full-page screenshot and cropping');
+
       const { top, left } = await this.getViewportSize();
       const rawBase64 = options.viewportOnly ? await this.browser.takeScreenshot() : await this.fullPageScreenshot();
       const image = await parsePng(rawBase64);
