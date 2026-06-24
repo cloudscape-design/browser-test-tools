@@ -50,10 +50,11 @@ export interface CropAndCompareResult {
   diffPixels: number;
 }
 
-async function getScreenshotImage(screenshot: Screenshot) {
-  if (!screenshot.image) {
-    screenshot.image = await parsePng(screenshot.rawBase64);
+async function getScreenshotImage(screenshot: Screenshot): Promise<PNG> {
+  if (isScreenshotWithOffset(screenshot)) {
+    return screenshot.image;
   }
+  screenshot.image = screenshot.image || (await parsePng(screenshot.rawBase64));
   return screenshot.image;
 }
 
