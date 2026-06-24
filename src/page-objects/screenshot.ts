@@ -91,11 +91,18 @@ export default class ScreenshotPageObject extends BasePageObject {
     return { image, offset, pixelRatio, height: box.height, width: box.width, rawBase64 };
   }
 
-  async captureViewport(): Promise<ScreenshotWithOffset> {
+  async captureViewport(options: { singleElements: true }): Promise<RawScreenshot>;
+  async captureViewport(options?: { singleElements?: false }): Promise<ScreenshotWithOffset>;
+  async captureViewport(options?: { singleElements?: boolean }): Promise<RawScreenshot | ScreenshotWithOffset> {
     const { height, width } = await this.getViewportSize();
     const rawBase64 = await this.browser.takeScreenshot();
+
+    if (options?.singleElements) {
+      return { rawBase64, height, width };
+    }
+
     const image = await parsePng(rawBase64);
-    return { image, offset: { top: 0, left: 0 }, height, width, rawBase64 };
+    return { image, offset: { top: 0, left: 0 }, height, width };
   }
 
   // Overloads for capturePermutations
@@ -121,7 +128,7 @@ export default class ScreenshotPageObject extends BasePageObject {
 
   private async takePermutationScreenshots(options?: {
     singleElements?: boolean;
-  }): Promise<RawPermutationScreenshot[] | PermutationScreenshot[]> {
+  }): Promise<PermutationScreenshot[] | RawPermutationScreenshot[]> {
     if (options?.singleElements) {
       const elements = this.browser.$$('[data-permutation]');
       if ((await elements.length) === 0) {
@@ -159,7 +166,6 @@ export default class ScreenshotPageObject extends BasePageObject {
         offset: permutation.offset,
         width: permutation.width,
         height: permutation.height,
-        rawBase64,
       }));
     }
   }

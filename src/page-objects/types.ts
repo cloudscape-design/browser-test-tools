@@ -40,12 +40,14 @@ export interface RawScreenshot extends ElementSize {
 }
 
 /**
- * A decoded screenshot with image data, offset for cropping, and optional rawBase64.
+ * A decoded screenshot with image data and offset for cropping.
  * Returned when singleElements is false/absent (full-page screenshot path).
+ * This is the original type consumers expect.
  */
-export interface ScreenshotWithOffset extends RawScreenshot {
+export interface ScreenshotWithOffset extends ElementSize {
   image: PNG;
   offset: ElementOffset;
+  pixelRatio?: number;
 }
 
 /** Union of both screenshot types. */
