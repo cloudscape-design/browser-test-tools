@@ -54,6 +54,8 @@ async function getScreenshotImage(screenshot: Screenshot): Promise<PNG> {
   if (isScreenshotWithOffset(screenshot)) {
     return screenshot.image;
   }
+  // Cache the parsed image in the screenshot object so that it does not need to be parsed anymore
+  // when cropping it again for a different offset
   screenshot.image = screenshot.image || (await parsePng(screenshot.rawBase64));
   return screenshot.image;
 }
@@ -86,10 +88,10 @@ export async function cropAndCompare(
   const size = normalizeSize(firstScreenshot, secondScreenshot);
   const scaledSize = scaleSize(size, pixelRatio);
 
-  const firstImage = await cropIfNeeded(firstScreenshot, scaledSize);
-  const secondImage = await cropIfNeeded(secondScreenshot, scaledSize);
+  const firstImage = await cropIfNeeded(firstScreenshot, size);
+  const secondImage = await cropIfNeeded(secondScreenshot, size);
 
-  const { diffImage, diffPixels } = compareImages(firstImage, secondImage, size);
+  const { diffImage, diffPixels } = compareImages(firstImage, secondImage, scaledSize);
 
   // Skip packPng when no cropping was needed and rawBase64 is available
   const [firstPacked, secondPacked, diffPacked] = await Promise.all([
