@@ -130,18 +130,16 @@ export default class ScreenshotPageObject extends BasePageObject {
     singleElements?: boolean;
   }): Promise<PermutationScreenshot[] | RawPermutationScreenshot[]> {
     if (options?.singleElements) {
-      const elements = await this.browser.$$('[data-permutation]');
+      const elements = this.browser.$$('[data-permutation]');
       if ((await elements.length) === 0) {
         throw new Error('No permutations found on current page.');
       }
 
-      const pixelRatio = await this.browser.execute(function () {
-        return window.devicePixelRatio || 1;
-      });
+      const { pixelRatio } = await this.getViewportSize();
       const results: RawPermutationScreenshot[] = [];
       for (const element of elements) {
         const id = (await element.getAttribute('data-permutation')) || '';
-        const rawBase64 = await this.browser.takeElementScreenshot(await element.elementId);
+        const rawBase64 = await this.browser.takeElementScreenshot(element.elementId);
         const size = await element.getSize();
         results.push({
           id,
