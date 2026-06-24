@@ -3,12 +3,14 @@
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { packPng, cropImage, parsePng } from './utils';
-import { ElementRect, ElementSize, Screenshot, ScreenshotWithOffset } from '../page-objects/types';
+import { ElementRect, ElementSize, RawScreenshot, ScreenshotWithOffset } from '../page-objects/types';
 
 interface Size {
   width: number;
   height: number;
 }
+
+type Screenshot = ScreenshotWithOffset | RawScreenshot;
 
 export function compareImages(firstImage: PNG, secondImage: PNG, { width, height }: ElementSize) {
   // This prevents an error thrown from pixelmatch when comparing 0-sized images.
@@ -50,18 +52,15 @@ export interface CropAndCompareResult {
   diffPixels: number;
 }
 
-async function getScreenshotImage(screenshot: Screenshot): Promise<PNG> {
+async function getDecodedImage(screenshot: Screenshot): Promise<PNG> {
   if (isScreenshotWithOffset(screenshot)) {
     return screenshot.image;
   }
-  // Cache the parsed image in the screenshot object so that it does not need to be parsed anymore
-  // when cropping it again for a different offset
-  screenshot.image = screenshot.image || (await parsePng(screenshot.rawBase64));
-  return screenshot.image;
+  return parsePng(screenshot.rawBase64);
 }
 
 async function cropIfNeeded(screenshot: Screenshot, size: Size) {
-  const image = await getScreenshotImage(screenshot);
+  const image = await getDecodedImage(screenshot);
   if (isScreenshotWithOffset(screenshot)) {
     return cropImage(image, buildCropRect(screenshot as ScreenshotWithOffset, size), screenshot.pixelRatio);
   } else {
