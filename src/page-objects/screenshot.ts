@@ -11,6 +11,7 @@ import { parsePng } from '../image-utils';
 import BasePageObject from './base';
 import { ElementOffset, RawScreenshot, ScreenshotWithOffset, ScreenshotCapturingOptions } from './types';
 import fullPageScreenshot from './full-page-screenshot';
+import { Browser } from 'webdriverio';
 
 /** Permutation screenshot from takeElementScreenshot — no image, no offset. */
 export interface RawPermutationScreenshot extends RawScreenshot {
@@ -18,14 +19,12 @@ export interface RawPermutationScreenshot extends RawScreenshot {
 }
 
 /** Permutation screenshot from full-page fallback — has image and offset for cropping. */
-export interface DecodedPermutationScreenshot extends ScreenshotWithOffset {
+export interface PermutationScreenshot extends ScreenshotWithOffset {
   id: string;
 }
 
-export type PermutationScreenshot = RawPermutationScreenshot | DecodedPermutationScreenshot;
-
 export default class ScreenshotPageObject extends BasePageObject {
-  constructor(browser: WebdriverIO.Browser, public readonly forceScrollAndMerge: boolean = false) {
+  constructor(browser: Browser, public readonly forceScrollAndMerge: boolean = false) {
     super(browser);
   }
 
@@ -79,7 +78,6 @@ export default class ScreenshotPageObject extends BasePageObject {
       return { rawBase64, pixelRatio, height: box.height, width: box.width };
     }
 
-    // Default: full-page or viewport screenshot with decoded image
     const { top, left } = await this.getViewportSize();
     const rawBase64 = options.viewportOnly ? await this.browser.takeScreenshot() : await this.fullPageScreenshot();
     const image = await parsePng(rawBase64);
@@ -102,8 +100,10 @@ export default class ScreenshotPageObject extends BasePageObject {
 
   // Overloads for capturePermutations
   async capturePermutations(options: { singleElements: true }): Promise<RawPermutationScreenshot[]>;
-  async capturePermutations(options?: { singleElements?: false }): Promise<DecodedPermutationScreenshot[]>;
-  async capturePermutations(options?: { singleElements?: boolean }): Promise<PermutationScreenshot[]> {
+  async capturePermutations(options?: { singleElements?: false }): Promise<PermutationScreenshot[]>;
+  async capturePermutations(options?: {
+    singleElements?: boolean;
+  }): Promise<RawPermutationScreenshot[] | PermutationScreenshot[]> {
     await this.windowScrollTo({ top: 0, left: 0 });
 
     // Adapt viewport height to fit all elements before taking screenshots
@@ -119,7 +119,9 @@ export default class ScreenshotPageObject extends BasePageObject {
     }
   }
 
-  private async takePermutationScreenshots(options?: { singleElements?: boolean }): Promise<PermutationScreenshot[]> {
+  private async takePermutationScreenshots(options?: {
+    singleElements?: boolean;
+  }): Promise<RawPermutationScreenshot[] | PermutationScreenshot[]> {
     if (options?.singleElements) {
       const elements = this.browser.$$('[data-permutation]');
       if ((await elements.length) === 0) {
