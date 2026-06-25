@@ -262,7 +262,7 @@ test('returns isEqual=false when comparing images with 0-size', async () => {
 describe('cropAndCompare with RawScreenshot', () => {
   test('returns isEqual=true when two identical RawScreenshots are compared', async () => {
     const rawBase64 = fs.readFileSync(__dirname + '/fixtures/red.png', 'base64');
-    const screenshot: RawScreenshot = { rawBase64, width: 200, height: 100 };
+    const screenshot: RawScreenshot = { rawBase64, width: 684, height: 116 };
 
     const result = await cropAndCompare(screenshot, screenshot);
 
@@ -277,8 +277,8 @@ describe('cropAndCompare with RawScreenshot', () => {
     const redBase64 = fs.readFileSync(__dirname + '/fixtures/red.png', 'base64');
     const blueBase64 = fs.readFileSync(__dirname + '/fixtures/blue.png', 'base64');
 
-    const first: RawScreenshot = { rawBase64: redBase64, width: 200, height: 100 };
-    const second: RawScreenshot = { rawBase64: blueBase64, width: 200, height: 100 };
+    const first: RawScreenshot = { rawBase64: redBase64, width: 684, height: 116 };
+    const second: RawScreenshot = { rawBase64: blueBase64, width: 684, height: 116 };
 
     const result = await cropAndCompare(first, second);
 
@@ -311,12 +311,12 @@ describe('cropAndCompare with RawScreenshot', () => {
     const blueBase64 = fs.readFileSync(__dirname + '/fixtures/blue.png', 'base64');
     const blueImage = await parsePng(blueBase64);
 
-    const raw: RawScreenshot = { rawBase64: redBase64, width: 200, height: 100 };
+    const raw: RawScreenshot = { rawBase64: redBase64, width: 684, height: 116 };
     const decoded: ScreenshotWithOffset = {
       image: blueImage,
       offset: { top: 0, left: 0 },
-      width: 200,
-      height: 100,
+      width: 684,
+      height: 116,
     };
 
     const result = await cropAndCompare(raw, decoded);
