@@ -49,18 +49,18 @@ test(
 );
 
 test(
-  'isSelected',
-  setupTest(async page => {
-    expect(await page.isSelected('#checkbox')).toBe(true);
-  })
-);
-
-test(
   'focusNextElement',
   setupTest(async page => {
     await page.click('#input-1');
     await page.focusNextElement();
     expect(await page.isFocused('#input-2')).toBe(true);
+  })
+);
+
+test(
+  'isSelected',
+  setupTest(async page => {
+    expect(await page.isSelected('#checkbox')).toBe(true);
   })
 );
 
