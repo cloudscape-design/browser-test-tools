@@ -1,10 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { test, expect } from 'vitest';
+import { test, expect, describe } from 'vitest';
 import fs from 'fs';
 import { PNG } from 'pngjs';
 import useBrowser from '../src/use-browser';
-import { ScreenshotPageObject, ScreenshotWithOffset } from '../src/page-objects';
+import { ScreenshotPageObject, ScreenshotWithOffset, RawScreenshot } from '../src/page-objects';
 import { cropAndCompare, parsePng } from '../src/image-utils';
 import './utils/setup-local-driver';
 
@@ -257,4 +257,90 @@ test('returns isEqual=false when comparing images with 0-size', async () => {
       diffPixels: -1,
     })
   );
+});
+
+describe('cropAndCompare with RawScreenshot', () => {
+  test('returns isEqual=true when two identical RawScreenshots are compared', async () => {
+    const rawBase64 = fs.readFileSync(__dirname + '/fixtures/red.png', 'base64');
+    const screenshot: RawScreenshot = { rawBase64, width: 684, height: 116 };
+
+    const result = await cropAndCompare(screenshot, screenshot);
+
+    expect(result.isEqual).toBe(true);
+    expect(result.diffPixels).toBe(0);
+    expect(result.diffImage).toBeNull();
+    expect(result.firstImage).toEqual(Buffer.from(rawBase64, 'base64'));
+    expect(result.secondImage).toEqual(Buffer.from(rawBase64, 'base64'));
+  });
+
+  test('detects differences between two different RawScreenshots', async () => {
+    const redBase64 = fs.readFileSync(__dirname + '/fixtures/red.png', 'base64');
+    const blueBase64 = fs.readFileSync(__dirname + '/fixtures/blue.png', 'base64');
+
+    const first: RawScreenshot = { rawBase64: redBase64, width: 684, height: 116 };
+    const second: RawScreenshot = { rawBase64: blueBase64, width: 684, height: 116 };
+
+    const result = await cropAndCompare(first, second);
+
+    expect(result.isEqual).toBe(false);
+    expect(result.diffPixels).toBeGreaterThan(0);
+    expect(result.firstImage).toBeInstanceOf(Buffer);
+    expect(result.secondImage).toBeInstanceOf(Buffer);
+  });
+
+  test('compares a RawScreenshot against a ScreenshotWithOffset', async () => {
+    const rawBase64 = fs.readFileSync(__dirname + '/fixtures/red.png', 'base64');
+    const image = await parsePng(rawBase64);
+
+    const raw: RawScreenshot = { rawBase64, width: image.width, height: image.height };
+    const decoded: ScreenshotWithOffset = {
+      image,
+      offset: { top: 0, left: 0 },
+      width: image.width,
+      height: image.height,
+    };
+
+    const result = await cropAndCompare(raw, decoded);
+
+    expect(result.isEqual).toBe(true);
+    expect(result.diffPixels).toBe(0);
+  });
+
+  test('detects differences between RawScreenshot and ScreenshotWithOffset', async () => {
+    const redBase64 = fs.readFileSync(__dirname + '/fixtures/red.png', 'base64');
+    const blueBase64 = fs.readFileSync(__dirname + '/fixtures/blue.png', 'base64');
+    const blueImage = await parsePng(blueBase64);
+
+    const raw: RawScreenshot = { rawBase64: redBase64, width: 684, height: 116 };
+    const decoded: ScreenshotWithOffset = {
+      image: blueImage,
+      offset: { top: 0, left: 0 },
+      width: 684,
+      height: 116,
+    };
+
+    const result = await cropAndCompare(raw, decoded);
+
+    expect(result.isEqual).toBe(false);
+    expect(result.diffPixels).toBeGreaterThan(0);
+  });
+
+  test('fast path skips decoding when rawBase64 is identical on ScreenshotWithOffset', async () => {
+    const rawBase64 = fs.readFileSync(__dirname + '/fixtures/blue.png', 'base64');
+    const image = await parsePng(rawBase64);
+
+    const screenshot: ScreenshotWithOffset = {
+      image,
+      offset: { top: 0, left: 0 },
+      width: image.width,
+      height: image.height,
+      rawBase64,
+    };
+
+    const result = await cropAndCompare(screenshot, screenshot);
+
+    expect(result.isEqual).toBe(true);
+    expect(result.diffPixels).toBe(0);
+    expect(result.diffImage).toBeNull();
+  });
 });
