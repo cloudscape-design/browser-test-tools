@@ -32,4 +32,15 @@ export interface ScreenshotWithOffset extends ElementSize {
   image: PNG;
   offset: ElementOffset;
   pixelRatio?: number;
+  /** Optional raw base64 PNG for fast byte-equality comparison. */
+  rawBase64?: string;
+}
+
+/**
+ * A raw screenshot with base64 data and dimensions. No decoded image, no offset.
+ * Returned by RawScreenshotPageObject which uses takeElementScreenshot.
+ */
+export interface RawScreenshot extends ElementSize {
+  rawBase64: string;
+  pixelRatio?: number;
 }
