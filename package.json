@@ -38,7 +38,7 @@
     "pixelmatch": "^5.3.0",
     "pngjs": "^6.0.0",
     "wait-on": "^8.0.5",
-    "webdriverio": "^9.24.0"
+    "webdriverio": "^9.28.0"
   },
   "devDependencies": {
     "@tony.ganchev/eslint-plugin-header": "^3.3.1",
