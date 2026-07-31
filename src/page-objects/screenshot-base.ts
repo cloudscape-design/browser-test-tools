@@ -17,11 +17,6 @@ export default class ScreenshotBasePageObject extends BasePageObject {
     return this.keys('Tab');
   }
 
-  async doubleClick(selector: string): Promise<void> {
-    const element = this.browser.$(selector);
-    await element.doubleClick();
-  }
-
   async scrollToBottom(selector: string) {
     const action: ScrollAction = 'scrollToBottom';
     await this.browser.execute(scrollAction, { action, selector });
@@ -30,11 +25,6 @@ export default class ScreenshotBasePageObject extends BasePageObject {
   async scrollToRight(selector: string) {
     const action: ScrollAction = 'scrollToRight';
     await this.browser.execute(scrollAction, { action, selector });
-  }
-
-  async scrollIntoView(selector: string): Promise<void> {
-    const element = this.browser.$(selector);
-    await element.scrollIntoView();
   }
 
   async fullPageScreenshot() {
