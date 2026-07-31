@@ -304,7 +304,7 @@ test(
 test(
   'doubleClick',
   setupTest(async page => {
-    await page.doubleClick('#button');
+    await page.doubleClick('#dblclick-button');
     await page.waitForVisible('#dblclick-message');
     expect(await page.getText('#dblclick-message')).toEqual('Double-clicked!');
   })
