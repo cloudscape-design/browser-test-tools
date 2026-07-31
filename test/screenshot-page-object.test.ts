@@ -327,6 +327,24 @@ test(
 );
 
 test(
+  'doubleClick',
+  setupTest(async page => {
+    await page.doubleClick('#button');
+    await page.waitForVisible('#dblclick-message');
+    expect(await page.getText('#dblclick-message')).toEqual('Double-clicked!');
+  })
+);
+
+test(
+  'scrollIntoView',
+  setupTest(async page => {
+    expect(await page.isDisplayedInViewport('#scroll-target')).toBe(false);
+    await page.scrollIntoView('#scroll-target');
+    expect(await page.isDisplayedInViewport('#scroll-target')).toBe(true);
+  })
+);
+
+test(
   'click via buttonDown/buttonUp',
   setupTest(async page => {
     await page.buttonDownOnElement('#button');
