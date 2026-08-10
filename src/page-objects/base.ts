@@ -46,6 +46,11 @@ export default class BasePageObject {
     await element.click();
   }
 
+  async doubleClick(selector: string): Promise<void> {
+    const element = this.browser.$(selector);
+    await element.doubleClick();
+  }
+
   async hoverElement(selector: string, xOffset?: number, yOffset?: number) {
     const element = await this.browser.$(selector);
     await element.moveTo({ xOffset, yOffset });
@@ -131,6 +136,11 @@ export default class BasePageObject {
   async elementScrollTo(selector: string, { top = 0, left = 0 }: Partial<ScrollPosition>) {
     const action: ScrollAction = 'scrollToOffset';
     await this.browser.execute(scrollAction, { action, selector, offset: { top, left } });
+  }
+
+  async scrollIntoView(selector: string): Promise<void> {
+    const element = this.browser.$(selector);
+    await element.scrollIntoView();
   }
 
   async waitForVisible(selector: string, shouldDisplay = true, timeout?: number) {

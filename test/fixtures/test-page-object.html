@@ -46,9 +46,13 @@
 
     <input id="checkbox" type="checkbox" checked />
 
+    <button id="dblclick-button">Double-click me</button>
+
     <p style="height: 800px">Strut to make the page scroll</p>
 
     <p id="text-content-at-page-bottom">Some text</p>
+
+    <p id="scroll-target" style="margin-top: 2000px">I am far below the fold</p>
 
     <script>
       var button = document.getElementById('button');
@@ -57,6 +61,14 @@
         message.id = 'click-message';
         message.textContent = 'Clicked!';
         document.body.insertBefore(message, button.nextElementSibling);
+      });
+
+      var dblclickButton = document.getElementById('dblclick-button');
+      dblclickButton.addEventListener('dblclick', function () {
+        var message = document.createElement('span');
+        message.id = 'dblclick-message';
+        message.textContent = 'Double-clicked!';
+        dblclickButton.parentNode.insertBefore(message, dblclickButton.nextElementSibling);
       });
 
       var liveAnnouncementUpdateIndex = 0;
