@@ -33,11 +33,11 @@ const browsers: Record<string, WebdriverIO.Capabilities> = {
   },
   Safari: {
     browserName: 'safari',
-    browserVersion: '18.4',
+    browserVersion: '26.4',
     'bstack:options': {
       seleniumVersion: '3.141.59',
       os: 'OS X',
-      osVersion: 'Sequoia',
+      osVersion: 'Tahoe',
     },
   },
   IE11: {
