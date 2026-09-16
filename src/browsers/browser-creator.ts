@@ -31,7 +31,10 @@ const defaultOptions: WebDriverOptions = {
 };
 
 export default abstract class BrowserCreator {
-  constructor(protected browserName: string, protected options: Record<string, any>) {}
+  constructor(
+    protected browserName: string,
+    protected options: Record<string, any>
+  ) {}
 
   protected async setupBrowser(overrides: Partial<WebDriverOptions>) {
     const options = merge({}, defaultOptions, overrides);
