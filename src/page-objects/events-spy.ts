@@ -3,7 +3,11 @@
 import { getEvents, initEventsSpy, resetEventsSpy } from '../browser-scripts';
 
 export default class EventsSpy {
-  constructor(private browser: WebdriverIO.Browser, private selector: string, private events: string[]) {}
+  constructor(
+    private browser: WebdriverIO.Browser,
+    private selector: string,
+    private events: string[]
+  ) {}
 
   async init() {
     await this.browser.execute(initEventsSpy, this.selector, this.events);

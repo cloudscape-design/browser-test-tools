@@ -14,20 +14,20 @@ export interface PageDimensions {
 
 export function getPermutationSizes(): PermutationInfo[] {
   var pixelRatio = window.devicePixelRatio || 1;
-  return Array.prototype.slice
-    .call(document.querySelectorAll('[data-permutation]'))
-    .map(function (element: HTMLElement) {
-      var rect = element.getBoundingClientRect();
-      return {
-        id: element.getAttribute('data-permutation') || '',
-        width: rect.width * pixelRatio,
-        height: rect.height * pixelRatio,
-        offset: {
-          top: rect.top * pixelRatio,
-          left: rect.left * pixelRatio,
-        },
-      };
-    });
+  return Array.prototype.slice.call(document.querySelectorAll('[data-permutation]')).map(function (
+    element: HTMLElement
+  ) {
+    var rect = element.getBoundingClientRect();
+    return {
+      id: element.getAttribute('data-permutation') || '',
+      width: rect.width * pixelRatio,
+      height: rect.height * pixelRatio,
+      offset: {
+        top: rect.top * pixelRatio,
+        left: rect.left * pixelRatio,
+      },
+    };
+  });
 }
 
 export function getPageDimensions(): PageDimensions {

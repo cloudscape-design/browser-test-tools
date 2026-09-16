@@ -9,7 +9,10 @@ import fullPageScreenshot from './full-page-screenshot';
  * full-page screenshot support, and window size management.
  */
 export default class ScreenshotBasePageObject extends BasePageObject {
-  constructor(browser: WebdriverIO.Browser, public readonly forceScrollAndMerge: boolean = false) {
+  constructor(
+    browser: WebdriverIO.Browser,
+    public readonly forceScrollAndMerge: boolean = false
+  ) {
     super(browser);
   }
 
