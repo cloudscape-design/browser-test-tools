@@ -54,11 +54,27 @@ export default class ScreenshotBasePageObject extends BasePageObject {
     try {
       await this.browser.setWindowSize(width, height);
     } catch (error) {
-      if (error instanceof Error && error.message.includes('Method has not yet been implemented')) {
+      if (error instanceof Error && isUnsupportedWindowResizeError(error)) {
         console.log('setWindowSize is not supported on this device');
       } else {
         throw error;
       }
+    }
+
+    /**
+     * Error messages returned by mobile drivers when the browser window cannot be resized.
+     * Mobile browser windows are fixed to the screen, so these are expected and safe to ignore.
+     */
+    const UNSUPPORTED_WINDOW_RESIZE_MESSAGES = [
+      // iOS Safari via Appium XCUITest
+      'Method has not yet been implemented',
+      // Android Chrome 153+ via chromedriver: Browser.setWindowBounds returns a CDP error
+      // instead of silently ignoring the call as older versions did
+      'cannot be changed in the current Android configuration',
+    ];
+
+    function isUnsupportedWindowResizeError(error: Error): boolean {
+      return UNSUPPORTED_WINDOW_RESIZE_MESSAGES.some(message => error.message.includes(message));
     }
   }
 }
