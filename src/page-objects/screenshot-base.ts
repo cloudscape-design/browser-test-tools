@@ -51,16 +51,6 @@ export default class ScreenshotBasePageObject extends BasePageObject {
 
   /* istanbul ignore next -- setWindowSize is unsupported on some mobile browsers, not testable in CI */
   protected async safeSetWindowSize(width: number, height: number): Promise<void> {
-    try {
-      await this.browser.setWindowSize(width, height);
-    } catch (error) {
-      if (error instanceof Error && isUnsupportedWindowResizeError(error)) {
-        console.log('setWindowSize is not supported on this device');
-      } else {
-        throw error;
-      }
-    }
-
     /**
      * Error messages returned by mobile drivers when the browser window cannot be resized.
      * Mobile browser windows are fixed to the screen, so these are expected and safe to ignore.
@@ -73,8 +63,17 @@ export default class ScreenshotBasePageObject extends BasePageObject {
       'cannot be changed in the current Android configuration',
     ];
 
-    function isUnsupportedWindowResizeError(error: Error): boolean {
-      return UNSUPPORTED_WINDOW_RESIZE_MESSAGES.some(message => error.message.includes(message));
+    const isUnsupportedWindowResizeError = (error: Error) =>
+      UNSUPPORTED_WINDOW_RESIZE_MESSAGES.some(message => error.message.includes(message));
+
+    try {
+      await this.browser.setWindowSize(width, height);
+    } catch (error) {
+      if (error instanceof Error && isUnsupportedWindowResizeError(error)) {
+        console.log('setWindowSize is not supported on this device');
+      } else {
+        throw error;
+      }
     }
   }
 }
