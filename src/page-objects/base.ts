@@ -15,6 +15,7 @@ import {
 import EventsSpy from './events-spy';
 import * as liveAnnouncements from '../browser-scripts/live-announcements';
 import { getElementCenter } from './utils';
+import { setWindowSizeAndSettle } from '../browsers/window-size';
 
 import { ElementRect } from './types';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
@@ -32,7 +33,7 @@ export default class BasePageObject {
   }
 
   async setWindowSize({ width, height }: { width: number; height: number }) {
-    await this.browser.setWindowSize(width, height);
+    await setWindowSizeAndSettle(this.browser, width, height);
   }
 
   async spyOnEvents(selector: string, events: string[]) {

@@ -6,6 +6,7 @@ import { Options } from '@wdio/types';
 import merge from 'lodash/merge';
 
 import { BrowserError } from '../exceptions';
+import { setWindowSizeAndSettle } from './window-size';
 
 export interface WebDriverOptions {
   width: number;
@@ -60,7 +61,7 @@ export default abstract class BrowserCreator {
     if (!browser.isMobile) {
       const body = await browser.$('body');
       await body.moveTo({ xOffset: 0, yOffset: 0 });
-      await browser.setWindowSize(options.width, options.height);
+      await setWindowSizeAndSettle(browser, options.width, options.height);
     }
 
     return browser;
