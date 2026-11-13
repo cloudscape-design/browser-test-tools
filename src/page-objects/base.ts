@@ -20,6 +20,9 @@ import { ElementRect } from './types';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
 import { Browser, Selector } from 'webdriverio';
 
+const VIEWPORT_SETTLE_TIMEOUT = 3000;
+const VIEWPORT_SETTLE_INTERVAL = 50;
+
 export default class BasePageObject {
   constructor(protected browser: Browser) {}
 
@@ -32,7 +35,29 @@ export default class BasePageObject {
   }
 
   async setWindowSize({ width, height }: { width: number; height: number }) {
+    // Firefox can return from setWindowSize before the viewport has its final size.
+    // Wait until the viewport matches the window size the browser reports, minus the browser UI height.
+    const windowBefore = await this.browser.getWindowSize();
+    const viewportBefore = await this.browser.execute(getViewportSize);
+    const browserUIHeight = windowBefore.height - viewportBefore.height;
     await this.browser.setWindowSize(width, height);
+
+    const timeoutMsg = `Viewport did not settle after resizing the window to ${width}x${height}`;
+    try {
+      await this.browser.waitUntil(
+        async () => {
+          const windowSize = await this.browser.getWindowSize();
+          const viewport = await this.browser.execute(getViewportSize);
+          return viewport.height === windowSize.height - browserUIHeight;
+        },
+        { timeout: VIEWPORT_SETTLE_TIMEOUT, interval: VIEWPORT_SETTLE_INTERVAL, timeoutMsg }
+      );
+    } catch (error) {
+      if (!(error instanceof Error) || error.message !== timeoutMsg) {
+        throw error;
+      }
+      console.warn(timeoutMsg);
+    }
   }
 
   async spyOnEvents(selector: string, events: string[]) {
