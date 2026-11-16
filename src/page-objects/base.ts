@@ -36,9 +36,10 @@ export default class BasePageObject {
 
   async setWindowSize({ width, height }: { width: number; height: number }) {
     // Firefox can return from setWindowSize before the viewport has its final size.
-    // Wait until the viewport matches the window size the browser reports, minus the browser UI height.
+    // Wait until the viewport matches the window size the browser reports, minus the browser UI size.
     const windowBefore = await this.browser.getWindowSize();
     const viewportBefore = await this.browser.execute(getViewportSize);
+    const browserUIWidth = windowBefore.width - viewportBefore.width;
     const browserUIHeight = windowBefore.height - viewportBefore.height;
     await this.browser.setWindowSize(width, height);
 
@@ -48,7 +49,10 @@ export default class BasePageObject {
         async () => {
           const windowSize = await this.browser.getWindowSize();
           const viewport = await this.browser.execute(getViewportSize);
-          return viewport.height === windowSize.height - browserUIHeight;
+          return (
+            viewport.width === windowSize.width - browserUIWidth &&
+            viewport.height === windowSize.height - browserUIHeight
+          );
         },
         { timeout: VIEWPORT_SETTLE_TIMEOUT, interval: VIEWPORT_SETTLE_INTERVAL, timeoutMsg }
       );
