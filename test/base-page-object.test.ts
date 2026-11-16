@@ -100,6 +100,36 @@ test.each([
   })()
 );
 
+describe('setWindowSize when the viewport does not settle', () => {
+  function createPage(waitUntilError: unknown) {
+    const browser = {
+      getWindowSize: vi.fn().mockResolvedValue({ width: 1200, height: 800 }),
+      execute: vi.fn().mockResolvedValue({ height: 700 }),
+      setWindowSize: vi.fn().mockResolvedValue(undefined),
+      waitUntil: vi.fn().mockRejectedValue(waitUntilError),
+    };
+    return new BasePageObject(browser as unknown as ConstructorParameters<typeof BasePageObject>[0]);
+  }
+
+  test('warns instead of failing on timeout', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const page = createPage(new Error('Viewport did not settle after resizing the window to 400x300'));
+    await expect(page.setWindowSize({ width: 400, height: 300 })).resolves.toBeUndefined();
+    expect(warn).toHaveBeenCalledWith('Viewport did not settle after resizing the window to 400x300');
+    warn.mockRestore();
+  });
+
+  test('rethrows other errors', async () => {
+    const page = createPage(new Error('invalid session id'));
+    await expect(page.setWindowSize({ width: 400, height: 300 })).rejects.toThrow('invalid session id');
+  });
+
+  test('rethrows non-Error values', async () => {
+    const page = createPage('session closed');
+    await expect(page.setWindowSize({ width: 400, height: 300 })).rejects.toBe('session closed');
+  });
+});
+
 test(
   'spyOnEvents',
   setupTest(async page => {
