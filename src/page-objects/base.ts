@@ -38,7 +38,8 @@ export default class BasePageObject {
   async setWindowSize({ width, height }: { width: number; height: number }) {
     // Firefox can return from setWindowSize before the viewport has its final size.
     // Wait until the viewport matches the window size the browser reports, minus the browser UI size.
-    // Prefer the UI size measured at session start: measuring it now can be wrong if the viewport is still settling.
+    // Use the browser UI size measured at session start. Measuring it here can give a wrong value
+    // if the viewport hasn't finished resizing, which would end the wait too early.
     const windowBefore = await this.browser.getWindowSize();
     const viewportBefore = await this.browser.execute(getViewportSize);
     const storedUISize = getBrowserUISize(this.browser);
