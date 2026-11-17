@@ -56,20 +56,35 @@ export default class BasePageObject {
 
   // Temporary debug logging for the Firefox viewport investigation.
   async logLayoutDebugState(label: string, selector?: string) {
-    const state = await this.browser.execute((selector?: string) => {
-      const target = selector ? document.querySelector(selector) : null;
-      const listboxes = Array.prototype.slice
-        .call(document.querySelectorAll('[role="listbox"]'))
-        .map((listbox: Element) => Math.round(listbox.getBoundingClientRect().height));
-      return {
-        fonts: document.fonts ? document.fonts.status : 'unsupported',
-        readyState: document.readyState,
-        viewport: `${window.innerWidth}x${window.innerHeight}`,
-        scrollY: Math.round(window.scrollY),
-        targetBottom: target ? Math.round(target.getBoundingClientRect().bottom) : null,
-        listboxHeights: listboxes,
-      };
-    }, selector);
+    const state = await this.browser
+      .execute((selector?: string) => {
+        let target: Element | null = null;
+        try {
+          // WebdriverIO selectors such as "button=Text" are not valid CSS.
+          target = selector ? document.querySelector(selector) : null;
+        } catch {
+          target = null;
+        }
+        const listboxes = Array.prototype.slice
+          .call(document.querySelectorAll('[role="listbox"]'))
+          .map((listbox: Element) => Math.round(listbox.getBoundingClientRect().height));
+        return {
+          fonts: document.fonts ? document.fonts.status : 'unsupported',
+          readyState: document.readyState,
+          viewport: `${window.innerWidth}x${window.innerHeight}`,
+          scrollY: Math.round(window.scrollY),
+          targetBottom: target ? Math.round(target.getBoundingClientRect().bottom) : null,
+          listboxHeights: listboxes,
+        };
+      }, selector)
+      .catch(error => {
+        // Debug logging must never fail a test.
+        console.warn(`[viewport-debug] ${label} could not read layout state: ${error}`);
+        return null;
+      });
+    if (!state) {
+      return;
+    }
     console.log(
       `[viewport-debug] ${label} fonts=${state.fonts} readyState=${state.readyState} viewport=${state.viewport}` +
         ` scrollY=${state.scrollY} targetBottom=${state.targetBottom} listboxHeights=${JSON.stringify(state.listboxHeights)}`
