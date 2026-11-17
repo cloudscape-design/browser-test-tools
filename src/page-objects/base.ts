@@ -20,9 +20,6 @@ import { ElementRect } from './types';
 import { waitForTimerAndAnimationFrame } from './browser-scripts';
 import { Browser, Selector } from 'webdriverio';
 
-const VIEWPORT_SETTLE_TIMEOUT = 3000;
-const VIEWPORT_SETTLE_INTERVAL = 50;
-
 export default class BasePageObject {
   // Temporary debug state for the Firefox viewport investigation.
   protected lastClickedSelector?: string;
@@ -38,52 +35,9 @@ export default class BasePageObject {
   }
 
   async setWindowSize({ width, height }: { width: number; height: number }) {
-    // Firefox can return from setWindowSize before the viewport has its final size.
-    // Wait until the viewport matches the window size the browser reports, minus the browser UI size.
-    const windowBefore = await this.browser.getWindowSize();
-    const viewportBefore = await this.browser.execute(getViewportSize);
-    const browserUIWidth = windowBefore.width - viewportBefore.width;
-    const browserUIHeight = windowBefore.height - viewportBefore.height;
     await this.browser.setWindowSize(width, height);
-
     // Temporary debug logging for the Firefox viewport investigation.
-    const startedAt = Date.now();
-    let polls = 0;
-    let lastWindow = windowBefore;
-    let lastViewport = viewportBefore;
-    let settled = true;
-
-    const timeoutMsg = `Viewport did not settle after resizing the window to ${width}x${height}`;
-    try {
-      await this.browser.waitUntil(
-        async () => {
-          const windowSize = await this.browser.getWindowSize();
-          const viewport = await this.browser.execute(getViewportSize);
-          polls++;
-          lastWindow = windowSize;
-          lastViewport = viewport;
-          return (
-            viewport.width === windowSize.width - browserUIWidth &&
-            viewport.height === windowSize.height - browserUIHeight
-          );
-        },
-        { timeout: VIEWPORT_SETTLE_TIMEOUT, interval: VIEWPORT_SETTLE_INTERVAL, timeoutMsg }
-      );
-    } catch (error) {
-      if (!(error instanceof Error) || error.message !== timeoutMsg) {
-        throw error;
-      }
-      settled = false;
-      console.warn(timeoutMsg);
-    }
-
-    console.log(
-      `[viewport-debug] setWindowSize requested=${width}x${height}` +
-        ` before: window=${windowBefore.width}x${windowBefore.height} viewport=${viewportBefore.width}x${viewportBefore.height}` +
-        ` uiOffset=${browserUIWidth}x${browserUIHeight}` +
-        ` after: window=${lastWindow.width}x${lastWindow.height} viewport=${lastViewport.width}x${lastViewport.height}` +
-        ` settled=${settled} polls=${polls} ms=${Date.now() - startedAt}`
-    );
+    await this.logLayoutDebugState(`setWindowSize requested=${width}x${height}`);
   }
 
   async spyOnEvents(selector: string, events: string[]) {
@@ -111,13 +65,14 @@ export default class BasePageObject {
         fonts: document.fonts ? document.fonts.status : 'unsupported',
         readyState: document.readyState,
         viewport: `${window.innerWidth}x${window.innerHeight}`,
+        scrollY: Math.round(window.scrollY),
         targetBottom: target ? Math.round(target.getBoundingClientRect().bottom) : null,
         listboxHeights: listboxes,
       };
     }, selector);
     console.log(
       `[viewport-debug] ${label} fonts=${state.fonts} readyState=${state.readyState} viewport=${state.viewport}` +
-        ` targetBottom=${state.targetBottom} listboxHeights=${JSON.stringify(state.listboxHeights)}`
+        ` scrollY=${state.scrollY} targetBottom=${state.targetBottom} listboxHeights=${JSON.stringify(state.listboxHeights)}`
     );
   }
 
