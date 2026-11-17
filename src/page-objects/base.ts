@@ -24,6 +24,9 @@ const VIEWPORT_SETTLE_TIMEOUT = 3000;
 const VIEWPORT_SETTLE_INTERVAL = 50;
 
 export default class BasePageObject {
+  // Temporary debug state for the Firefox viewport investigation.
+  protected lastClickedSelector?: string;
+
   constructor(protected browser: Browser) {}
 
   async pause(milliseconds: number) {
@@ -92,6 +95,30 @@ export default class BasePageObject {
   async click(selector: string) {
     const element = await this.browser.$(selector);
     await element.click();
+    // Temporary debug logging for the Firefox viewport investigation.
+    this.lastClickedSelector = selector;
+    await this.logLayoutDebugState(`click ${selector}`, selector);
+  }
+
+  // Temporary debug logging for the Firefox viewport investigation.
+  async logLayoutDebugState(label: string, selector?: string) {
+    const state = await this.browser.execute((selector?: string) => {
+      const target = selector ? document.querySelector(selector) : null;
+      const listboxes = Array.prototype.slice
+        .call(document.querySelectorAll('[role="listbox"]'))
+        .map((listbox: Element) => Math.round(listbox.getBoundingClientRect().height));
+      return {
+        fonts: document.fonts ? document.fonts.status : 'unsupported',
+        readyState: document.readyState,
+        viewport: `${window.innerWidth}x${window.innerHeight}`,
+        targetBottom: target ? Math.round(target.getBoundingClientRect().bottom) : null,
+        listboxHeights: listboxes,
+      };
+    }, selector);
+    console.log(
+      `[viewport-debug] ${label} fonts=${state.fonts} readyState=${state.readyState} viewport=${state.viewport}` +
+        ` targetBottom=${state.targetBottom} listboxHeights=${JSON.stringify(state.listboxHeights)}`
+    );
   }
 
   async doubleClick(selector: string): Promise<void> {

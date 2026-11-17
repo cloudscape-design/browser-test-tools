@@ -15,6 +15,7 @@ export default class ScreenshotPageObject extends ScreenshotBasePageObject {
     const { pixelRatio, top, left, width, height } = await this.getViewportSize();
     // Temporary debug logging for the Firefox viewport investigation.
     console.log(`[viewport-debug] captureBySelector ${selector} viewport=${width}x${height}`);
+    await this.logLayoutDebugState(`captureBySelector ${selector}`, this.lastClickedSelector);
     const box = await this.getBoundingBox(selector);
     const screenshot = options.viewportOnly ? await this.browser.takeScreenshot() : await this.fullPageScreenshot();
     const image = await parsePng(screenshot);
