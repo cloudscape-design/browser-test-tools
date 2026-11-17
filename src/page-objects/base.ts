@@ -13,7 +13,6 @@ import {
   ScrollAction,
 } from '../browser-scripts';
 import EventsSpy from './events-spy';
-import { getBrowserUISize } from '../browsers/browser-ui-size';
 import * as liveAnnouncements from '../browser-scripts/live-announcements';
 import { getElementCenter } from './utils';
 
@@ -38,12 +37,10 @@ export default class BasePageObject {
   async setWindowSize({ width, height }: { width: number; height: number }) {
     // Firefox can return from setWindowSize before the viewport has its final size.
     // Wait until the viewport matches the window size the browser reports, minus the browser UI size.
-    // Prefer the UI size measured at session start: measuring it now can be wrong if the viewport is still settling.
     const windowBefore = await this.browser.getWindowSize();
     const viewportBefore = await this.browser.execute(getViewportSize);
-    const storedUISize = getBrowserUISize(this.browser);
-    const browserUIWidth = storedUISize?.width ?? windowBefore.width - viewportBefore.width;
-    const browserUIHeight = storedUISize?.height ?? windowBefore.height - viewportBefore.height;
+    const browserUIWidth = windowBefore.width - viewportBefore.width;
+    const browserUIHeight = windowBefore.height - viewportBefore.height;
     await this.browser.setWindowSize(width, height);
 
     // Temporary debug logging for the Firefox viewport investigation.
@@ -80,7 +77,7 @@ export default class BasePageObject {
     console.log(
       `[viewport-debug] setWindowSize requested=${width}x${height}` +
         ` before: window=${windowBefore.width}x${windowBefore.height} viewport=${viewportBefore.width}x${viewportBefore.height}` +
-        ` uiOffset=${browserUIWidth}x${browserUIHeight} (${storedUISize ? 'stored' : 'measured'})` +
+        ` uiOffset=${browserUIWidth}x${browserUIHeight}` +
         ` after: window=${lastWindow.width}x${lastWindow.height} viewport=${lastViewport.width}x${lastViewport.height}` +
         ` settled=${settled} polls=${polls} ms=${Date.now() - startedAt}`
     );

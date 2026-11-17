@@ -6,7 +6,6 @@ import { Options } from '@wdio/types';
 import merge from 'lodash/merge';
 
 import { BrowserError } from '../exceptions';
-import { measureBrowserUISize } from './browser-ui-size';
 
 export interface WebDriverOptions {
   width: number;
@@ -62,7 +61,6 @@ export default abstract class BrowserCreator {
       const body = await browser.$('body');
       await body.moveTo({ xOffset: 0, yOffset: 0 });
       await browser.setWindowSize(options.width, options.height);
-      await measureBrowserUISize(browser);
     }
 
     return browser;
