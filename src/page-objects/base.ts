@@ -43,12 +43,22 @@ export default class BasePageObject {
     const browserUIHeight = windowBefore.height - viewportBefore.height;
     await this.browser.setWindowSize(width, height);
 
+    // Temporary debug logging for the Firefox viewport investigation.
+    const startedAt = Date.now();
+    let polls = 0;
+    let lastWindow = windowBefore;
+    let lastViewport = viewportBefore;
+    let settled = true;
+
     const timeoutMsg = `Viewport did not settle after resizing the window to ${width}x${height}`;
     try {
       await this.browser.waitUntil(
         async () => {
           const windowSize = await this.browser.getWindowSize();
           const viewport = await this.browser.execute(getViewportSize);
+          polls++;
+          lastWindow = windowSize;
+          lastViewport = viewport;
           return (
             viewport.width === windowSize.width - browserUIWidth &&
             viewport.height === windowSize.height - browserUIHeight
@@ -60,8 +70,17 @@ export default class BasePageObject {
       if (!(error instanceof Error) || error.message !== timeoutMsg) {
         throw error;
       }
+      settled = false;
       console.warn(timeoutMsg);
     }
+
+    console.log(
+      `[viewport-debug] setWindowSize requested=${width}x${height}` +
+        ` before: window=${windowBefore.width}x${windowBefore.height} viewport=${viewportBefore.width}x${viewportBefore.height}` +
+        ` uiOffset=${browserUIWidth}x${browserUIHeight}` +
+        ` after: window=${lastWindow.width}x${lastWindow.height} viewport=${lastViewport.width}x${lastViewport.height}` +
+        ` settled=${settled} polls=${polls} ms=${Date.now() - startedAt}`
+    );
   }
 
   async spyOnEvents(selector: string, events: string[]) {
